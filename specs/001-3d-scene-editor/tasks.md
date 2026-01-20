@@ -38,7 +38,7 @@ graph TD
 **目标**: 实现数据模型、状态管理和基础 UI 布局，为功能开发打下基础。
 **阻塞**: 必须在开始任何用户故事之前完成。
 
-- [ ] T005 定义核心类型接口 (Scene, SceneObject, Transform) - `src/types/scene.ts`
+- [ ] T005 定义核心类型接口 (Scene, SceneObject, Transform) - `src/types/index.ts`
 - [ ] T006 [P] 实现 Zustand EditorStore (UI 状态) - `src/stores/editorStore.ts`
 - [ ] T007 [P] 实现 Zustand SceneStore (场景数据) - `src/stores/sceneStore.ts`
 - [ ] T008 [P] 实现主布局组件 (Header, Panels Layout) - `src/components/layout/MainLayout.tsx`
@@ -56,6 +56,7 @@ graph TD
 - [ ] T013 [US1] 实现视图聚焦 (Focus) 功能 (F 键) - `src/features/editor/controls/CameraActions.ts`
 - [ ] T014 [US1] [P] 添加视图坐标轴辅助器 (ViewGizmo) - `src/components/viewport/ViewGizmo.tsx`
 - [ ] T015 [US1] [TEST] 编写导航组件的单元测试 - `src/features/editor/controls/__tests__/EditorControls.test.tsx`
+- [ ] T049 [US1] 实现相机跟随/锁定功能 (FR-034/功能需求-034) - `src/features/editor/controls/CameraFollow.ts`
 
 ### 阶段 4: 用户故事 2 - 对象选择与层级同步 (Priority: P1)
 
@@ -64,7 +65,7 @@ graph TD
 **独立测试**: 点击场景对象，Hierarchy 高亮；点击 Hierarchy 条目，场景对象高亮。
 
 - [ ] T016 [US2] 实现 SelectionManager (处理点击射线检测) - `src/features/interaction/SelectionManager.ts`
-- [ ] T017 [US2] [P] 实现 HierarchyPanel 组件 (树状列表) - `src/components/panels/HierarchyPanel.tsx`
+- [ ] T017 [US2] [P] 实现 Hierarchy 组件 (树状列表) - `src/components/panels/Hierarchy.tsx`
 - [ ] T018 [US2] 实现选择同步逻辑 (Store 订阅) - `src/features/editor/hooks/useSelectionSync.ts`
 - [ ] T019 [US2] 实现框选功能 (Box Selection) - `src/features/interaction/BoxSelector.tsx`
 - [ ] T020 [US2] [TEST] 编写选择逻辑的集成测试 - `src/features/interaction/__tests__/Selection.test.tsx`
@@ -94,11 +95,12 @@ graph TD
 **目标**: 在右侧面板显示并编辑选中对象的属性。
 **依赖**: T016, T007
 
-- [ ] T028 [US5] 创建 InspectorPanel 基础框架 - `src/components/panels/InspectorPanel.tsx`
+- [ ] T028 [US5] 创建 Inspector 基础框架 - `src/components/panels/Inspector.tsx`
 - [ ] T029 [US5] [P] 实现 TransformProp 组件 (XYZ 输入框) - `src/components/inspector/TransformProp.tsx`
 - [ ] T030 [US5] [P] 实现 MaterialProp 组件 (材质参数) - `src/components/inspector/MaterialProp.tsx`
 - [ ] T031 [US5] 实现 DigitalTwinProp 组件 (模拟数据展示) - `src/components/inspector/TwinDataProp.tsx`
 - [ ] T032 [US5] 实现属性变更的双向绑定 - `src/features/editor/hooks/useObjectProps.ts`
+- [ ] T048 [US5] 实现数字孪生数据模拟生成器与WebSocket仿真 (FR-043/功能需求-043) - `src/features/twin/TwinDataService.ts`
 
 ### 阶段 8: 用户故事 6 - 层级树管理 (Priority: P2)
 
@@ -114,7 +116,7 @@ graph TD
 **目标**: 管理项目资源并支持拖拽实例化。
 **依赖**: T007
 
-- [ ] T036 [US7] 创建 ProjectPanel 组件 - `src/components/panels/ProjectPanel.tsx`
+- [ ] T036 [US7] 创建 Project 组件 - `src/components/panels/Project.tsx`
 - [ ] T037 [US7] 实现 Mock 资源数据加载 - `src/features/assets/AssetLoader.ts`
 - [ ] T038 [US7] 实现资源拖拽到场景的逻辑 (Drag to Instantiate) - `src/features/interaction/DropManager.ts`
 
@@ -136,6 +138,7 @@ graph TD
 - [ ] T044 添加性能监控面板 (Stats) - `src/components/viewport/PerformanceOverlay.tsx`
 - [ ] T045 最终 UI 样式调整 (Tailwind Theme) - `src/index.css`
 - [ ] T046 [TEST] 运行完整的端到端测试 (Playwright) - `tests/e2e/editor.spec.ts`
+- [ ] T047 [Polish] 实现场景导出为JSON功能 (FR-059/功能需求-059) - `src/features/scene/SceneExporter.ts`
 
 ## 实施策略
 
