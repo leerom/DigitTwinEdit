@@ -1,0 +1,52 @@
+{
+  "name": "digittwinedit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "coverage": "vitest run --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leerom/DigitTwinEdit.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/leerom/DigitTwinEdit/issues"
+  },
+  "homepage": "https://github.com/leerom/DigitTwinEdit#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^25.0.9",
+    "@types/react": "^19.2.9",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "autoprefixer": "^10.4.23",
+    "jsdom": "^27.4.0",
+    "playwright": "^1.57.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.17"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@types/uuid": "^10.0.0",
+    "immer": "^11.1.3",
+    "r3f-perf": "^7.2.3",
+    "uuid": "^13.0.0"
+  }
+}
