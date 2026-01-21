@@ -1,27 +1,25 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment, Grid } from '@react-three/drei';
-import { EditorControls } from '@/features/editor/controls/EditorControls';
-import { FlyControls } from '@/features/editor/controls/FlyControls';
-import { CameraActions } from '@/features/editor/controls/CameraActions';
+// import { EditorControls } from '@/features/editor/controls/EditorControls';
+// import { FlyControls } from '@/features/editor/controls/FlyControls';
+// import { CameraActions } from '@/features/editor/controls/CameraActions';
 import { ViewGizmo } from '@/components/viewport/ViewGizmo';
-import { CameraFollow } from '@/features/editor/controls/CameraFollow';
+// import { CameraFollow } from '@/features/editor/controls/CameraFollow';
 import { SceneContent } from '@/features/scene/SceneRenderer';
 import { BoxSelector } from '@/features/interaction/BoxSelector';
-import { TransformGizmo } from '@/features/editor/tools/TransformGizmo';
+// import { TransformGizmo } from '@/features/editor/tools/TransformGizmo';
 import { useEditorStore } from '@/stores/editorStore';
 
-import { Toolbar } from '@/components/layout/Toolbar';
-
 import { InstanceManager } from '@/features/performance/InstanceManager';
-import { PerformanceOverlay } from '@/components/viewport/PerformanceOverlay';
+import { ViewportOverlay } from '@/components/viewport/ViewportOverlay';
 
 export const SceneView: React.FC = () => {
   const clearSelection = useEditorStore((state) => state.clearSelection);
 
   return (
-    <div className="w-full h-full relative">
-      <Toolbar />
+    <div className="w-full h-full relative bg-black" style={{ position: 'relative' }}>
+      {/* 3D Canvas */}
       <Canvas
         shadows
         gl={{ antialias: true, alpha: false }}
@@ -32,10 +30,11 @@ export const SceneView: React.FC = () => {
              clearSelection();
            }
         }}
+        className="block absolute inset-0"
+        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       >
-        <color attach="background" args={['#1a1a1a']} />
-        <PerformanceOverlay />
-
+        <color attach="background" args={['#1e1e1e']} />
+        {/* Removed PerformanceOverlay here, as it's now part of ViewportOverlay or handled differently */}
 
         <Suspense fallback={null}>
           <Environment preset="city" />
@@ -58,23 +57,21 @@ export const SceneView: React.FC = () => {
             cellSize={1}
           />
 
-          <EditorControls />
-          <FlyControls />
-          <CameraActions />
-          <CameraFollow />
+          {/* <EditorControls /> */}
+          {/* <FlyControls /> */}
+          {/* <CameraActions /> */}
+          {/* <CameraFollow /> */}
           <ViewGizmo />
           <BoxSelector />
-          <TransformGizmo />
+          {/* <TransformGizmo /> */}
           <InstanceManager />
 
           <SceneContent />
         </Suspense>
       </Canvas>
 
-      {/* Overlay UI (Stats, Gizmos, etc.) will go here */}
-      <div className="absolute top-4 right-4 text-white text-xs opacity-50 pointer-events-none">
-        Scene View MVP
-      </div>
+      {/* Overlay UI */}
+      <ViewportOverlay />
     </div>
   );
 };

@@ -1,43 +1,29 @@
 import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { Header } from '@/components/layout/Header';
 import { SceneView } from '@/components/viewport/SceneView';
 
-import { Hierarchy } from '@/components/panels/Hierarchy';
-import { useSelectionSync } from '@/features/editor/hooks/useSelectionSync';
-import { useToolShortcuts } from '@/features/editor/hooks/useToolShortcuts';
+import { HierarchyPanel } from '@/components/panels/HierarchyPanel';
+import { ProjectPanel } from '@/components/panels/ProjectPanel';
+import { InspectorPanel } from '@/components/panels/InspectorPanel';
 
-import { Project } from '@/components/panels/Project';
-import { Inspector } from '@/components/panels/Inspector';
-import { useGlobalShortcuts } from '@/features/editor/hooks/useGlobalShortcuts';
-
-import { exportSceneToJson } from '@/features/scene/SceneExporter';
-import { Download } from 'lucide-react';
+// Hooks temporarily disabled during cleanup
+// import { useSelectionSync } from '@/features/editor/hooks/useSelectionSync';
+// import { useToolShortcuts } from '@/features/editor/hooks/useToolShortcuts';
+// import { useGlobalShortcuts } from '@/features/editor/hooks/useGlobalShortcuts';
 
 function App() {
-  useSelectionSync();
-  useToolShortcuts();
-  useGlobalShortcuts();
+  // useSelectionSync();
+  // useToolShortcuts();
+  // useGlobalShortcuts();
 
   return (
     <MainLayout
-      header={
-        <div className="h-full flex items-center justify-between px-4 font-bold text-lg">
-          <div className="flex items-center">
-             <span className="text-primary mr-2">DigitalTwin</span>Editor
-          </div>
-          <button
-            className="flex items-center gap-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs text-white transition-colors"
-            onClick={exportSceneToJson}
-          >
-            <Download size={14} />
-            Export Scene
-          </button>
-        </div>
-      }
-      leftPanel={<Hierarchy />}
+      header={<Header />}
+      leftPanel={<HierarchyPanel />}
       centerPanel={<SceneView />}
-      rightPanel={<Inspector />}
-      bottomPanel={<Project />}
+      rightPanel={<InspectorPanel />}
+      bottomPanel={<ProjectPanel />}
     />
   );
 }

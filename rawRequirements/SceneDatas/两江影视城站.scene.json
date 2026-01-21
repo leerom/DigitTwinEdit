@@ -1,0 +1,5639 @@
+{
+  "viewer": {
+    "outputColorSpace": "srgb-linear",
+    "toneMapping": 4,
+    "toneMappingExposure": 1.5,
+    "background": "#222",
+    "backgroundParams": {
+      "intensity": 1,
+      "rotation": 0,
+      "blurriness": 0
+    },
+    "environment": "/3001/file/vfs//hdr/autoshop_01_1k.hdr",
+    "environmentParams": {
+      "intensity": 0.8,
+      "rotation": 0,
+      "texParams": {
+        "mapping": 303
+      }
+    },
+    "postProcessor": {
+      "enabled": true,
+      "aoPass": {
+        "enabled": true,
+        "outputName": 0,
+        "aoParameters": {},
+        "pdParameters": {}
+      },
+      "ssrPass": {
+        "enabled": false,
+        "outputName": 0,
+        "resolutionScale": 1,
+        "thickness": 0.1,
+        "maxDistance": 3,
+        "fresnel": 0.2,
+        "distanceAttenuation": 1,
+        "bouncing": 0,
+        "opacity": 1,
+        "blur": 0
+      },
+      "bloomPass": {
+        "enabled": true,
+        "threshold": 1,
+        "strength": 0.05,
+        "radius": 0.1
+      },
+      "aaPass": {
+        "enabled": true,
+        "method": "fxaa",
+        "ssaaPass": {
+          "sampleLevel": 1
+        },
+        "taaPass": {
+          "sampleLevel": 1,
+          "accumulate": true
+        }
+      }
+    }
+  },
+  "editor": {},
+  "scene": {
+    "name": "两江影视城站",
+    "userData": {
+      "stationInfo": {
+        "lineId": 1401,
+        "lineName": "14号线既有线",
+        "stationId": 70,
+        "stationName": "两江影视城站"
+      }
+    }
+  },
+  "camera": {
+    "position": [
+      -10.44199041873401,
+      184.00159930516833,
+      35.88547654934865
+    ],
+    "rotation": [
+      0.03898719936382576,
+      0.1773219402491662,
+      -0.006880491544695144,
+      "XYZ"
+    ],
+    "quaternion": [
+      0.019111130310983993,
+      0.08859430667177015,
+      -0.0017001368256581652,
+      0.9958829866296335
+    ],
+    "spherical": [
+      1.0000000000000002,
+      1.5324207643597356,
+      -2.964138675248956
+    ],
+    "target": [
+      -12.20593184253886,
+      184.38526074467407,
+      26.049760278876953
+    ]
+  },
+  "lights": [
+    {
+      "type": "AmbientLight",
+      "name": "",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "color": "#ffffff",
+      "intensity": 2,
+      "userData": {}
+    }
+  ],
+  "tilesModels": [
+    {
+      "name": "两江影视城站主体结构",
+      "type": "3DTILES",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "locked": true,
+        "fileInfo": {
+          "type": "3DTILES",
+          "url": "/3001/file/vfs/three-3dtiles/两江影视城站20260105/两江影视城站主体结构/three-3dtiles/tileset.json"
+        }
+      }
+    },
+    {
+      "name": "两江影视城站公共区装修",
+      "type": "3DTILES",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "locked": true,
+        "fileInfo": {
+          "type": "3DTILES",
+          "url": "/3001/file/vfs/three-3dtiles/两江影视城站20260105/两江影视城站公共区装修_墙柱材质分开/three-3dtiles/tileset.json"
+        }
+      }
+    },
+    {
+      "name": "两江影视城站内部结构",
+      "type": "3DTILES",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "locked": true,
+        "fileInfo": {
+          "type": "3DTILES",
+          "url": "/3001/file/vfs/three-3dtiles/两江影视城站20260105/两江影视城站内部结构/three-3dtiles/tileset.json"
+        }
+      }
+    },
+    {
+      "name": "两江影视城站出入口控制系统",
+      "type": "3DTILES",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "locked": true,
+        "fileInfo": {
+          "type": "3DTILES",
+          "url": "/3001/file/vfs/three-3dtiles/两江影视城站20260105/两江影视城站出入口控制系统/three-3dtiles/tileset.json"
+        }
+      }
+    },
+    {
+      "name": "两江影视城站电扶梯模型",
+      "type": "3DTILES",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "locked": true,
+        "fileInfo": {
+          "type": "3DTILES",
+          "url": "/3001/file/vfs/three-3dtiles/两江影视城站20260105/两江影视城站电扶梯模型/three-3dtiles/tileset.json"
+        }
+      }
+    },
+    {
+      "name": "两江影视城站建筑模型",
+      "type": "3DTILES",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "locked": true,
+        "fileInfo": {
+          "type": "3DTILES",
+          "url": "/3001/file/vfs/three-3dtiles/两江影视城站20260105/两江影视城站建筑模型/three-3dtiles/tileset.json"
+        }
+      }
+    },
+    {
+      "name": "两江影视城站综合监控系统",
+      "type": "3DTILES",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "locked": true,
+        "fileInfo": {
+          "type": "3DTILES",
+          "url": "/3001/file/vfs/three-3dtiles/两江影视城站20260105/两江影视城站综合监控系统/three-3dtiles/tileset.json"
+        }
+      }
+    },
+    {
+      "name": "两江影视城站给排水与消防",
+      "type": "3DTILES",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "locked": true,
+        "fileInfo": {
+          "type": "3DTILES",
+          "url": "/3001/file/vfs/three-3dtiles/两江影视城站20260105/两江影视城站给排水与消防/three-3dtiles/tileset.json"
+        }
+      }
+    },
+    {
+      "name": "两江影视城站通风空调",
+      "type": "3DTILES",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "locked": true,
+        "fileInfo": {
+          "type": "3DTILES",
+          "url": "/3001/file/vfs/three-3dtiles/两江影视城站20260105/两江影视城站通风空调/three-3dtiles/tileset.json"
+        }
+      }
+    },
+    {
+      "name": "两江影视城站车站通信设备模型",
+      "type": "3DTILES",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": false,
+      "userData": {
+        "locked": true,
+        "fileInfo": {
+          "type": "3DTILES",
+          "url": "/3001/file/vfs/three-3dtiles/两江影视城站20260105/两江影视城站车站通信设备模型/three-3dtiles/tileset.json"
+        }
+      }
+    },
+    {
+      "name": "两江影视城车站AFC设备布置模型",
+      "type": "3DTILES",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": false,
+      "userData": {
+        "locked": true,
+        "fileInfo": {
+          "type": "3DTILES",
+          "url": "/3001/file/vfs/three-3dtiles/两江影视城站20260105/两江影视城车站AFC设备布置模型/three-3dtiles/tileset.json"
+        }
+      }
+    },
+    {
+      "name": "两江影视城站站台门",
+      "type": "3DTILES",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "locked": true,
+        "fileInfo": {
+          "type": "3DTILES",
+          "url": "/3001/file/vfs/three-3dtiles/两江影视城站20260105/两江影视城站站台门/three-3dtiles/tileset.json"
+        }
+      }
+    },
+    {
+      "name": "两江影视城站动力照明",
+      "type": "3DTILES",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "locked": true,
+        "fileInfo": {
+          "type": "3DTILES",
+          "url": "/3001/file/vfs/three-3dtiles/两江影视城站20260105/两江影视城站动力照明/three-3dtiles/tileset.json"
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "name": "cctv.glb",
+      "type": "Group",
+      "position": [
+        8.413027448603994,
+        185.25183651787125,
+        -29.605939329738256
+      ],
+      "rotation": [
+        0,
+        -0.27401669256310973,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "visible": true,
+      "userData": {
+        "equipmentInfo": {
+          "equipmentUniqueId": "XDZ.CCTV.CAM.Y-12",
+          "name": "XDZ.CCTV.CAM.Y-12",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "CCTV",
+          "equipmentType": "CAM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "CCTV",
+          "position": "8.413027448603994|185.25183651787125|-29.605939329738256",
+          "quaternion": "",
+          "scale": "50|50|50"
+        },
+        "fileInfo": {
+          "type": "FILE",
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "cctv.glb",
+          "url": "/3001/file/vfs/测试设备3/cctv.glb"
+        }
+      }
+    },
+    {
+      "name": "cctv.glb",
+      "type": "Group",
+      "position": [
+        -5.982272298077026,
+        185.25183651787125,
+        -29.605939329738256
+      ],
+      "rotation": [
+        0,
+        -0.27401669256310973,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "visible": true,
+      "userData": {
+        "equipmentInfo": {
+          "equipmentUniqueId": "XDZ.CCTV.CAM.Y-13",
+          "name": "XDZ.CCTV.CAM.Y-13",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "CCTV",
+          "equipmentType": "CAM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "CCTV",
+          "position": "8.413027448603994|185.25183651787125|-29.605939329738256",
+          "quaternion": "",
+          "scale": "50|50|50"
+        },
+        "fileInfo": {
+          "type": "FILE",
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "cctv.glb",
+          "url": "/3001/file/vfs/测试设备3/cctv.glb"
+        }
+      }
+    },
+    {
+      "name": "cctv.glb",
+      "type": "Group",
+      "position": [
+        -18.361,
+        185.25183651787125,
+        7.4220505511642285
+      ],
+      "rotation": [
+        0,
+        1.4835298641951802,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "visible": true,
+      "userData": {
+        "equipmentInfo": {
+          "equipmentUniqueId": "XDZ.CCTV.CAM.Y-14",
+          "name": "XDZ.CCTV.CAM.Y-14",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "CCTV",
+          "equipmentType": "CAM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "CCTV",
+          "position": "8.413027448603994|185.25183651787125|-29.605939329738256",
+          "quaternion": "",
+          "scale": "50|50|50"
+        },
+        "fileInfo": {
+          "type": "FILE",
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "cctv.glb",
+          "url": "/3001/file/vfs/测试设备3/cctv.glb"
+        }
+      }
+    },
+    {
+      "name": "cctv.glb",
+      "type": "Group",
+      "position": [
+        -10.661490949560587,
+        185.25183651787125,
+        -17.554197300062917
+      ],
+      "rotation": [
+        0,
+        1.4835298641951802,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "visible": true,
+      "userData": {
+        "equipmentInfo": {
+          "equipmentUniqueId": "XDZ.CCTV.CAM.Y-15",
+          "name": "XDZ.CCTV.CAM.Y-15",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "CCTV",
+          "equipmentType": "CAM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "CCTV",
+          "position": "8.413027448603994|185.25183651787125|-29.605939329738256",
+          "quaternion": "",
+          "scale": "50|50|50"
+        },
+        "fileInfo": {
+          "type": "FILE",
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "cctv.glb",
+          "url": "/3001/file/vfs/测试设备3/cctv.glb"
+        }
+      }
+    },
+    {
+      "name": "cctv.glb",
+      "type": "Group",
+      "position": [
+        -10.7533725026234,
+        185.25183651787125,
+        27.85964235091767
+      ],
+      "rotation": [
+        3.141592653589793,
+        0.2617993877991494,
+        -3.141592653589793,
+        "XYZ"
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "visible": true,
+      "userData": {
+        "equipmentInfo": {
+          "equipmentUniqueId": "XDZ.CCTV.CAM.Y-16",
+          "name": "XDZ.CCTV.CAM.Y-16",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "CCTV",
+          "equipmentType": "CAM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "CCTV",
+          "position": "8.413027448603994|185.25183651787125|-29.605939329738256",
+          "quaternion": "",
+          "scale": "50|50|50"
+        },
+        "fileInfo": {
+          "type": "FILE",
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "cctv.glb",
+          "url": "/3001/file/vfs/测试设备3/cctv.glb"
+        }
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        7.575402484408765,
+        182.15,
+        -18.516306279231642
+      ],
+      "rotation": [
+        0,
+        1.3089969389957472,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "自助票务处理机-550mm*520mm*1795mm[3170512]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.STM0002",
+          "name": "DSD.AFC.AFC.STM0002",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "STM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "7.575402484408765|182.15|-18.516306279231642",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "STM.glb",
+          "url": "/3001/file/vfs/测试设备3/STM.glb"
+        },
+        "id": "model-1767685499719"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -3.41864893037343,
+        182.15,
+        18.72253329411086
+      ],
+      "rotation": [
+        0,
+        1.3089969389957472,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "自助票务处理机-550mm*520mm*1795mm[3170513]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.STM0001",
+          "name": "DSD.AFC.AFC.STM0001",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "STM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-3.41864893037343|182.15|18.72253329411086",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "STM.glb",
+          "url": "/3001/file/vfs/测试设备3/STM.glb"
+        },
+        "id": "model-1767685549263"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -29.2194569066939,
+        182.1500000470256,
+        37.746253637192325
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "自动售票机-700mm*750mm*1800mm[3170507]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.TVM0004",
+          "name": "DSD.AFC.AFCTVM0004",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "TVM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-29.2194569066939|182.1500000470256|37.746253637192325",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "TVM.glb",
+          "url": "/3001/file/vfs/测试设备3/TVM.glb"
+        },
+        "id": "model-1767685148096"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -29.545457120316946,
+        182.1500000470256,
+        38.849254278061466
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "自动售票机-700mm*750mm*1800mm[3170508]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.TVM0003",
+          "name": "DSD.AFC.AFCTVM0003",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "TVM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-29.545457120316946|182.1500000470256|38.849254278061466",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "TVM.glb",
+          "url": "/3001/file/vfs/测试设备3/TVM.glb"
+        },
+        "id": "model-1767685154898"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -1.1889997170889302,
+        182.1500000470256,
+        -30.665724391059406
+      ],
+      "rotation": [
+        0,
+        1.3089969389957472,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "自动售票机-700mm*750mm*1800mm[3184932]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.TVM0002",
+          "name": "DSD.AFC.AFCTVM0002",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "TVM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-1.1889997170889302|182.1500000470256|-30.665724391059406",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "TVM.glb",
+          "url": "/3001/file/vfs/测试设备3/TVM.glb"
+        },
+        "id": "model-1767685612135"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -0.08699970409511759,
+        182.1500000470256,
+        -30.334189275343423
+      ],
+      "rotation": [
+        0,
+        1.3089969389957472,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "自动售票机-700mm*750mm*1800mm[3184933]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.TVM0001",
+          "name": "DSD.AFC.AFCTVM0001",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "TVM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-0.08699970409511759|182.1500000470256|-30.334189275343423",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "TVM.glb",
+          "url": "/3001/file/vfs/测试设备3/TVM.glb"
+        },
+        "id": "model-1767685618048"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -8.916103478293588,
+        182.14956207799912,
+        25.30040146835022
+      ],
+      "rotation": [
+        0,
+        1.3089969389957472,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170480]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3033",
+          "name": "DSD.AFC.AFC.AGM3033",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-8.916103478293588|182.14956207799912|25.30040146835022",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "replacedId": "model-1767683332375",
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767683990444"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -9.69127006930209,
+        182.14956207799912,
+        25.071234801683556
+      ],
+      "rotation": [
+        0,
+        1.3089969389957472,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170481]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3032",
+          "name": "DSD.AFC.AFC.AGM3032",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-9.69127006930209|182.14956207799912|25.071234801683556",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "replacedId": "model-1767683834334",
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767683996607"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -8.140936887285083,
+        182.14956207799912,
+        25.529568135016888
+      ],
+      "rotation": [
+        0,
+        1.3089969389957472,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170482]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3034",
+          "name": "DSD.AFC.AFC.AGM3034",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-8.140936887285083|182.14956207799912|25.529568135016888",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "replacedId": "model-1767683842716",
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684003836"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -7.365770296276578,
+        182.14956207799912,
+        25.758734801683556
+      ],
+      "rotation": [
+        0,
+        1.3089969389957472,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170483]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3035",
+          "name": "DSD.AFC.AFC.AGM3035",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-7.365770296276578|182.14956207799912|25.758734801683556",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "replacedId": "model-1767683848748",
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684010012"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -10.466436660310595,
+        182.14956207799912,
+        24.842068135016888
+      ],
+      "rotation": [
+        0,
+        1.3089969389957472,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170486]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3031",
+          "name": "DSD.AFC.AFC.AGM3031",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-10.466436660310595|182.14956207799912|24.842068135016888",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "replacedId": "model-1767683879620",
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684028566"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -6.590603705268074,
+        182.14956207799912,
+        25.98790146835022
+      ],
+      "rotation": [
+        0,
+        1.3089969389957472,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170484]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3036",
+          "name": "DSD.AFC.AFC.AGM3036",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-6.590603705268074|182.14956207799912|25.98790146835022",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "replacedId": "model-1767683861452",
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684044559"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -15.493134497833791,
+        182.14956207799912,
+        9.192763149717484
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "进站检票机-200mm*1900mm*1100mm[3170488]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3024",
+          "name": "DSD.AFC.AFC.AGM3024",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-15.493134497833791|182.14956207799912|9.192763149717484",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684487956"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -15.260734366608206,
+        182.14956207799912,
+        8.406363213041457
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "进站检票机-200mm*1900mm*1100mm[3170489]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3023",
+          "name": "DSD.AFC.AFC.AGM3023",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-15.260734366608206|182.14956207799912|8.406363213041457",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684493898"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -15.02833423538262,
+        182.14956207799912,
+        7.619963276365431
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "进站检票机-200mm*1900mm*1100mm[3170490]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3022",
+          "name": "DSD.AFC.AFC.AGM3022",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-15.02833423538262|182.14956207799912|7.619963276365431",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684501018"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -15.725534629059378,
+        182.14956207799912,
+        9.979163086393509
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "进站检票机-200mm*1900mm*1100mm[3170491]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3025",
+          "name": "DSD.AFC.AFC.AGM3025",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-15.725534629059378|182.14956207799912|9.979163086393509",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684510675"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -14.795934104157034,
+        182.14956207799912,
+        6.833563339689405
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "进站检票机-200mm*1900mm*1100mm[3170493]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3021",
+          "name": "DSD.AFC.AFC.AGM3021",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-14.795934104157034|182.14956207799912|6.833563339689405",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684526873"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -8.475534819794243,
+        182.14956207799912,
+        -14.620836532136765
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "进站检票机-200mm*1900mm*1100mm[3170494]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3015",
+          "name": "DSD.AFC.AFC.AGM3015",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-8.475534819794243|182.14956207799912|-14.620836532136765",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684782231"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -8.24313487930352,
+        182.14956207799912,
+        -15.407236564180224
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "进站检票机-200mm*1900mm*1100mm[3170495]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3014",
+          "name": "DSD.AFC.AFC.AGM3014",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-8.24313487930352|182.14956207799912|-15.407236564180224",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684787511"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -8.010734938812798,
+        182.14956207799912,
+        -16.19363659622368
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "进站检票机-200mm*1900mm*1100mm[3170496]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3013",
+          "name": "DSD.AFC.AFC.AGM3013",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-8.010734938812798|182.14956207799912|-16.19363659622368",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684793214"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -7.778334998322075,
+        182.14956207799912,
+        -16.980036628267136
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "进站检票机-200mm*1900mm*1100mm[3170497]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3012",
+          "name": "DSD.AFC.AFC.AGM3012",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-7.778334998322075|182.14956207799912|-16.980036628267136",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684798690"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -7.545935057831352,
+        182.14956207799912,
+        -17.766436660310593
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "进站检票机-200mm*1900mm*1100mm[3170498]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3011",
+          "name": "DSD.AFC.AFC.AGM3011",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-7.545935057831352|182.14956207799912|-17.766436660310593",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684806113"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        6.2838853390687754,
+        182.14956207799912,
+        -26.19960142695163
+      ],
+      "rotation": [
+        3.141592653589793,
+        -1.3089969389957472,
+        3.141592653589793,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170500]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3005",
+          "name": "DSD.AFC.AFC.AGM3005",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "6.2838853390687754|182.14956207799912|-26.19960142695163",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684974454"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        5.5087187480602715,
+        182.14956207799912,
+        -26.428768093618295
+      ],
+      "rotation": [
+        3.141592653589793,
+        -1.3089969389957472,
+        3.141592653589793,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170501]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3006",
+          "name": "DSD.AFC.AFC.AGM3006",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "5.5087187480602715|182.14956207799912|-26.428768093618295",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684979969"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        7.059051930077279,
+        182.14956207799912,
+        -25.970434760284963
+      ],
+      "rotation": [
+        3.141592653589793,
+        -1.3089969389957472,
+        3.141592653589793,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170502]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3004",
+          "name": "DSD.AFC.AFC.AGM3004",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "7.059051930077279|182.14956207799912|-25.970434760284963",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684985253"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        7.834218521085784,
+        182.14956207799912,
+        -25.741268093618295
+      ],
+      "rotation": [
+        3.141592653589793,
+        -1.3089969389957472,
+        3.141592653589793,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170503]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3003",
+          "name": "DSD.AFC.AFC.AGM3003",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "7.834218521085784|182.14956207799912|-25.741268093618295",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684992149"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        8.609385112094287,
+        182.14956207799912,
+        -25.51210142695163
+      ],
+      "rotation": [
+        3.141592653589793,
+        -1.3089969389957472,
+        3.141592653589793,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170504]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3002",
+          "name": "DSD.AFC.AFC.AGM3002",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "8.609385112094287|182.14956207799912|-25.51210142695163",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767684998090"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        9.384551703102792,
+        182.14956207799912,
+        -25.282934760284963
+      ],
+      "rotation": [
+        3.141592653589793,
+        -1.3089969389957472,
+        3.141592653589793,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170505]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3001",
+          "name": "DSD.AFC.AFC.AGM3001",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "9.384551703102792|182.14956207799912|-25.282934760284963",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "AGM.glb",
+          "url": "/3001/file/vfs/动画模型/AGM_AM.glb"
+        },
+        "id": "model-1767685005618"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -12.317639406110608,
+        182.15,
+        -3.9437861276584827
+      ],
+      "rotation": [
+        0,
+        1.3089969389957472,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "智能客服中心-2700mm*750mm*1750mm[3170511]",
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "BOM.glb",
+          "url": "/3001/file/vfs/测试设备3/BOM.glb"
+        },
+        "id": "model-1767685229740"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -5.81543711425957,
+        182.14956207799912,
+        26.217068135016888
+      ],
+      "rotation": [
+        0,
+        1.3089969389957472,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170485]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3039",
+          "name": "DSD.AFC.AFC.AGM3039",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-5.81543711425957|182.14956207799912|26.217068135016888",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "replacedId": "model-1767683868478",
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "边门闸机.glb",
+          "url": "/3001/file/vfs/测试设备3/边门闸机.glb"
+        },
+        "id": "model-1767684035447"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -15.957934760284964,
+        182.14956207799912,
+        10.765563023069536
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "进站检票机-200mm*1900mm*1100mm[3170492]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3029",
+          "name": "DSD.AFC.AFC.AGM3029",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-15.957934760284964|182.14956207799912|10.765563023069536",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "边门闸机.glb",
+          "url": "/3001/file/vfs/测试设备3/边门闸机.glb"
+        },
+        "id": "model-1767684521015"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        -8.707934760284965,
+        182.14956207799912,
+        -13.83443650009331
+      ],
+      "rotation": [
+        0,
+        -0.2617993877991494,
+        0,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "进站检票机-200mm*1900mm*1100mm[3170499]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3019",
+          "name": "DSD.AFC.AFC.AGM3019",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "-8.707934760284965|182.14956207799912|-13.83443650009331",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "边门闸机.glb",
+          "url": "/3001/file/vfs/测试设备3/边门闸机.glb"
+        },
+        "id": "model-1767684813769"
+      }
+    },
+    {
+      "type": "Group",
+      "position": [
+        4.733552157051768,
+        182.14956207799912,
+        -26.657934760284963
+      ],
+      "rotation": [
+        3.141592653589793,
+        -1.3089969389957472,
+        3.141592653589793,
+        "XYZ"
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "userData": {
+        "name": "出站检票机-200mm*1900mm*1100mm[3170506]",
+        "equipmentInfo": {
+          "equipmentUniqueId": "DSD.AFC.AFC.AGM3009",
+          "name": "DSD.AFC.AFC.AGM3009",
+          "lineName": "14号线既有线",
+          "stationName": "嘉禾望岗",
+          "stationSpaceName": "负一层",
+          "stationSubSpaceName": "站厅",
+          "equipmentMajor": "AFC",
+          "equipmentType": "AGM",
+          "equipmentSubType": "NULL",
+          "equipmentSystem": "Custom",
+          "parentName": "AFC",
+          "position": "4.733552157051768|182.14956207799912|-26.657934760284963",
+          "quaternion": "",
+          "scale": "100|100|100"
+        },
+        "fileInfo": {
+          "drive": "vfs",
+          "path": "/测试设备3",
+          "name": "边门闸机.glb",
+          "url": "/3001/file/vfs/测试设备3/边门闸机.glb"
+        },
+        "id": "model-1767685011897"
+      }
+    }
+  ],
+  "labels": [],
+  "primitives": [],
+  "materials": [
+    {
+      "uuid": "de0f975d-ff05-488e-bcbd-6a4d269251d0",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站电扶梯模型_241841",
+      "color": 7566195,
+      "roughness": 0,
+      "metalness": 1,
+      "emissive": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "visible": true
+    },
+    {
+      "uuid": "4768b2ce-7edf-4aa2-8a55-d8c927ebd4ff",
+      "type": "MeshPhysicalMaterial",
+      "name": "material_两江影视城站电扶梯模型_354009",
+      "color": 8487297,
+      "roughness": 0.5,
+      "metalness": 1,
+      "sheen": 0,
+      "sheenColor": 0,
+      "sheenRoughness": 1,
+      "emissive": 0,
+      "specularIntensity": 1,
+      "specularColor": 16777215,
+      "shininess": 30,
+      "clearcoat": 0,
+      "clearcoatRoughness": 0,
+      "dispersion": 0,
+      "iridescence": 0,
+      "iridescenceIOR": 1.3,
+      "iridescenceThicknessRange": [
+        100,
+        400
+      ],
+      "anisotropy": 0,
+      "anisotropyRotation": 0,
+      "map": "64a01309-53bd-42d6-9cdf-ad31b953b73b",
+      "alphaMap": "27a36006-7902-4f98-a341-562f9df7ca78",
+      "normalMap": "e615fea7-b828-4dc1-9995-f6abba68da37",
+      "normalMapType": 0,
+      "normalScale": [
+        1,
+        1
+      ],
+      "roughnessMap": "27a36006-7902-4f98-a341-562f9df7ca78",
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "reflectivity": 0.5,
+      "transmission": 0,
+      "thickness": 0,
+      "attenuationColor": 16777215,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "64a01309-53bd-42d6-9cdf-ad31b953b73b",
+          "name": "",
+          "image": "/attachment-service/download/1691376230574080001",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 1.85,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691376230574080001"
+            }
+          }
+        },
+        {
+          "uuid": "27a36006-7902-4f98-a341-562f9df7ca78",
+          "name": "",
+          "image": "/attachment-service/download/1691377025570848769",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 1.85,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691377025570848769"
+            }
+          }
+        },
+        {
+          "uuid": "e615fea7-b828-4dc1-9995-f6abba68da37",
+          "name": "",
+          "image": "/attachment-service/download/1691376247619731458",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 1.85,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691376247619731458"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "11951683-6720-458c-b352-633631c0d0a3",
+          "url": "/attachment-service/download/1691376230574080001"
+        },
+        {
+          "uuid": "9bc8591a-1f5f-49f2-8cb5-756e4d052f3a",
+          "url": "/attachment-service/download/1691377025570848769"
+        },
+        {
+          "uuid": "96cb6e57-a74a-4533-8939-2ae19655683b",
+          "url": "/attachment-service/download/1691376247619731458"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "fdb5e8cd-224a-4dcf-ac97-96d4655c9329",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站建筑模型_3670645",
+      "color": 10739967,
+      "roughness": 0.5,
+      "metalness": 0,
+      "emissive": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "opacity": 0.3,
+      "transparent": true,
+      "blendColor": 0,
+      "visible": true
+    },
+    {
+      "uuid": "5f69539d-d5b1-4261-bcb4-77e246df8c20",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站电扶梯模型_4642718",
+      "color": 921102,
+      "roughness": 1,
+      "metalness": 0,
+      "emissive": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "visible": true
+    },
+    {
+      "uuid": "48962081-4746-46ec-b962-5070faf58a61",
+      "type": "MeshPhysicalMaterial",
+      "name": "default_material",
+      "color": 15852739,
+      "roughness": 0.1,
+      "metalness": 0.5,
+      "sheen": 0,
+      "sheenColor": 0,
+      "sheenRoughness": 1,
+      "emissive": 0,
+      "specularIntensity": 1,
+      "specularColor": 16777215,
+      "shininess": 30,
+      "clearcoat": 0.5,
+      "clearcoatRoughness": 1,
+      "dispersion": 0,
+      "iridescence": 0,
+      "iridescenceIOR": 1.3,
+      "iridescenceThicknessRange": [
+        100,
+        400
+      ],
+      "anisotropy": 0,
+      "anisotropyRotation": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "reflectivity": 0.5,
+      "transmission": 0,
+      "thickness": 0,
+      "attenuationColor": 16777215,
+      "blendColor": 0,
+      "visible": true
+    },
+    {
+      "uuid": "343568a4-6bbb-4e9e-8ff9-98b2438d828d",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站主体结构_799660",
+      "color": 16777215,
+      "roughness": 1,
+      "metalness": 0,
+      "emissive": 0,
+      "map": "7da3f12d-33e7-4968-baf0-0f18c1274790",
+      "alphaMap": "64020ecd-e34a-4895-b960-9004f553b36a",
+      "normalMap": "0c360e83-263e-4ee9-8ffc-022d41e9de65",
+      "normalMapType": 0,
+      "normalScale": [
+        1,
+        -1
+      ],
+      "roughnessMap": "64020ecd-e34a-4895-b960-9004f553b36a",
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "7da3f12d-33e7-4968-baf0-0f18c1274790",
+          "name": "",
+          "image": "/attachment-service/download/1691364443543846913",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691364443543846913"
+            }
+          }
+        },
+        {
+          "uuid": "64020ecd-e34a-4895-b960-9004f553b36a",
+          "name": "",
+          "image": "/attachment-service/download/1691364484652220418",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691364484652220418"
+            }
+          }
+        },
+        {
+          "uuid": "0c360e83-263e-4ee9-8ffc-022d41e9de65",
+          "name": "",
+          "image": "/attachment-service/download/1691364463265464322",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691364463265464322"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "11f78200-88c6-43d4-81e6-b7d556221b2a",
+          "url": "/attachment-service/download/1691364443543846913"
+        },
+        {
+          "uuid": "578ae445-f5e6-4155-979b-70fca1532279",
+          "url": "/attachment-service/download/1691364484652220418"
+        },
+        {
+          "uuid": "588aa764-438f-4ea0-b2a8-8edd5aead3ca",
+          "url": "/attachment-service/download/1691364463265464322"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "e7f987f4-b4b8-4214-b424-75fa70953656",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站主体结构_827818",
+      "color": 16777215,
+      "roughness": 1,
+      "metalness": 0,
+      "emissive": 0,
+      "map": "deb27723-9699-4598-83d2-5cd9f6ae443a",
+      "alphaMap": "c1764875-bcb9-437f-a5f5-e799520d794f",
+      "normalMap": "1a1619df-2935-4756-90d9-d861f08aed4f",
+      "normalMapType": 0,
+      "normalScale": [
+        1,
+        -1
+      ],
+      "roughnessMap": "c1764875-bcb9-437f-a5f5-e799520d794f",
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "deb27723-9699-4598-83d2-5cd9f6ae443a",
+          "name": "",
+          "image": "/attachment-service/download/1691364443543846913",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0.29,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691364443543846913"
+            }
+          }
+        },
+        {
+          "uuid": "c1764875-bcb9-437f-a5f5-e799520d794f",
+          "name": "",
+          "image": "/attachment-service/download/1691364484652220418",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0.29,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691364484652220418"
+            }
+          }
+        },
+        {
+          "uuid": "1a1619df-2935-4756-90d9-d861f08aed4f",
+          "name": "",
+          "image": "/attachment-service/download/1691364463265464322",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0.29,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691364463265464322"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "7d15395c-911f-4eaf-a5ac-22c076497ed4",
+          "url": "/attachment-service/download/1691364443543846913"
+        },
+        {
+          "uuid": "41357676-ecd4-494f-ad5b-c0cf3b0d071d",
+          "url": "/attachment-service/download/1691364484652220418"
+        },
+        {
+          "uuid": "dcfca640-3bcd-4f91-b128-eb88de9eff76",
+          "url": "/attachment-service/download/1691364463265464322"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "a2bd4ba7-a41a-4491-8809-f9927cb6c4fa",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站主体结构_217463",
+      "color": 16777215,
+      "roughness": 1,
+      "metalness": 0,
+      "emissive": 0,
+      "map": "67018bfa-145b-4736-b489-8676d60521ab",
+      "alphaMap": "0a9e5ac7-2223-41f4-aee8-7e442e791427",
+      "normalMap": "dc318397-aaec-467c-9dcb-d005f1b8cf01",
+      "normalMapType": 0,
+      "normalScale": [
+        1,
+        -1
+      ],
+      "roughnessMap": "0a9e5ac7-2223-41f4-aee8-7e442e791427",
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "67018bfa-145b-4736-b489-8676d60521ab",
+          "name": "",
+          "image": "/attachment-service/download/1691364443543846913",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691364443543846913"
+            }
+          }
+        },
+        {
+          "uuid": "0a9e5ac7-2223-41f4-aee8-7e442e791427",
+          "name": "",
+          "image": "/attachment-service/download/1691364484652220418",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691364484652220418"
+            }
+          }
+        },
+        {
+          "uuid": "dc318397-aaec-467c-9dcb-d005f1b8cf01",
+          "name": "",
+          "image": "/attachment-service/download/1691364463265464322",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691364463265464322"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "d156b3b4-02cd-499e-94be-d460b7c4f3a2",
+          "url": "/attachment-service/download/1691364443543846913"
+        },
+        {
+          "uuid": "c116da03-3e41-41bb-be06-a8c7836198be",
+          "url": "/attachment-service/download/1691364484652220418"
+        },
+        {
+          "uuid": "f10e267d-78cf-44c0-b87e-efe10f8650bc",
+          "url": "/attachment-service/download/1691364463265464322"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "e0db9c2d-51b8-4a5e-aa25-bca6f64d7b03",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站主体结构_969863",
+      "color": 16777215,
+      "roughness": 1,
+      "metalness": 0,
+      "emissive": 0,
+      "map": "203a26f4-f1be-42dd-8d21-3baea5c321a0",
+      "alphaMap": "84443a1d-61e1-4f0c-8c2f-9db759635917",
+      "normalMap": "34da50a5-d3ff-4281-844b-ac8668ad5eb3",
+      "normalMapType": 0,
+      "normalScale": [
+        1,
+        -1
+      ],
+      "roughnessMap": "84443a1d-61e1-4f0c-8c2f-9db759635917",
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "203a26f4-f1be-42dd-8d21-3baea5c321a0",
+          "name": "",
+          "image": "/attachment-service/download/1691364443543846913",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691364443543846913"
+            }
+          }
+        },
+        {
+          "uuid": "84443a1d-61e1-4f0c-8c2f-9db759635917",
+          "name": "",
+          "image": "/attachment-service/download/1691364484652220418",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691364484652220418"
+            }
+          }
+        },
+        {
+          "uuid": "34da50a5-d3ff-4281-844b-ac8668ad5eb3",
+          "name": "",
+          "image": "/attachment-service/download/1691364463265464322",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691364463265464322"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "316ab216-0063-4f36-bcb1-23fed21e95a1",
+          "url": "/attachment-service/download/1691364443543846913"
+        },
+        {
+          "uuid": "7d5ef89f-2794-4c9c-a244-387245aef5cd",
+          "url": "/attachment-service/download/1691364484652220418"
+        },
+        {
+          "uuid": "99b1edf8-521d-41e2-a9c8-ce6f33949e97",
+          "url": "/attachment-service/download/1691364463265464322"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "d39990af-b083-4416-becd-2706ce0b06f7",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站主体结构_784271",
+      "color": 16777215,
+      "roughness": 1,
+      "metalness": 0,
+      "emissive": 0,
+      "map": "0c960e38-1dce-46f6-91ca-1be7897f74d4",
+      "alphaMap": "b06375f0-2fb8-48c4-8284-8e75f80fe84d",
+      "normalMap": "03cbf77b-8c83-42aa-8767-05527c4c44c6",
+      "normalMapType": 0,
+      "normalScale": [
+        1,
+        -1
+      ],
+      "roughnessMap": "b06375f0-2fb8-48c4-8284-8e75f80fe84d",
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "0c960e38-1dce-46f6-91ca-1be7897f74d4",
+          "name": "",
+          "image": "/attachment-service/download/1691370462617550849",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691370462617550849"
+            }
+          }
+        },
+        {
+          "uuid": "b06375f0-2fb8-48c4-8284-8e75f80fe84d",
+          "name": "",
+          "image": "/attachment-service/download/1691370889891299330",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691370889891299330"
+            }
+          }
+        },
+        {
+          "uuid": "03cbf77b-8c83-42aa-8767-05527c4c44c6",
+          "name": "",
+          "image": "/attachment-service/download/1691370484788641793",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691370484788641793"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "2db3bba5-70f4-4e49-8fb9-5a0bc3dadb23",
+          "url": "/attachment-service/download/1691370462617550849"
+        },
+        {
+          "uuid": "fe2e0347-020b-4d8b-814c-77ede2625317",
+          "url": "/attachment-service/download/1691370889891299330"
+        },
+        {
+          "uuid": "cbe16472-c850-4fd0-bebc-74fd9cbb3ce3",
+          "url": "/attachment-service/download/1691370484788641793"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "b1b70f7d-86eb-433d-ab97-dcb65e3f4f24",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_3181165",
+      "color": 10790052,
+      "roughness": 0.17,
+      "metalness": 0.39,
+      "emissive": 0,
+      "map": "53559b38-db86-480b-8dc9-2af49437ea35",
+      "normalMap": "ae4aaf60-a982-4bba-a228-33abf1fa3b69",
+      "normalMapType": 0,
+      "normalScale": [
+        1,
+        -1
+      ],
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "53559b38-db86-480b-8dc9-2af49437ea35",
+          "name": "",
+          "image": "/3001/file/vfs//通用材质/TY_diban_Color.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            20,
+            10
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0.16,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "//通用材质",
+              "name": "TY_diban_Color.png",
+              "url": "/3001/file/vfs//通用材质/TY_diban_Color.png"
+            }
+          }
+        },
+        {
+          "uuid": "ae4aaf60-a982-4bba-a228-33abf1fa3b69",
+          "name": "",
+          "image": "/3001/file/vfs//通用材质/TY_diban_Normal.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            20,
+            10
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0.16,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "//通用材质",
+              "name": "TY_diban_Normal.png",
+              "url": "/3001/file/vfs//通用材质/TY_diban_Normal.png"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "3695052f-4276-4d6b-92b4-b90d0ede3461",
+          "url": "/3001/file/vfs//通用材质/TY_diban_Color.png"
+        },
+        {
+          "uuid": "ed17586a-cf45-455c-bbc9-3988122dd15d",
+          "url": "/3001/file/vfs//通用材质/TY_diban_Normal.png"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "85c5b9ab-a111-48a8-8e2f-56a46c00f93a",
+      "type": "MeshPhysicalMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_3181166",
+      "color": 16777215,
+      "roughness": 0.7,
+      "metalness": 0.6,
+      "sheen": 0,
+      "sheenColor": 0,
+      "sheenRoughness": 1,
+      "emissive": 0,
+      "specularIntensity": 1,
+      "specularColor": 16777215,
+      "shininess": 30,
+      "clearcoat": 0,
+      "clearcoatRoughness": 0,
+      "dispersion": 0,
+      "iridescence": 0,
+      "iridescenceIOR": 1.3,
+      "iridescenceThicknessRange": [
+        100,
+        400
+      ],
+      "anisotropy": 0,
+      "anisotropyRotation": 0,
+      "map": "85c8f764-5b47-42b1-b05d-1d2db1a808c4",
+      "normalMap": "8cdc83ea-b156-4979-b71d-7008ea81f884",
+      "normalMapType": 0,
+      "normalScale": [
+        1,
+        1
+      ],
+      "roughnessMap": "c65e8935-77a8-41f1-91ae-0dace7d92da9",
+      "metalnessMap": "44626cbf-e5ac-4cca-81d8-ed756dde9188",
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "reflectivity": 0.49999999999999983,
+      "transmission": 0,
+      "thickness": 0,
+      "attenuationColor": 16777215,
+      "transparent": true,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "85c8f764-5b47-42b1-b05d-1d2db1a808c4",
+          "name": "",
+          "image": "/3001/file/vfs//通用材质/HLN_蜂窝网_Color.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "//通用材质",
+              "name": "HLN_蜂窝网_Color.png",
+              "url": "/3001/file/vfs//通用材质/HLN_蜂窝网_Color.png"
+            }
+          }
+        },
+        {
+          "uuid": "8cdc83ea-b156-4979-b71d-7008ea81f884",
+          "name": "",
+          "image": "/3001/file/vfs//通用材质/HLN_蜂窝网_Normal.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "//通用材质",
+              "name": "HLN_蜂窝网_Normal.png",
+              "url": "/3001/file/vfs//通用材质/HLN_蜂窝网_Normal.png"
+            }
+          }
+        },
+        {
+          "uuid": "c65e8935-77a8-41f1-91ae-0dace7d92da9",
+          "name": "",
+          "image": "/3001/file/vfs//通用材质/HLN_蜂窝网_Roughness.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "//通用材质",
+              "name": "HLN_蜂窝网_Roughness.png",
+              "url": "/3001/file/vfs//通用材质/HLN_蜂窝网_Roughness.png"
+            }
+          }
+        },
+        {
+          "uuid": "44626cbf-e5ac-4cca-81d8-ed756dde9188",
+          "name": "",
+          "image": "/3001/file/vfs//通用材质/HLN_蜂窝网_Metalness.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "//通用材质",
+              "name": "HLN_蜂窝网_Metalness.png",
+              "url": "/3001/file/vfs//通用材质/HLN_蜂窝网_Metalness.png"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "3ac4acdb-786e-4469-8689-df1128c956ec",
+          "url": "/3001/file/vfs//通用材质/HLN_蜂窝网_Color.png"
+        },
+        {
+          "uuid": "f2bd2a18-11c0-4056-8547-7ecdf9b212e6",
+          "url": "/3001/file/vfs//通用材质/HLN_蜂窝网_Normal.png"
+        },
+        {
+          "uuid": "30047e29-1ae7-49ef-be2e-06b9f5753d4f",
+          "url": "/3001/file/vfs//通用材质/HLN_蜂窝网_Roughness.png"
+        },
+        {
+          "uuid": "ce4c538c-64e3-4ef8-8c40-d2520ccf1a2c",
+          "url": "/3001/file/vfs//通用材质/HLN_蜂窝网_Metalness.png"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "277396d1-b402-4c47-8380-3d973fe629f0",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_3903230",
+      "color": 7368816,
+      "roughness": 0.05,
+      "metalness": 0.15,
+      "emissive": 0,
+      "map": "6fbbd5ea-258e-4852-9106-ecf1e3435152",
+      "normalMap": "8b4087a9-b4b2-4b55-b1c6-eba5f43bab0a",
+      "normalMapType": 0,
+      "normalScale": [
+        1,
+        -1
+      ],
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "6fbbd5ea-258e-4852-9106-ecf1e3435152",
+          "name": "",
+          "image": "/3001/file/vfs//通用材质/HLN圆柱_Color.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.1,
+            0.1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "//通用材质",
+              "name": "HLN圆柱_Color.png",
+              "url": "/3001/file/vfs//通用材质/HLN圆柱_Color.png"
+            }
+          }
+        },
+        {
+          "uuid": "8b4087a9-b4b2-4b55-b1c6-eba5f43bab0a",
+          "name": "",
+          "image": "/3001/file/vfs//通用材质/HLN圆柱_Normal.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.1,
+            0.1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "//通用材质",
+              "name": "HLN圆柱_Normal.png",
+              "url": "/3001/file/vfs//通用材质/HLN圆柱_Normal.png"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "25e71d31-841b-4ca1-98fa-3efcbc3ec003",
+          "url": "/3001/file/vfs//通用材质/HLN圆柱_Color.png"
+        },
+        {
+          "uuid": "c1c9b24f-7ff7-4385-8ba9-702fe113545b",
+          "url": "/3001/file/vfs//通用材质/HLN圆柱_Normal.png"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "78ec598f-ecfd-4c20-92f7-374687d46025",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_2156945",
+      "color": 15066597,
+      "roughness": 0.5,
+      "metalness": 0,
+      "emissive": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "opacity": 0,
+      "transparent": true,
+      "blendColor": 0,
+      "visible": true
+    },
+    {
+      "uuid": "7a589780-28f6-4a5e-ab5c-2bc84c63ec30",
+      "type": "MeshPhysicalMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_3203921",
+      "color": 15852739,
+      "roughness": 0.1,
+      "metalness": 0.5,
+      "sheen": 0,
+      "sheenColor": 0,
+      "sheenRoughness": 1,
+      "emissive": 0,
+      "specularIntensity": 1,
+      "specularColor": 16777215,
+      "shininess": 30,
+      "clearcoat": 0.5,
+      "clearcoatRoughness": 1,
+      "dispersion": 0,
+      "iridescence": 0,
+      "iridescenceIOR": 1.3,
+      "iridescenceThicknessRange": [
+        100,
+        400
+      ],
+      "anisotropy": 0,
+      "anisotropyRotation": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "reflectivity": 0.5,
+      "transmission": 0,
+      "thickness": 0,
+      "attenuationColor": 16777215,
+      "blendColor": 0,
+      "visible": true
+    },
+    {
+      "uuid": "f0938d00-106b-40b8-a718-cdec3b7c7d49",
+      "type": "MeshPhysicalMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_3896238",
+      "color": 15852739,
+      "roughness": 0.1,
+      "metalness": 0.5,
+      "sheen": 0,
+      "sheenColor": 0,
+      "sheenRoughness": 1,
+      "emissive": 0,
+      "specularIntensity": 1,
+      "specularColor": 16777215,
+      "shininess": 30,
+      "clearcoat": 0.5,
+      "clearcoatRoughness": 1,
+      "dispersion": 0,
+      "iridescence": 0,
+      "iridescenceIOR": 1.3,
+      "iridescenceThicknessRange": [
+        100,
+        400
+      ],
+      "anisotropy": 0,
+      "anisotropyRotation": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "reflectivity": 0.5,
+      "transmission": 0,
+      "thickness": 0,
+      "attenuationColor": 16777215,
+      "blendColor": 0,
+      "visible": true
+    },
+    {
+      "uuid": "dfa288f7-e7f3-4393-b898-ae58966ffd00",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_3486017",
+      "color": 16777215,
+      "roughness": 1,
+      "metalness": 0,
+      "emissive": 0,
+      "map": "6f69e315-47ab-40dc-ab28-cfdfbbf0cf5c",
+      "normalMap": "28ba7356-554d-455c-bc50-2a74c935accd",
+      "normalMapType": 0,
+      "normalScale": [
+        1,
+        -1
+      ],
+      "roughnessMap": "36a90293-9eb2-45ad-9d79-d5b0094bc798",
+      "metalnessMap": "7fc0b730-bf9c-4c1a-a7cf-d0fe95f1302e",
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "side": 2,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "6f69e315-47ab-40dc-ab28-cfdfbbf0cf5c",
+          "name": "",
+          "image": "/3001/file/vfs//通用材质/HLN灰砖_Color.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.5,
+            0.25
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0.29,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "//通用材质",
+              "name": "HLN灰砖_Color.png",
+              "url": "/3001/file/vfs//通用材质/HLN灰砖_Color.png"
+            }
+          }
+        },
+        {
+          "uuid": "28ba7356-554d-455c-bc50-2a74c935accd",
+          "name": "",
+          "image": "/3001/file/vfs//通用材质/HLN灰砖_Normal.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.5,
+            0.25
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0.29,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "//通用材质",
+              "name": "HLN灰砖_Normal.png",
+              "url": "/3001/file/vfs//通用材质/HLN灰砖_Normal.png"
+            }
+          }
+        },
+        {
+          "uuid": "36a90293-9eb2-45ad-9d79-d5b0094bc798",
+          "name": "",
+          "image": "/3001/file/vfs//通用材质/HLN灰砖_Roughness.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.5,
+            0.25
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0.29,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "//通用材质",
+              "name": "HLN灰砖_Roughness.png",
+              "url": "/3001/file/vfs//通用材质/HLN灰砖_Roughness.png"
+            }
+          }
+        },
+        {
+          "uuid": "7fc0b730-bf9c-4c1a-a7cf-d0fe95f1302e",
+          "name": "",
+          "image": "/3001/file/vfs//通用材质/HLN灰砖_Metalness.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.5,
+            0.25
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0.29,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "//通用材质",
+              "name": "HLN灰砖_Metalness.png",
+              "url": "/3001/file/vfs//通用材质/HLN灰砖_Metalness.png"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "ab30b59d-3a99-425c-8652-ece23b6a10a0",
+          "url": "/3001/file/vfs//通用材质/HLN灰砖_Color.png"
+        },
+        {
+          "uuid": "49d06f9d-2fd3-4ec8-98ea-63797f21e271",
+          "url": "/3001/file/vfs//通用材质/HLN灰砖_Normal.png"
+        },
+        {
+          "uuid": "a2f22f79-5dbd-4d4e-9b00-367a83aa3475",
+          "url": "/3001/file/vfs//通用材质/HLN灰砖_Roughness.png"
+        },
+        {
+          "uuid": "3e4f974f-e274-4410-bc6f-a2e160e087c1",
+          "url": "/3001/file/vfs//通用材质/HLN灰砖_Metalness.png"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "05bd1ded-a0c6-4f41-8c7d-c22a6dcc425d",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_3180909",
+      "color": 16738816,
+      "roughness": 0,
+      "metalness": 0,
+      "emissive": 16777215,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "visible": true
+    },
+    {
+      "uuid": "2c5f011b-de9a-466d-a74d-9be24bb1dc2a",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_2104482",
+      "color": 8684676,
+      "roughness": 0,
+      "metalness": 1,
+      "emissive": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "visible": true
+    },
+    {
+      "uuid": "52b2d6d0-60ae-452d-9230-65f40a20badc",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_3237162",
+      "color": 12566463,
+      "roughness": 0,
+      "metalness": 1,
+      "emissive": 12698049,
+      "map": "106613da-0d1e-41cf-ab79-31e0df5a5940",
+      "normalMap": "d4f55a84-72dc-4ae9-9a00-566066f3ab3a",
+      "normalMapType": 0,
+      "normalScale": [
+        1,
+        1
+      ],
+      "roughnessMap": "70434590-2e91-420f-ac32-078929010b12",
+      "emissiveMap": "3fc69235-32c4-4dea-a1ed-5f6ecd66fee3",
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "106613da-0d1e-41cf-ab79-31e0df5a5940",
+          "name": "",
+          "image": "/3001/file/vfs/贴花/红岭南_HLN_lupaiA_map.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.86,
+            0.7
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0.26,
+            0.12
+          ],
+          "rotation": 3.14,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "/贴花",
+              "name": "红岭南_HLN_lupaiA_map.png",
+              "url": "/3001/file/vfs/贴花/红岭南_HLN_lupaiA_map.png"
+            }
+          }
+        },
+        {
+          "uuid": "d4f55a84-72dc-4ae9-9a00-566066f3ab3a",
+          "name": "",
+          "image": "/3001/file/vfs/贴花/红岭南_HLN_lupaiA_normalMap.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.86,
+            0.7
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0.26,
+            0.12
+          ],
+          "rotation": 3.14,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "/贴花",
+              "name": "红岭南_HLN_lupaiA_normalMap.png",
+              "url": "/3001/file/vfs/贴花/红岭南_HLN_lupaiA_normalMap.png"
+            }
+          }
+        },
+        {
+          "uuid": "70434590-2e91-420f-ac32-078929010b12",
+          "name": "",
+          "image": "/3001/file/vfs/贴花/红岭南_HLN_lupaiA_roughnessMap.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.86,
+            0.7
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0.26,
+            0.12
+          ],
+          "rotation": 3.14,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "/贴花",
+              "name": "红岭南_HLN_lupaiA_roughnessMap.png",
+              "url": "/3001/file/vfs/贴花/红岭南_HLN_lupaiA_roughnessMap.png"
+            }
+          }
+        },
+        {
+          "uuid": "3fc69235-32c4-4dea-a1ed-5f6ecd66fee3",
+          "name": "",
+          "image": "/3001/file/vfs/贴花/红岭南_HLN_lupaiA_emissiveMap.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.86,
+            0.7
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0.26,
+            0.12
+          ],
+          "rotation": 3.14,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "/贴花",
+              "name": "红岭南_HLN_lupaiA_emissiveMap.png",
+              "url": "/3001/file/vfs/贴花/红岭南_HLN_lupaiA_emissiveMap.png"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "41843596-26fd-4573-b7c2-ec99219a39fb",
+          "url": "/3001/file/vfs/贴花/红岭南_HLN_lupaiA_map.png"
+        },
+        {
+          "uuid": "c6e134c2-3c9d-4d01-92a7-a80a78bbb5b7",
+          "url": "/3001/file/vfs/贴花/红岭南_HLN_lupaiA_normalMap.png"
+        },
+        {
+          "uuid": "4710f4a9-2547-46df-98d7-82bac29be384",
+          "url": "/3001/file/vfs/贴花/红岭南_HLN_lupaiA_roughnessMap.png"
+        },
+        {
+          "uuid": "96ac54ce-36e5-4e67-93f6-1783dfc35014",
+          "url": "/3001/file/vfs/贴花/红岭南_HLN_lupaiA_emissiveMap.png"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "7e8d853e-b9e3-479a-ad42-fef387ee302a",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站建筑模型_3680225",
+      "color": 16777215,
+      "roughness": 0.7,
+      "metalness": 0.6,
+      "emissive": 0,
+      "map": "be1f5d22-e48d-4347-816c-946501dfb5a3",
+      "alphaMap": "2124c0af-d87b-4fd8-bdee-4329657c58c2",
+      "normalMap": "6902089a-beb4-432b-bd0a-1dee14ab634f",
+      "normalMapType": 0,
+      "normalScale": [
+        1,
+        -1
+      ],
+      "roughnessMap": "2124c0af-d87b-4fd8-bdee-4329657c58c2",
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "be1f5d22-e48d-4347-816c-946501dfb5a3",
+          "name": "",
+          "image": "/attachment-service/download/1691378307446620162",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.2,
+            0.2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691378307446620162"
+            }
+          }
+        },
+        {
+          "uuid": "2124c0af-d87b-4fd8-bdee-4329657c58c2",
+          "name": "",
+          "image": "/attachment-service/download/1691378341022023682",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.2,
+            0.2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691378341022023682"
+            }
+          }
+        },
+        {
+          "uuid": "6902089a-beb4-432b-bd0a-1dee14ab634f",
+          "name": "",
+          "image": "/attachment-service/download/1691378325469544450",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.2,
+            0.2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691378325469544450"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "7d867df9-be74-4505-b2d3-c3257653539b",
+          "url": "/attachment-service/download/1691378307446620162"
+        },
+        {
+          "uuid": "466a7fc8-9aa2-4547-9c57-2a41d09938ee",
+          "url": "/attachment-service/download/1691378341022023682"
+        },
+        {
+          "uuid": "bb963bff-9529-477a-b509-481f96fb55ae",
+          "url": "/attachment-service/download/1691378325469544450"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "aef9f2c9-96bd-4445-89f5-6248ec7debfb",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站建筑模型_3680226",
+      "color": 16777215,
+      "roughness": 0.7,
+      "metalness": 0.6,
+      "emissive": 0,
+      "map": "9889b57d-d998-4dbe-871b-3e6702545bd8",
+      "alphaMap": "ae57fe23-b954-423f-b36e-2045cfe11592",
+      "normalMap": "a8e346f2-bcbc-41d1-a27a-d05208444f87",
+      "normalMapType": 0,
+      "normalScale": [
+        1,
+        -1
+      ],
+      "roughnessMap": "ae57fe23-b954-423f-b36e-2045cfe11592",
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "9889b57d-d998-4dbe-871b-3e6702545bd8",
+          "name": "",
+          "image": "/attachment-service/download/1691378307446620162",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.2,
+            0.2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691378307446620162"
+            }
+          }
+        },
+        {
+          "uuid": "ae57fe23-b954-423f-b36e-2045cfe11592",
+          "name": "",
+          "image": "/attachment-service/download/1691378341022023682",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.2,
+            0.2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691378341022023682"
+            }
+          }
+        },
+        {
+          "uuid": "a8e346f2-bcbc-41d1-a27a-d05208444f87",
+          "name": "",
+          "image": "/attachment-service/download/1691378325469544450",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.2,
+            0.2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            0
+          ],
+          "rotation": 0,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "url": "/attachment-service/download/1691378325469544450"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "76d92a04-a759-4d0f-b69d-f590babe3c40",
+          "url": "/attachment-service/download/1691378307446620162"
+        },
+        {
+          "uuid": "806a7a97-af1c-4752-bc57-e05be8547a7d",
+          "url": "/attachment-service/download/1691378341022023682"
+        },
+        {
+          "uuid": "544a14ff-6135-41c9-8c56-55302b7c3aef",
+          "url": "/attachment-service/download/1691378325469544450"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "7c8d0635-880c-401b-a418-285c0a6f44c2",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站站台门_3417110",
+      "color": 12698049,
+      "roughness": 0,
+      "metalness": 0,
+      "emissive": 0,
+      "map": "69af38ea-f498-4109-ba97-b87e50aaf15f",
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "textures": [
+        {
+          "uuid": "69af38ea-f498-4109-ba97-b87e50aaf15f",
+          "name": "",
+          "image": "/3001/file/vfs/贴花/线路.png",
+          "mapping": 300,
+          "channel": 0,
+          "repeat": [
+            0.22,
+            0.73
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "center": [
+            0,
+            1
+          ],
+          "rotation": 3.14,
+          "wrap": [
+            1000,
+            1000
+          ],
+          "format": 1023,
+          "internalFormat": null,
+          "type": 1009,
+          "colorSpace": "",
+          "minFilter": 1008,
+          "magFilter": 1006,
+          "anisotropy": 1,
+          "flipY": true,
+          "generateMipmaps": true,
+          "premultiplyAlpha": false,
+          "unpackAlignment": 4,
+          "userData": {
+            "fileInfo": {
+              "drive": "vfs",
+              "path": "/贴花",
+              "name": "线路.png",
+              "url": "/3001/file/vfs/贴花/线路.png"
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "uuid": "ca618ac4-9c5d-4255-aa41-d004c68d3cb2",
+          "url": "/3001/file/vfs/贴花/线路.png"
+        }
+      ],
+      "visible": true
+    },
+    {
+      "uuid": "0749eb26-3e2a-4201-bcb7-5ff98579193b",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_3180899",
+      "color": 664347,
+      "roughness": 0.5,
+      "metalness": 0,
+      "emissive": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "visible": true
+    },
+    {
+      "uuid": "76e6d08b-9689-4d55-a78b-420dbefc4c07",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站站台门_19105",
+      "color": 6267071,
+      "roughness": 0.5,
+      "metalness": 0,
+      "emissive": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "side": 2,
+      "opacity": 0.2,
+      "transparent": true,
+      "blendColor": 0,
+      "depthWrite": false,
+      "visible": true
+    },
+    {
+      "uuid": "3a7cfbb6-8715-4b1e-897c-bdedc86da517",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_3181163",
+      "color": 9013695,
+      "roughness": 0.5,
+      "metalness": 0,
+      "emissive": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "side": 2,
+      "opacity": 0.1,
+      "transparent": true,
+      "blendColor": 0,
+      "depthWrite": false,
+      "visible": true
+    },
+    {
+      "uuid": "c1c8dc74-6f3c-4b86-94aa-6f98f603c5e5",
+      "type": "MeshStandardMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_3181168",
+      "color": 15131599,
+      "roughness": 0.5,
+      "metalness": 0,
+      "emissive": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0,
+      "visible": true
+    },
+    {
+      "uuid": "456f767c-6966-4157-a41e-6a793322dd7e",
+      "type": "MeshPhysicalMaterial",
+      "name": "material_两江影视城站公共区装修_墙柱材质分开20251229_2267156",
+      "color": 16777215,
+      "roughness": 0,
+      "metalness": 0,
+      "sheen": 0,
+      "sheenColor": 0,
+      "sheenRoughness": 1,
+      "emissive": 16777215,
+      "emissiveIntensity": 10,
+      "specularIntensity": 1,
+      "specularColor": 16777215,
+      "shininess": 30,
+      "clearcoat": 0,
+      "clearcoatRoughness": 0,
+      "dispersion": 0,
+      "iridescence": 0,
+      "iridescenceIOR": 1.3,
+      "iridescenceThicknessRange": [
+        100,
+        400
+      ],
+      "anisotropy": 0,
+      "anisotropyRotation": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "reflectivity": 0.5,
+      "transmission": 0,
+      "thickness": 0,
+      "attenuationColor": 16777215,
+      "side": 2,
+      "transparent": true,
+      "blendColor": 0,
+      "visible": true
+    }
+  ],
+  "cameras": [
+    {
+      "name": "站厅A",
+      "position": [
+        -2.8292801861634262,
+        184.6603813385068,
+        -39.10935679425495
+      ],
+      "rotation": [
+        -3.141592653589793,
+        -0.3082420525553285,
+        -3.141592653589793,
+        "XYZ"
+      ],
+      "quaternion": [
+        0,
+        0.9881468451410321,
+        0,
+        -0.15351160359342556
+      ],
+      "spherical": [
+        1,
+        1.5707963267948966,
+        0.30824205255532855
+      ],
+      "target": [
+        0.19864747155035722,
+        184.6603813385068,
+        -29.599242951144237
+      ]
+    },
+    {
+      "name": "站厅B",
+      "position": [
+        -21.678977434553943,
+        184.14038133850687,
+        12.065781542006295
+      ],
+      "rotation": [
+        0,
+        -0.8813568392851698,
+        0,
+        "XYZ"
+      ],
+      "quaternion": [
+        0,
+        -0.4265531682989058,
+        0,
+        0.9044624893350555
+      ],
+      "spherical": [
+        1,
+        1.5707963267948966,
+        2.2602358143046235
+      ],
+      "target": [
+        -13.962950625886277,
+        184.14038133850687,
+        5.704733649722987
+      ]
+    },
+    {
+      "name": "站厅C",
+      "position": [
+        -14.159487116040012,
+        184.36038133850698,
+        45.20135843757919
+      ],
+      "rotation": [
+        0,
+        0.26552165036215297,
+        0,
+        "XYZ"
+      ],
+      "quaternion": [
+        0,
+        0.13237117414131996,
+        0,
+        0.991200218047014
+      ],
+      "spherical": [
+        1,
+        1.5707963267948966,
+        -2.8760710032276404
+      ],
+      "target": [
+        -16.783613849480325,
+        184.36038133850698,
+        35.551800992450225
+      ]
+    },
+    {
+      "name": "站台A",
+      "position": [
+        1.5726462219979722,
+        177.51038133850685,
+        -46.80766465359182
+      ],
+      "rotation": [
+        -3.141592653589793,
+        -0.3082420525553285,
+        -3.141592653589793,
+        "XYZ"
+      ],
+      "quaternion": [
+        0,
+        0.9881468451410321,
+        0,
+        -0.15351160359342556
+      ],
+      "spherical": [
+        1,
+        1.5707963267948966,
+        0.30824205255532855
+      ],
+      "target": [
+        4.6064863576656565,
+        177.51038133850685,
+        -37.27898090234832
+      ]
+    },
+    {
+      "name": "站台B",
+      "position": [
+        -17.925959178106787,
+        177.70038133850673,
+        16.618237359120236
+      ],
+      "rotation": [
+        0,
+        -0.8813568392851698,
+        0,
+        "XYZ"
+      ],
+      "quaternion": [
+        0,
+        -0.4265531682989058,
+        0,
+        0.9044624893350555
+      ],
+      "spherical": [
+        1,
+        1.5707963267948966,
+        2.2602358143046235
+      ],
+      "target": [
+        -10.209932369439123,
+        177.70038133850673,
+        10.25718946683693
+      ]
+    },
+    {
+      "name": "站台C",
+      "position": [
+        -19.212105972636518,
+        177.55038133850695,
+        48.64801517853329
+      ],
+      "rotation": [
+        0,
+        0.26552165036215314,
+        0,
+        "XYZ"
+      ],
+      "quaternion": [
+        0,
+        0.13237117414132005,
+        0,
+        0.991200218047014
+      ],
+      "spherical": [
+        1,
+        1.5707963267948966,
+        -2.87607100322764
+      ],
+      "target": [
+        -21.83623270607683,
+        177.55038133850695,
+        38.99845773340432
+      ]
+    }
+  ],
+  "spaces": [
+    {
+      "name": "负一层",
+      "subspaces": [
+        {
+          "name": "A端",
+          "camera": {
+            "position": [
+              -2.8292801861634262,
+              184.6603813385068,
+              -39.10935679425495
+            ],
+            "rotation": [
+              -3.141592653589793,
+              -0.3082420525553285,
+              -3.141592653589793,
+              "XYZ"
+            ],
+            "quaternion": [
+              0,
+              0.9881468451410321,
+              0,
+              -0.15351160359342556
+            ],
+            "spherical": [
+              1,
+              1.5707963267948966,
+              0.30824205255532855
+            ],
+            "target": [
+              0.19864747155035722,
+              184.6603813385068,
+              -29.599242951144237
+            ]
+          }
+        },
+        {
+          "name": "B端",
+          "camera": {
+            "position": [
+              -14.159487116040012,
+              184.36038133850698,
+              45.20135843757919
+            ],
+            "rotation": [
+              0,
+              0.26552165036215314,
+              0,
+              "XYZ"
+            ],
+            "quaternion": [
+              0,
+              0.13237117414132005,
+              0,
+              0.991200218047014
+            ],
+            "spherical": [
+              1,
+              1.5707963267948966,
+              -2.87607100322764
+            ],
+            "target": [
+              -16.783613849480325,
+              184.36038133850698,
+              35.551800992450225
+            ]
+          }
+        },
+        {
+          "name": "A出口",
+          "camera": {
+            "position": [
+              -6.201342881152485,
+              183.9103813385067,
+              39.55035101049889
+            ],
+            "rotation": [
+              0,
+              1.241518531236806,
+              0,
+              "XYZ"
+            ],
+            "quaternion": [
+              0,
+              0.5816529429288249,
+              0,
+              0.8134370620903852
+            ],
+            "spherical": [
+              1,
+              1.5707963267948966,
+              -1.9000741223529876
+            ],
+            "target": [
+              -15.66410410219748,
+              183.9103813385067,
+              36.31675393085415
+            ]
+          }
+        },
+        {
+          "name": "B出口",
+          "camera": {
+            "position": [
+              17.038751203206203,
+              183.79038133850653,
+              -60.08596055694182
+            ],
+            "rotation": [
+              -3.141592653589793,
+              0.27669883901265074,
+              -3.141592653589793,
+              "XYZ"
+            ],
+            "quaternion": [
+              0,
+              0.9904449743712823,
+              0,
+              0.13790849409180672
+            ],
+            "spherical": [
+              1,
+              1.5707963267948966,
+              -0.2766988390126508
+            ],
+            "target": [
+              14.30693570527937,
+              183.79038133850653,
+              -50.466335611795216
+            ]
+          }
+        },
+        {
+          "name": "站厅",
+          "camera": {
+            "position": [
+              -21.678977434553943,
+              184.14038133850687,
+              12.065781542006295
+            ],
+            "rotation": [
+              0,
+              -0.8813568392851698,
+              0,
+              "XYZ"
+            ],
+            "quaternion": [
+              0,
+              -0.4265531682989058,
+              0,
+              0.9044624893350555
+            ],
+            "spherical": [
+              1,
+              1.5707963267948966,
+              2.2602358143046235
+            ],
+            "target": [
+              -13.962950625886277,
+              184.14038133850687,
+              5.704733649722987
+            ]
+          }
+        }
+      ],
+      "camera": {
+        "position": [
+          -2.8292801861634262,
+          184.6603813385068,
+          -39.10935679425495
+        ],
+        "rotation": [
+          -3.141592653589793,
+          -0.3082420525553285,
+          -3.141592653589793,
+          "XYZ"
+        ],
+        "quaternion": [
+          0,
+          0.9881468451410321,
+          0,
+          -0.15351160359342556
+        ],
+        "spherical": [
+          1,
+          1.5707963267948966,
+          0.30824205255532855
+        ],
+        "target": [
+          0.19864747155035722,
+          184.6603813385068,
+          -29.599242951144237
+        ]
+      }
+    },
+    {
+      "name": "负二层",
+      "subspaces": [
+        {
+          "name": "A端",
+          "camera": {
+            "position": [
+              1.5726462219979722,
+              177.51038133850685,
+              -46.80766465359182
+            ],
+            "rotation": [
+              -3.141592653589793,
+              -0.3082420525553286,
+              -3.141592653589793,
+              "XYZ"
+            ],
+            "quaternion": [
+              0,
+              0.9881468451410321,
+              0,
+              -0.1535116035934256
+            ],
+            "spherical": [
+              1.0000000000000002,
+              1.5707963267948966,
+              0.30824205255532866
+            ],
+            "target": [
+              4.6064863576656565,
+              177.51038133850685,
+              -37.27898090234832
+            ]
+          }
+        },
+        {
+          "name": "B端",
+          "camera": {
+            "position": [
+              -26.96069344811139,
+              176.83038133850704,
+              47.65597374049485
+            ],
+            "rotation": [
+              0,
+              -0.5428798065239173,
+              0,
+              "XYZ"
+            ],
+            "quaternion": [
+              0,
+              -0.2681188965568012,
+              0,
+              0.96338582992961
+            ],
+            "spherical": [
+              1,
+              1.5707963267948966,
+              2.598712847065876
+            ],
+            "target": [
+              -21.794654534527687,
+              176.83038133850704,
+              39.093728594311585
+            ]
+          }
+        },
+        {
+          "name": "站台",
+          "camera": {
+            "position": [
+              -15.225107063994248,
+              177.36038133850664,
+              12.52062987452277
+            ],
+            "rotation": [
+              0,
+              -1.2625542742395799,
+              0,
+              "XYZ"
+            ],
+            "quaternion": [
+              0,
+              -0.5901762391155896,
+              0,
+              0.8072744308990458
+            ],
+            "spherical": [
+              1,
+              1.5707963267948966,
+              1.8790383793502132
+            ],
+            "target": [
+              -5.69642331275071,
+              177.36038133850664,
+              9.486789738855201
+            ]
+          }
+        }
+      ],
+      "camera": {
+        "position": [
+          1.5726462219979722,
+          177.51038133850685,
+          -46.80766465359182
+        ],
+        "rotation": [
+          -3.141592653589793,
+          -0.3082420525553286,
+          -3.141592653589793,
+          "XYZ"
+        ],
+        "quaternion": [
+          0,
+          0.9881468451410321,
+          0,
+          -0.1535116035934256
+        ],
+        "spherical": [
+          1.0000000000000002,
+          1.5707963267948966,
+          0.30824205255532866
+        ],
+        "target": [
+          4.6064863576656565,
+          177.51038133850685,
+          -37.27898090234832
+        ]
+      }
+    }
+  ],
+  "navigations": [
+    {
+      "name": "导航A",
+      "checkpoints": [
+        {
+          "name": "导航A",
+          "position": [
+            41.99259195475115,
+            183.71038133850652,
+            -144.47913760192938
+          ],
+          "rotation": [
+            -3.141592653589793,
+            0.27669883901265074,
+            -3.141592653589793,
+            "XYZ"
+          ],
+          "quaternion": [
+            0,
+            0.9904449743712823,
+            0,
+            0.13790849409180672
+          ],
+          "spherical": [
+            1,
+            1.5707963267948966,
+            -0.2766988390126508
+          ],
+          "target": [
+            39.26077645682432,
+            183.71038133850652,
+            -134.85951265678278
+          ]
+        },
+        {
+          "name": "导航A",
+          "position": [
+            28.736666120351114,
+            183.78038133850652,
+            -97.29036650769584
+          ],
+          "rotation": [
+            -3.141592653589793,
+            0.29641594771718865,
+            -3.141592653589793,
+            "XYZ"
+          ],
+          "quaternion": [
+            0,
+            0.9890372871842477,
+            0,
+            0.14766598985285734
+          ],
+          "spherical": [
+            1,
+            1.5707963267948966,
+            -0.2964159477171886
+          ],
+          "target": [
+            25.81572272008218,
+            183.78038133850652,
+            -87.72647139888032
+          ]
+        },
+        {
+          "name": "导航A",
+          "position": [
+            15.884515159167844,
+            183.78038133850652,
+            -55.20922802890763
+          ],
+          "rotation": [
+            -3.141592653589793,
+            0.29641594771718865,
+            -3.141592653589793,
+            "XYZ"
+          ],
+          "quaternion": [
+            0,
+            0.9890372871842477,
+            0,
+            0.14766598985285734
+          ],
+          "spherical": [
+            1,
+            1.5707963267948966,
+            -0.2964159477171886
+          ],
+          "target": [
+            12.963571758898912,
+            183.78038133850652,
+            -45.645332920092116
+          ]
+        },
+        {
+          "name": "导航A",
+          "position": [
+            7.9979679784417455,
+            183.78038133850652,
+            -29.38671123510578
+          ],
+          "rotation": [
+            -3.141592653589793,
+            0.29641594771718865,
+            -3.141592653589793,
+            "XYZ"
+          ],
+          "quaternion": [
+            0,
+            0.9890372871842477,
+            0,
+            0.14766598985285734
+          ],
+          "spherical": [
+            1,
+            1.5707963267948966,
+            -0.2964159477171886
+          ],
+          "target": [
+            5.0770245781728125,
+            183.78038133850652,
+            -19.822816126290263
+          ]
+        },
+        {
+          "name": "导航A",
+          "position": [
+            -3.397737628803628,
+            183.86038133850644,
+            -6.727137238382102
+          ],
+          "rotation": [
+            -3.141592653589793,
+            0.29641594771718865,
+            -3.141592653589793,
+            "XYZ"
+          ],
+          "quaternion": [
+            0,
+            0.9890372871842477,
+            0,
+            0.14766598985285734
+          ],
+          "spherical": [
+            1,
+            1.5707963267948966,
+            -0.2964159477171886
+          ],
+          "target": [
+            -6.318681029072561,
+            183.86038133850644,
+            2.8367578704334147
+          ]
+        },
+        {
+          "name": "导航A",
+          "position": [
+            -9.383082855973726,
+            177.86038133850644,
+            12.356838828244896
+          ],
+          "rotation": [
+            -3.141592653589793,
+            0.29641594771718854,
+            -3.141592653589793,
+            "XYZ"
+          ],
+          "quaternion": [
+            0,
+            0.9890372871842477,
+            0,
+            0.14766598985285728
+          ],
+          "spherical": [
+            1,
+            1.5707963267948966,
+            -0.2964159477171885
+          ],
+          "target": [
+            -12.304026256242658,
+            177.86038133850644,
+            21.92073393706041
+          ]
+        },
+        {
+          "name": "导航A",
+          "position": [
+            -10.845388112631774,
+            177.2303813385063,
+            17.405604911282293
+          ],
+          "rotation": [
+            3.141592653589793,
+            -1.1757948355550085,
+            3.141592653589793,
+            "XYZ"
+          ],
+          "quaternion": [
+            0,
+            -0.8321086363021092,
+            0,
+            0.5546126733058346
+          ],
+          "spherical": [
+            0.9999999999999999,
+            1.5707963267948966,
+            1.1757948355550074
+          ],
+          "target": [
+            -1.615428207424074,
+            177.2303813385063,
+            21.253700563453407
+          ]
+        }
+      ]
+    }
+  ]
+}

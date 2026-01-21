@@ -13,6 +13,7 @@ interface EditorState {
   // Modes
   mode: EditorMode;
   renderMode: RenderMode;
+  activeGizmo: 'translate' | 'rotate' | 'scale' | null; // For US2 T016
 
   // Selection
   selectedIds: string[];
@@ -36,6 +37,7 @@ export const useEditorStore = create<EditorState>()(
       // Initial state
       mode: 'select',
       renderMode: 'shaded',
+      activeGizmo: null,
       selectedIds: [],
       activeId: null,
       camera: {

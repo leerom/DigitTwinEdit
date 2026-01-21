@@ -58,7 +58,7 @@ export const BoxSelector: React.FC = () => {
       });
     };
 
-    const onMouseUp = (e: MouseEvent) => {
+    const onMouseUp = () => {
       if (isSelecting.current && selectionBox) {
         // Perform Frustum Selection
         performBoxSelection();
