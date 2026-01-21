@@ -10,9 +10,18 @@ import { SceneContent } from '@/features/scene/SceneRenderer';
 import { BoxSelector } from '@/features/interaction/BoxSelector';
 // import { TransformGizmo } from '@/features/editor/tools/TransformGizmo';
 import { useEditorStore } from '@/stores/editorStore';
+import { useSceneStore } from '@/stores/sceneStore';
+import { useSceneConfig } from '@/features/scene/hooks/useSceneConfig';
 
 import { InstanceManager } from '@/features/performance/InstanceManager';
 import { ViewportOverlay } from '@/components/viewport/ViewportOverlay';
+
+// SceneConfigApplier component to use hooks inside Canvas
+const SceneConfigApplier: React.FC = () => {
+  const scene = useSceneStore((state) => state.scene);
+  useSceneConfig(scene);
+  return null;
+};
 
 export const SceneView: React.FC = () => {
   const clearSelection = useEditorStore((state) => state.clearSelection);
@@ -37,6 +46,7 @@ export const SceneView: React.FC = () => {
         {/* Removed PerformanceOverlay here, as it's now part of ViewportOverlay or handled differently */}
 
         <Suspense fallback={null}>
+          <SceneConfigApplier />
           <Environment preset="city" />
 
           <ambientLight intensity={0.5} />

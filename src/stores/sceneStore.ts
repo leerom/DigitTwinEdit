@@ -4,8 +4,23 @@ import { immer } from 'zustand/middleware/immer';
 import { Scene, SceneObject, TransformComponent, ObjectType } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
+export interface ImportProgress {
+  isImporting: boolean;
+  percentage: number;
+  currentTask: string;
+}
+
+export interface ImportError {
+  objectName: string;
+  error: string;
+}
+
 interface SceneState {
   scene: Scene;
+
+  // Import state
+  importProgress: ImportProgress;
+  importErrors: ImportError[];
 
   // Actions
   addObject: (obj: Partial<SceneObject>, parentId?: string) => void;
@@ -14,6 +29,11 @@ interface SceneState {
   reparentObject: (id: string, newParentId: string | null, index?: number) => void;
   updateComponent: (id: string, componentKey: string, data: any) => void;
   loadScene: (scene: Scene) => void;
+
+  // Import actions
+  setImportProgress: (progress: Partial<ImportProgress>) => void;
+  addImportError: (error: ImportError) => void;
+  clearImportState: () => void;
 }
 
 const DEFAULT_SCENE: Scene = {
@@ -51,6 +71,14 @@ export const useSceneStore = create<SceneState>()(
   devtools(
     immer((set) => ({
       scene: DEFAULT_SCENE,
+
+      // Initialize import state
+      importProgress: {
+        isImporting: false,
+        percentage: 0,
+        currentTask: '',
+      },
+      importErrors: [],
 
       addObject: (obj, parentId = 'root') =>
         set((state) => {
@@ -158,6 +186,27 @@ export const useSceneStore = create<SceneState>()(
       loadScene: (newScene) =>
         set((state) => {
           state.scene = newScene;
+        }),
+
+      // Import actions
+      setImportProgress: (progress) =>
+        set((state) => {
+          state.importProgress = { ...state.importProgress, ...progress };
+        }),
+
+      addImportError: (error) =>
+        set((state) => {
+          state.importErrors.push(error);
+        }),
+
+      clearImportState: () =>
+        set((state) => {
+          state.importProgress = {
+            isImporting: false,
+            percentage: 0,
+            currentTask: '',
+          };
+          state.importErrors = [];
         }),
     })),
     { name: 'SceneStore' }

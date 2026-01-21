@@ -43,7 +43,9 @@
       "Bash(else:*)",
       "Bash(fi:*)",
       "Bash(git checkout:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Skill(superpowers:writing-plans)",
+      "Skill(superpowers:executing-plans)"
     ]
   }
 }

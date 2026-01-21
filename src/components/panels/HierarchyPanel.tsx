@@ -3,6 +3,7 @@ import { useSceneStore } from '../../stores/sceneStore';
 import { useEditorStore } from '../../stores/editorStore';
 import { ObjectType } from '../../types';
 import { clsx } from 'clsx';
+import { Lock } from 'lucide-react';
 
 interface HierarchyItemProps {
   id: string;
@@ -77,8 +78,15 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth }) =
           {iconInfo.icon}
         </span>
 
+        {/* Lock Icon */}
+        {object.locked && (
+          <Lock className="w-3 h-3 mr-1 text-yellow-500" title="此对象已锁定" />
+        )}
+
         {/* Name */}
-        <span className="truncate flex-1">{object.name}</span>
+        <span className={clsx("truncate flex-1", object.locked && "text-slate-400")}>
+          {object.name}
+        </span>
       </div>
 
       {expanded && object.children.map((childId) => (

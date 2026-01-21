@@ -6,6 +6,8 @@ import { SceneView } from '@/components/viewport/SceneView';
 import { HierarchyPanel } from '@/components/panels/HierarchyPanel';
 import { ProjectPanel } from '@/components/panels/ProjectPanel';
 import { InspectorPanel } from '@/components/panels/InspectorPanel';
+import { ProgressDialog } from '@/features/scene/components/ProgressDialog';
+import { useSceneStore } from '@/stores/sceneStore';
 
 // Hooks temporarily disabled during cleanup
 // import { useSelectionSync } from '@/features/editor/hooks/useSelectionSync';
@@ -17,14 +19,27 @@ function App() {
   // useToolShortcuts();
   // useGlobalShortcuts();
 
+  const importProgress = useSceneStore((state) => state.importProgress);
+
   return (
-    <MainLayout
-      header={<Header />}
-      leftPanel={<HierarchyPanel />}
-      centerPanel={<SceneView />}
-      rightPanel={<InspectorPanel />}
-      bottomPanel={<ProjectPanel />}
-    />
+    <>
+      <MainLayout
+        header={<Header />}
+        leftPanel={<HierarchyPanel />}
+        centerPanel={<SceneView />}
+        rightPanel={<InspectorPanel />}
+        bottomPanel={<ProjectPanel />}
+      />
+
+      {/* Global Progress Dialog */}
+      <ProgressDialog
+        isOpen={importProgress.isImporting}
+        onClose={() => {}}
+        title="导入场景"
+        percentage={importProgress.percentage}
+        currentTask={importProgress.currentTask}
+      />
+    </>
   );
 }
 
