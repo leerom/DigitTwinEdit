@@ -12,7 +12,18 @@
       "Bash(git add:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: add comprehensive specs and plans for 3d scene editor\n\n- Add constitution with \"Chinese First\" principle\n- Add feature specs, implementation plan, and research docs\n- Add data model and mock contracts\n- Add detailed task breakdown\n- Update CLAUDE.md with project context\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git push:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git rev-parse:*)",
+      "mcp__chrome-devtools__list_pages",
+      "Bash(npm run dev)",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__list_console_messages",
+      "mcp__chrome-devtools__take_screenshot",
+      "Bash(npm install:*)",
+      "Bash(dir:*)",
+      "Bash(grep:*)",
+      "mcp__chrome-devtools__new_page",
+      "mcp__chrome-devtools__take_snapshot"
     ]
   }
 }

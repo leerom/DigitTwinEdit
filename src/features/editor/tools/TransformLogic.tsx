@@ -23,7 +23,7 @@ export const TransformLogic: React.FC = () => {
   return (
     <TransformControls
       object={proxyRef}
-      mode={mode}
+      mode={mode as 'translate' | 'rotate' | 'scale'}
       onObjectChange={(e) => {
         if (proxyRef.current) {
           const { position, rotation, scale } = proxyRef.current;

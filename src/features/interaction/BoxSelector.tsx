@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
+import { Html } from '@react-three/drei';
 import { useEditorStore } from '@/stores/editorStore';
 import { useSceneStore } from '@/stores/sceneStore';
 import * as THREE from 'three';

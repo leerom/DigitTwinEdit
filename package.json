@@ -25,6 +25,7 @@
   "homepage": "https://github.com/leerom/DigitTwinEdit#readme",
   "devDependencies": {
     "@playwright/test": "^1.57.0",
+    "@tailwindcss/postcss": "^4.1.18",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^25.0.9",
@@ -45,8 +46,11 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@types/uuid": "^10.0.0",
+    "clsx": "^2.1.1",
     "immer": "^11.1.3",
+    "lucide-react": "^0.562.0",
     "r3f-perf": "^7.2.3",
+    "tailwind-merge": "^3.4.0",
     "uuid": "^13.0.0"
   }
 }
