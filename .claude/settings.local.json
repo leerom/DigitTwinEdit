@@ -41,7 +41,8 @@
       "Bash(if:*)",
       "Bash(then:*)",
       "Bash(else:*)",
-      "Bash(fi:*)"
+      "Bash(fi:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }
