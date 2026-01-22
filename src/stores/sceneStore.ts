@@ -22,6 +22,10 @@ interface SceneState {
   importProgress: ImportProgress;
   importErrors: ImportError[];
 
+  // Dirty state
+  isDirty: boolean;
+  currentScenePath: string | null;
+
   // Actions
   addObject: (obj: Partial<SceneObject>, parentId?: string) => void;
   removeObject: (id: string) => void;
@@ -29,6 +33,11 @@ interface SceneState {
   reparentObject: (id: string, newParentId: string | null, index?: number) => void;
   updateComponent: (id: string, componentKey: string, data: any) => void;
   loadScene: (scene: Scene) => void;
+
+  // Dirty state actions
+  markDirty: () => void;
+  markClean: () => void;
+  setScenePath: (path: string | null) => void;
 
   // Import actions
   setImportProgress: (progress: Partial<ImportProgress>) => void;
@@ -80,6 +89,10 @@ export const useSceneStore = create<SceneState>()(
       },
       importErrors: [],
 
+      // Initialize dirty state
+      isDirty: false,
+      currentScenePath: null,
+
       addObject: (obj, parentId = 'root') =>
         set((state) => {
           const id = obj.id || uuidv4();
@@ -106,6 +119,7 @@ export const useSceneStore = create<SceneState>()(
           }
 
           state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
         }),
 
       removeObject: (id) =>
@@ -132,6 +146,7 @@ export const useSceneStore = create<SceneState>()(
 
           deleteRecursive(id);
           state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
         }),
 
       updateTransform: (id, transform) =>
@@ -140,6 +155,7 @@ export const useSceneStore = create<SceneState>()(
           if (obj) {
             obj.transform = { ...obj.transform, ...transform };
             state.scene.updatedAt = new Date().toISOString();
+            state.isDirty = true;
           }
         }),
 
@@ -171,6 +187,7 @@ export const useSceneStore = create<SceneState>()(
 
           obj.parentId = newParentId;
           state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
         }),
 
       updateComponent: (id, componentKey, data) =>
@@ -180,12 +197,30 @@ export const useSceneStore = create<SceneState>()(
             if (!obj.components) obj.components = {};
             obj.components[componentKey] = { ...obj.components[componentKey], ...data };
             state.scene.updatedAt = new Date().toISOString();
+            state.isDirty = true;
           }
         }),
 
       loadScene: (newScene) =>
         set((state) => {
           state.scene = newScene;
+          state.isDirty = false;
+        }),
+
+      // Dirty state actions
+      markDirty: () =>
+        set((state) => {
+          state.isDirty = true;
+        }),
+
+      markClean: () =>
+        set((state) => {
+          state.isDirty = false;
+        }),
+
+      setScenePath: (path) =>
+        set((state) => {
+          state.currentScenePath = path;
         }),
 
       // Import actions
