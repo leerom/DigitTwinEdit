@@ -3,7 +3,6 @@ import { useSceneStore } from '../../stores/sceneStore';
 import { useEditorStore } from '../../stores/editorStore';
 import { ObjectType } from '../../types';
 import { clsx } from 'clsx';
-import { Lock } from 'lucide-react';
 
 interface HierarchyItemProps {
   id: string;
@@ -12,14 +11,12 @@ interface HierarchyItemProps {
 
 const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth }) => {
   const object = useSceneStore((state) => state.scene.objects[id]);
-  const selectedIds = useEditorStore((state) => state.selectedIds);
+  const isSelected = useEditorStore((state) => state.selectedIds.includes(id));
   const select = useEditorStore((state) => state.select);
 
   const [expanded, setExpanded] = React.useState(true);
 
   if (!object) return null;
-
-  const isSelected = selectedIds.includes(id);
   const hasChildren = object.children.length > 0;
 
   const handleSelect = (e: React.MouseEvent) => {
@@ -80,7 +77,7 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth }) =
 
         {/* Lock Icon */}
         {object.locked && (
-          <Lock className="w-3 h-3 mr-1 text-yellow-500" title="此对象已锁定" />
+          <span className="material-symbols-outlined text-xs text-yellow-500 mr-1" title="此对象已锁定">lock</span>
         )}
 
         {/* Name */}
