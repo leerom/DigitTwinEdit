@@ -46,6 +46,6 @@ describe('MainLayout', () => {
 
     // Check for root dark theme classes
     expect(container.firstChild).toHaveClass('bg-bg-dark');
-    expect(container.firstChild).toHaveClass('text-text-primary');
+    expect(container.firstChild).toHaveClass('text-slate-300');
   });
 });

@@ -36,7 +36,7 @@ export const ViewportOverlay: React.FC = () => {
     <div className="absolute inset-0 pointer-events-none select-none z-10" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
 
       {/* Top Left: Tool Buttons & Coordinate Mode */}
-      <div className="absolute flex space-x-2 pointer-events-auto" style={{ top: '16px', left: '16px' }}>
+      <div role="toolbar" className="absolute flex space-x-2 pointer-events-auto" style={{ top: '16px', left: '16px' }}>
         {/* Transform Tools - Horizontal layout */}
         <div className="bg-black/60 backdrop-blur border border-white/10 rounded p-0.5 flex">
           <ToolBtn
