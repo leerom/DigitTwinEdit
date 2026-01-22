@@ -6,6 +6,8 @@ import { ThreeEvent } from '@react-three/fiber';
 import { Html, useHelper } from '@react-three/drei';
 import * as THREE from 'three';
 
+const DEFAULT_BOX_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
+
 const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const object = useSceneStore((state) => state.scene.objects[id]);
   const selectedIds = useEditorStore((state) => state.selectedIds);
@@ -52,8 +54,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       onClick={handleClick}
     >
       {object.type === ObjectType.MESH && (
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[1, 1, 1]} />
+        <mesh castShadow receiveShadow geometry={DEFAULT_BOX_GEOMETRY}>
           <meshStandardMaterial
             color={isSelected ? '#ff9900' : (object.components?.mesh?.materialId === 'default' ? 'orange' : '#cccccc')}
             emissive={isSelected ? '#442200' : '#000000'}
@@ -61,7 +62,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
           />
            {showEdges && (
               <lineSegments>
-                <edgesGeometry args={[new THREE.BoxGeometry(1, 1, 1)]} />
+                <edgesGeometry args={[DEFAULT_BOX_GEOMETRY]} />
                 <lineBasicMaterial color="black" />
               </lineSegments>
            )}
