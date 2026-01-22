@@ -31,7 +31,7 @@ interface SceneState {
   removeObject: (id: string) => void;
   updateTransform: (id: string, transform: Partial<TransformComponent>) => void;
   reparentObject: (id: string, newParentId: string | null, index?: number) => void;
-  updateComponent: (id: string, componentKey: string, data: any) => void;
+  updateComponent: (id: string, componentKey: string, data: Record<string, unknown>) => void;
   loadScene: (scene: Scene) => void;
 
   // Dirty state actions

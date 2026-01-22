@@ -2,8 +2,10 @@ import { useSceneStore } from './sceneStore';
 import { act } from '@testing-library/react';
 
 describe('SceneStore Dirty State', () => {
+  const initialState = useSceneStore.getState();
+
   beforeEach(() => {
-    useSceneStore.setState(useSceneStore.getInitialState());
+    useSceneStore.setState(initialState, true);
   });
 
   test('should track dirty state', () => {
