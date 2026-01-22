@@ -3,7 +3,7 @@ import { useSceneStore } from '@/stores/sceneStore';
 import { MIXED_VALUE, getCommonValue, radToDeg, degToRad } from './utils/inspectorUtils';
 
 // Styled Axis Input with colored labels
-const AxisInput = ({ label, value, onChange, colorLabel }: { label: string, value: number | string, onChange: (val: number) => void, colorLabel: string }) => {
+const AxisInput = ({ label, value, onChange, colorLabel, disabled = false }: { label: string, value: number | string, onChange: (val: number) => void, colorLabel: string, disabled?: boolean }) => {
   const [localValue, setLocalValue] = React.useState<string>('');
 
   React.useEffect(() => {
@@ -15,7 +15,7 @@ const AxisInput = ({ label, value, onChange, colorLabel }: { label: string, valu
   }, [value]);
 
   const commit = () => {
-    if (localValue === '') return;
+    if (localValue === '' || disabled) return;
     const num = parseFloat(localValue);
     if (!isNaN(num)) {
       onChange(num);
@@ -26,12 +26,12 @@ const AxisInput = ({ label, value, onChange, colorLabel }: { label: string, valu
 
   return (
     <div className="relative flex-1 min-w-0">
-      <span className={`absolute left-1.5 top-1/2 -translate-y-1/2 text-[8px] font-bold select-none ${colorLabel}`}>{label}</span>
+      <span className={`absolute left-1.5 top-1/2 -translate-y-1/2 text-[8px] font-bold select-none ${disabled ? 'text-slate-500' : colorLabel}`}>{label}</span>
       <input
         type="text"
-        className="w-full pl-5 pr-1 py-1 bg-[#0c0e14] border-none rounded-sm text-[10px] font-mono text-[#cccccc] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]/50 transition-all text-left"
+        className={`w-full pl-5 pr-1 py-1 bg-[#0c0e14] border-none rounded-sm text-[10px] font-mono text-[#cccccc] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]/50 transition-all text-left ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         value={localValue}
-        onChange={(e) => setLocalValue(e.target.value)}
+        onChange={(e) => !disabled && setLocalValue(e.target.value)}
         onBlur={commit}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
@@ -40,33 +40,35 @@ const AxisInput = ({ label, value, onChange, colorLabel }: { label: string, valu
           }
         }}
         placeholder={value === MIXED_VALUE ? MIXED_VALUE : undefined}
+        disabled={disabled}
       />
     </div>
   );
 };
 
-const Vector3Input = ({ label, value, onChange }: { label: string, value: (number | string)[], onChange: (newValue: (number | string)[]) => void }) => {
+const Vector3Input = ({ label, value, onChange, disabled = false }: { label: string, value: (number | string)[], onChange: (newValue: (number | string)[]) => void, disabled?: boolean }) => {
   const handleChange = (axis: number, val: number) => {
+    if (disabled) return;
     const newValue = [...value];
     newValue[axis] = val;
     onChange(newValue);
   };
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-0.5">
       <div className="flex items-center justify-between group">
-          <span className="text-[10px] text-[#999999] font-medium mb-1">{label}</span>
+          <span className={`text-[10px] ${disabled ? 'text-slate-600' : 'text-[#999999]'} font-medium mb-1`}>{label}</span>
       </div>
       <div className="flex gap-2">
-        <AxisInput label="X" value={value[0]} onChange={(v) => handleChange(0, v)} colorLabel="text-[#ff4d4d]" />
-        <AxisInput label="Y" value={value[1]} onChange={(v) => handleChange(1, v)} colorLabel="text-[#4dff4d]" />
-        <AxisInput label="Z" value={value[2]} onChange={(v) => handleChange(2, v)} colorLabel="text-[#4d79ff]" />
+        <AxisInput label="X" value={value[0]} onChange={(v) => handleChange(0, v)} colorLabel="text-[#ff4d4d]" disabled={disabled} />
+        <AxisInput label="Y" value={value[1]} onChange={(v) => handleChange(1, v)} colorLabel="text-[#4dff4d]" disabled={disabled} />
+        <AxisInput label="Z" value={value[2]} onChange={(v) => handleChange(2, v)} colorLabel="text-[#4d79ff]" disabled={disabled} />
       </div>
     </div>
   );
 };
 
-export const TransformProp: React.FC<{ objectIds: string[] }> = ({ objectIds }) => {
+export const TransformProp: React.FC<{ objectIds: string[], scaleReadOnly?: boolean }> = ({ objectIds, scaleReadOnly = false }) => {
   const objects = useSceneStore((state) => state.scene.objects);
   const updateTransform = useSceneStore((state) => state.updateTransform);
 
@@ -118,7 +120,7 @@ export const TransformProp: React.FC<{ objectIds: string[] }> = ({ objectIds }) 
 
   return (
     <div className="flex flex-col">
-      <div className="pb-2">
+      <div className="pb-2 flex flex-col gap-3">
         <Vector3Input
             label="位置 P"
             value={commonPosition}
@@ -133,6 +135,7 @@ export const TransformProp: React.FC<{ objectIds: string[] }> = ({ objectIds }) 
             label="缩放 S"
             value={commonScale}
             onChange={(v) => handleUpdate('scale', v)}
+            disabled={scaleReadOnly}
         />
       </div>
     </div>

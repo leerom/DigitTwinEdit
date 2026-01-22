@@ -32,6 +32,7 @@ interface SceneState {
   updateTransform: (id: string, transform: Partial<TransformComponent>) => void;
   reparentObject: (id: string, newParentId: string | null, index?: number) => void;
   updateComponent: (id: string, componentKey: string, data: Record<string, unknown>) => void;
+  updateObject: (id: string, data: Partial<SceneObject>) => void;
   loadScene: (scene: Scene) => void;
 
   // Dirty state actions
@@ -197,7 +198,20 @@ export const useSceneStore = create<SceneState>()(
         set((state) => {
           const obj = state.scene.objects[id];
           if (obj) {
-            obj.transform = { ...obj.transform, ...transform };
+            // Prevent scale modification for Main Camera
+            if (obj.type === ObjectType.CAMERA && obj.name === 'Main Camera' && transform.scale) {
+                // If trying to update scale, use the original scale (or force 1,1,1 if not present)
+                // We'll create a new transform object without the scale property change for this specific case
+                // or just ignore the scale part.
+                const { scale, ...allowedTransform } = transform;
+                // If only scale was being updated, allowedTransform might be empty, but that's fine.
+                // However, we want to ensure scale remains [1,1,1] or whatever it was.
+                // Actually, if it's the Main Camera, we can just enforce scale to be [1,1,1] always if it was somehow changed before?
+                // But the requirement says "read only, default 1". So we just ignore incoming scale changes.
+                obj.transform = { ...obj.transform, ...allowedTransform };
+            } else {
+                 obj.transform = { ...obj.transform, ...transform };
+            }
             state.scene.updatedAt = new Date().toISOString();
             state.isDirty = true;
           }
@@ -244,6 +258,19 @@ export const useSceneStore = create<SceneState>()(
             state.isDirty = true;
           }
         }),
+
+      updateObject: (id, data) =>
+          set((state) => {
+              const obj = state.scene.objects[id];
+              if (obj) {
+                  // Only update shallow properties of the object itself (not nested components/transform unless specific logic added)
+                  // For safety, let's merge `data` into `obj` but be careful about type safety if needed.
+                  // SceneObject has specific keys.
+                  Object.assign(obj, data);
+                  state.scene.updatedAt = new Date().toISOString();
+                  state.isDirty = true;
+              }
+          }),
 
       loadScene: (newScene) =>
         set((state) => {

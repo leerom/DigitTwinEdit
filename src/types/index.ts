@@ -31,6 +31,10 @@ export interface CameraComponent {
   far: number;
   orthographic: boolean;
   size?: number; // for orthographic
+  castShadow?: boolean;
+  receiveShadow?: boolean;
+  frustumCulled?: boolean;
+  renderOrder?: number;
 }
 
 // Light Component
@@ -93,6 +97,8 @@ export interface SceneSettings {
   environment: string;
   gridVisible: boolean;
   backgroundColor: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 }
 
 // Scene

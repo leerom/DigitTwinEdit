@@ -13,6 +13,7 @@ export const InspectorPanel: React.FC = () => {
   const selectedIds = useEditorStore((state) => state.selectedIds);
   const objects = useSceneStore((state) => state.scene.objects);
   const updateComponent = useSceneStore((state) => state.updateComponent);
+  const updateObject = useSceneStore((state) => state.updateObject);
 
   if (!activeId) {
     return (
@@ -39,6 +40,9 @@ export const InspectorPanel: React.FC = () => {
   const isAllCameras = selectedIds.every(id => objects[id]?.type === ObjectType.CAMERA);
   const isAllLights = selectedIds.every(id => objects[id]?.type === ObjectType.LIGHT);
 
+  // Check if selected object is main camera
+  const isMainCamera = activeId && objects[activeId]?.type === ObjectType.CAMERA && objects[activeId]?.name === 'Main Camera';
+
   return (
     <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
       {/* Panel Header */}
@@ -61,24 +65,17 @@ export const InspectorPanel: React.FC = () => {
               </span>
             </div>
             <div className="flex-1">
-              <input
-                className="bg-transparent border-none text-sm font-bold text-white focus:ring-0 p-0 w-full focus:outline-none"
-                type="text"
-                value={isMultiSelect ? `${selectedIds.length} Objects Selected` : object.name}
-                onChange={(e) => updateComponent(activeId, 'name', { name: e.target.value })}
-                disabled={isMultiSelect}
-              />
-              <div className="text-[10px] text-slate-500 uppercase tracking-tighter">
-                {isMultiSelect ? 'Multiple Selection' : 'Static Mesh Component'}
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-[#999999] font-medium mr-2 whitespace-nowrap">名称</span>
+                <input
+                  className="bg-[#0c0e14] border-none text-sm text-white focus:ring-1 focus:ring-primary/50 p-1 w-full focus:outline-none rounded-sm"
+                  type="text"
+                  value={isMultiSelect ? `${selectedIds.length} Objects Selected` : object.name}
+                  onChange={(e) => updateObject(activeId, { name: e.target.value })}
+                  disabled={isMultiSelect}
+                />
               </div>
             </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <input checked className="rounded border-border-dark bg-bg-dark text-primary focus:ring-primary w-3 h-3" type="checkbox" readOnly />
-            <span className="text-[10px] text-slate-400">Active</span>
-            <div className="flex-1"></div>
-            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">Tag: Industrial</span>
           </div>
         </div>
 
@@ -88,24 +85,25 @@ export const InspectorPanel: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-[11px] font-bold text-slate-300">几何变换 (Transform)</h3>
-              <span className="material-symbols-outlined text-xs text-slate-600 cursor-pointer hover:text-white transition-colors">refresh</span>
             </div>
-            <div className="space-y-2">
-              <TransformProp objectIds={selectedIds} />
+            <div className="space-y-4">
+              <TransformProp objectIds={selectedIds} scaleReadOnly={isMainCamera} />
             </div>
           </div>
 
-          {/* Materials Component - Single Select Only for now */}
-          {!isMultiSelect && (
+          {/* Camera Component */}
+          {isAllCameras && (
+            <div className="border-t border-white/5 pt-4">
+                <CameraProp objectIds={selectedIds} />
+            </div>
+          )}
+
+          {/* Materials Component - Single Select Only, Not for Camera */}
+          {!isMultiSelect && !isAllCameras && (
             <div>
               <h3 className="text-[11px] font-bold text-slate-300 mb-3">材质 (Materials)</h3>
               <MaterialProp objectId={activeId} />
             </div>
-          )}
-
-          {/* Camera Component */}
-          {isAllCameras && (
-            <CameraProp objectIds={selectedIds} />
           )}
 
           {/* Light Component */}
@@ -113,8 +111,8 @@ export const InspectorPanel: React.FC = () => {
             <LightProp objectIds={selectedIds} />
           )}
 
-          {/* Digital Twin Data - Single Select Only for now */}
-          {!isMultiSelect && (
+          {/* Digital Twin Data - Single Select Only, Not for Camera */}
+          {!isMultiSelect && !isAllCameras && (
             <div className="p-3 bg-primary/5 rounded border border-primary/20">
               <div className="flex items-center text-primary mb-2">
                 <span className="material-symbols-outlined text-xs mr-2">database</span>
