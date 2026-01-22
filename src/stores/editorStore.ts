@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import type { ToolType, CursorMode, NavigationMode, ViewMode, ModifierState } from '@/features/editor/shortcuts/types';
 
 export type EditorMode = 'select' | 'translate' | 'rotate' | 'scale';
 export type RenderMode = 'shaded' | 'wireframe' | 'hybrid';
@@ -21,6 +22,30 @@ interface EditorState {
 
   // View
   camera: CameraState;
+
+  // Tool System (NEW)
+  activeTool: ToolType;
+  setActiveTool: (tool: ToolType) => void;
+
+  // Cursor State (NEW)
+  cursorMode: CursorMode;
+  setCursorMode: (mode: CursorMode) => void;
+
+  // Modifier Keys (NEW)
+  modifiers: ModifierState;
+  setModifiers: (mods: Partial<ModifierState>) => void;
+
+  // Navigation Mode (NEW)
+  navigationMode: NavigationMode;
+  setNavigationMode: (mode: NavigationMode) => void;
+
+  // View Mode (NEW)
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode) => void;
+
+  // Renaming State (NEW)
+  renamingId: string | null;
+  setRenamingId: (id: string | null) => void;
 
   // Actions
   setMode: (mode: EditorMode) => void;
@@ -45,9 +70,37 @@ export const useEditorStore = create<EditorState>()(
         target: [0, 0, 0],
       },
 
+      // Tool System (NEW)
+      activeTool: 'hand',
+      cursorMode: 'default',
+      modifiers: {
+        ctrl: false,
+        shift: false,
+        alt: false,
+      },
+      navigationMode: 'orbit',
+      viewMode: '3D',
+      renamingId: null,
+
       // Actions
       setMode: (mode) => set({ mode }),
       setRenderMode: (renderMode) => set({ renderMode }),
+
+      // Tool System Actions (NEW)
+      setActiveTool: (tool) => set({ activeTool: tool }),
+
+      setCursorMode: (mode) => set({ cursorMode: mode }),
+
+      setModifiers: (mods) =>
+        set((state) => ({
+          modifiers: { ...state.modifiers, ...mods },
+        })),
+
+      setNavigationMode: (mode) => set({ navigationMode: mode }),
+
+      setViewMode: (mode) => set({ viewMode: mode }),
+
+      setRenamingId: (id) => set({ renamingId: id }),
 
       select: (ids, append = false) =>
         set((state) => {
