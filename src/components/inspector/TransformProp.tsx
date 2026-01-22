@@ -1,25 +1,90 @@
 import React from 'react';
 import { useSceneStore } from '@/stores/sceneStore';
+import { MIXED_VALUE, getCommonValue, radToDeg, degToRad } from './utils/inspectorUtils';
 
 // Styled Axis Input with colored labels
-const AxisInput = ({ label, value, onChange, colorLabel }: any) => (
-  <div className="relative flex-1 min-w-0">
-    <span className={`absolute left-1.5 top-1/2 -translate-y-1/2 text-[8px] font-bold select-none ${colorLabel}`}>{label}</span>
-    <input
-      type="number"
-      step={0.1}
-      className="w-full pl-5 pr-1 py-1 bg-[#0c0e14] border-none rounded-sm text-[10px] font-mono text-[#cccccc] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]/50 transition-all text-left"
-      value={value}
-      onChange={(e) => onChange(parseFloat(e.target.value))}
-    />
-  </div>
-);
+const AxisInput = ({ label, value, onChange, colorLabel }: { label: string, value: number | string, onChange: (val: number) => void, colorLabel: string }) => {
+  const [localValue, setLocalValue] = React.useState<string>('');
 
-const Vector3Input = ({ label, value, onChange }: any) => {
+  React.useEffect(() => {
+    if (value === MIXED_VALUE) {
+      setLocalValue('');
+    } else {
+      setLocalValue(String(Math.round((value as number) * 100) / 100));
+    }
+  }, [value]);
+
+  const commit = () => {
+    if (localValue === '') return;
+    const num = parseFloat(localValue);
+    if (!isNaN(num)) {
+      onChange(num);
+    } else {
+      setLocalValue(value === MIXED_VALUE ? '' : String(Math.round((value as number) * 100) / 100));
+    }
+  };
+
+  return (
+    <div className="relative flex-1 min-w-0">
+      <span className={`absolute left-1.5 top-1/2 -translate-y-1/2 text-[8px] font-bold select-none ${colorLabel}`}>{label}</span>
+      <input
+        type="text"
+        className="w-full pl-5 pr-1 py-1 bg-[#0c0e14] border-none rounded-sm text-[10px] font-mono text-[#cccccc] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]/50 transition-all text-left"
+        value={localValue}
+        onChange={(e) => setLocalValue(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.currentTarget.blur();
+            commit();
+          }
+        }}
+        placeholder={value === MIXED_VALUE ? MIXED_VALUE : undefined}
+      />
+    </div>
+  );
+};
+
+const Vector3Input = ({ label, value, onChange }: { label: string, value: (number | string)[], onChange: (newValue: number[]) => void }) => {
   const handleChange = (axis: number, val: number) => {
+    // We need current values to update only one axis
+    // If current value is mixed, we still want to update all objects to the new value for this axis
+    // But we can't construct a full vector from mixed values easily here without context
+    // So we'll let the parent handle the update logic, here we just pass the constructed 'ideal' vector
+    // However, if we only have one value changing, we need to pass enough info.
+    // Actually, simpler: We construct a new vector where OTHER axes are kept as they are (or 0 if mixed? No.)
+
+    // Better approach: onChange receives the FULL new vector.
+    // If an axis is MIXED_VALUE, we can't really pass it back in the vector if we expect numbers.
+    // So we need to handle this carefully.
+
+    // Let's change the contract: onChange receives (axisIndex, newValue) or we assume non-changed values are preserved by the caller?
+    // The existing code expects a full vector.
+    // Let's try to reconstruct a vector, using 0 for mixed values as placeholders (or the user input).
+    // BUT the parent needs to know which axis changed to apply it correctly to multiple objects.
+
+    // To minimize changes, let's stick to the interface but maybe pass the previous value if known?
+    // Actually, for multi-edit, it is safer if we pass the *new value for the specific axis* and let the parent handle the merge.
+    // But to keep signature compatible with single object edit structure effectively:
+
+    // Let's modify the Vector3Input to just take the current display values (which might have mixed).
+    // And when a change happens, we construct a new array.
+
     const newValue = [...value];
     newValue[axis] = val;
-    onChange(newValue);
+    // We cast to number[] because the handler will only use the changed value
+    // But wait, if we pass [MIXED, 5, MIXED] to updateTransform, it might try to set X to "---".
+    // We should probably change how Vector3Input works or how it talks to parent.
+
+    // Let's update `Vector3Input` to call a more specific handler?
+    // Or just pass the array and let parent deal with it.
+    // But the types say `value` is `(number|string)[]`.
+    // The `onChange` expects `number[]` in the old code. We should update the signature.
+
+    // Let's act as if we are passing a "partial" update effectively.
+    // We will call onChange with a special object or just the array and handle it in parent.
+
+    onChange(newValue as any); // We'll handle the type in the parent
   };
 
   return (
@@ -28,40 +93,97 @@ const Vector3Input = ({ label, value, onChange }: any) => {
           <span className="text-[10px] text-[#999999] font-medium mb-1">{label}</span>
       </div>
       <div className="flex gap-2">
-        <AxisInput label="X" value={Math.round(value[0]*100)/100} onChange={(v: number) => handleChange(0, v)} colorLabel="text-[#ff4d4d]" />
-        <AxisInput label="Y" value={Math.round(value[1]*100)/100} onChange={(v: number) => handleChange(1, v)} colorLabel="text-[#4dff4d]" />
-        <AxisInput label="Z" value={Math.round(value[2]*100)/100} onChange={(v: number) => handleChange(2, v)} colorLabel="text-[#4d79ff]" />
+        <AxisInput label="X" value={value[0]} onChange={(v) => handleChange(0, v)} colorLabel="text-[#ff4d4d]" />
+        <AxisInput label="Y" value={value[1]} onChange={(v) => handleChange(1, v)} colorLabel="text-[#4dff4d]" />
+        <AxisInput label="Z" value={value[2]} onChange={(v) => handleChange(2, v)} colorLabel="text-[#4d79ff]" />
       </div>
     </div>
   );
 };
 
-export const TransformProp: React.FC<{ objectId: string }> = ({ objectId }) => {
-  const object = useSceneStore((state) => state.scene.objects[objectId]);
+export const TransformProp: React.FC<{ objectIds: string[] }> = ({ objectIds }) => {
+  const objects = useSceneStore((state) => state.scene.objects);
   const updateTransform = useSceneStore((state) => state.updateTransform);
 
-  if (!object) return null;
+  // Filter valid objects
+  const selectedObjects = objectIds.map(id => objects[id]).filter(Boolean);
 
-  const { position, rotation, scale } = object.transform;
+  if (selectedObjects.length === 0) return null;
+
+  // Calculate common values
+  const positions = selectedObjects.map(o => o.transform.position);
+  const rotations = selectedObjects.map(o => o.transform.rotation); // Radians
+  const scales = selectedObjects.map(o => o.transform.scale);
+
+  const commonPosition = [
+    getCommonValue(positions.map(p => p[0])),
+    getCommonValue(positions.map(p => p[1])),
+    getCommonValue(positions.map(p => p[2]))
+  ];
+
+  const commonRotationDeg = [
+    getCommonValue(rotations.map(r => radToDeg(r[0]))),
+    getCommonValue(rotations.map(r => radToDeg(r[1]))),
+    getCommonValue(rotations.map(r => radToDeg(r[2])))
+  ];
+
+  const commonScale = [
+    getCommonValue(scales.map(s => s[0])),
+    getCommonValue(scales.map(s => s[1])),
+    getCommonValue(scales.map(s => s[2]))
+  ];
+
+  const handleUpdate = (type: 'position' | 'rotation' | 'scale', newValue: (number | string)[]) => {
+    selectedObjects.forEach(obj => {
+      const current = obj.transform[type];
+      const next = [...current];
+
+      // Update only changed axes (where newValue is a number)
+      // If newValue has MIXED_VALUE, it means that axis wasn't touched by the user in this interaction
+      // (Wait, Vector3Input logic needs to be robust here.
+      // If I edit X, Vector3Input will send [newX, oldY(maybe mixed), oldZ(maybe mixed)].
+      // So if I see a number, I apply it. If I see mixed, I keep original.)
+
+      // However, if the field WAS mixed, and I didn't touch it, it remains mixed in newValue.
+      // If the field WAS common (number), and I didn't touch it, it remains number in newValue.
+
+      // So:
+      // For each axis i:
+      // If newValue[i] is a number:
+      //    Check if it's different from common value?
+      //    Or better: Just apply it.
+      //    BUT wait. If common value was 5, and I didn't change it, newValue[i] is 5.
+      //    We should apply 5? Yes, setting it to what it already is is fine.
+      // If newValue[i] is MIXED_VALUE:
+      //    We must NOT touch the value on the object.
+
+      const finalVector = [
+        typeof newValue[0] === 'number' ? (type === 'rotation' ? degToRad(newValue[0] as number) : newValue[0]) : next[0],
+        typeof newValue[1] === 'number' ? (type === 'rotation' ? degToRad(newValue[1] as number) : newValue[1]) : next[1],
+        typeof newValue[2] === 'number' ? (type === 'rotation' ? degToRad(newValue[2] as number) : newValue[2]) : next[2],
+      ] as [number, number, number];
+
+      updateTransform(obj.id, { [type]: finalVector });
+    });
+  };
 
   return (
     <div className="flex flex-col">
       <div className="pb-2">
         <Vector3Input
             label="位置 P"
-            value={position}
-            onChange={(v: number[]) => updateTransform(objectId, { position: v as any })}
+            value={commonPosition}
+            onChange={(v) => handleUpdate('position', v)}
         />
         <Vector3Input
             label="旋转 R"
-            value={rotation} // Euler in radians. UI usually shows Degrees.
-            onChange={(v: number[]) => updateTransform(objectId, { rotation: v as any })}
-            // TODO: Convert Radians <-> Degrees for UI
+            value={commonRotationDeg}
+            onChange={(v) => handleUpdate('rotation', v)}
         />
         <Vector3Input
             label="缩放 S"
-            value={scale}
-            onChange={(v: number[]) => updateTransform(objectId, { scale: v as any })}
+            value={commonScale}
+            onChange={(v) => handleUpdate('scale', v)}
         />
       </div>
     </div>
