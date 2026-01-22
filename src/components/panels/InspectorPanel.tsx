@@ -1,0 +1,104 @@
+import React from 'react';
+import { useEditorStore } from '../../stores/editorStore';
+import { useSceneStore } from '../../stores/sceneStore';
+import { TransformProp } from '../inspector/TransformProp';
+import { MaterialProp } from '../inspector/MaterialProp';
+import { TwinDataProp } from '../inspector/TwinDataProp';
+
+export const InspectorPanel: React.FC = () => {
+  const activeId = useEditorStore((state) => state.activeId);
+  const objects = useSceneStore((state) => state.scene.objects);
+  const updateComponent = useSceneStore((state) => state.updateComponent);
+
+  if (!activeId) {
+    return (
+      <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
+        {/* Panel Header */}
+        <div className="panel-title">
+          <div className="flex items-center space-x-2">
+            <span className="material-symbols-outlined text-xs">info</span>
+            <span>属性检视器 (Inspector)</span>
+          </div>
+          <button className="material-symbols-outlined text-xs hover:text-white transition-colors">settings</button>
+        </div>
+        <div className="flex flex-col flex-1 items-center justify-center text-slate-500 text-sm italic">
+          No object selected
+        </div>
+      </div>
+    );
+  }
+
+  const object = objects[activeId];
+  if (!object) return null;
+
+  return (
+    <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
+      {/* Panel Header */}
+      <div className="panel-title">
+        <div className="flex items-center space-x-2">
+          <span className="material-symbols-outlined text-xs">info</span>
+          <span>属性检视器 (Inspector)</span>
+        </div>
+        <button className="material-symbols-outlined text-xs hover:text-white transition-colors">settings</button>
+      </div>
+
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
+        {/* Object Header */}
+        <div className="p-4 border-b border-border-dark bg-header-dark/50">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-10 h-10 bg-slate-800 rounded flex items-center justify-center border border-white/5">
+              <span className="material-symbols-outlined text-primary">view_in_ar</span>
+            </div>
+            <div className="flex-1">
+              <input
+                className="bg-transparent border-none text-sm font-bold text-white focus:ring-0 p-0 w-full focus:outline-none"
+                type="text"
+                value={object.name}
+                onChange={(e) => updateComponent(activeId, 'name', { name: e.target.value })}
+                disabled
+              />
+              <div className="text-[10px] text-slate-500 uppercase tracking-tighter">Static Mesh Component</div>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <input checked className="rounded border-border-dark bg-bg-dark text-primary focus:ring-primary w-3 h-3" type="checkbox" readOnly />
+            <span className="text-[10px] text-slate-400">Active</span>
+            <div className="flex-1"></div>
+            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">Tag: Industrial</span>
+          </div>
+        </div>
+
+        {/* Components */}
+        <div className="p-4 space-y-6">
+          {/* Transform Component */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[11px] font-bold text-slate-300">几何变换 (Transform)</h3>
+              <span className="material-symbols-outlined text-xs text-slate-600 cursor-pointer hover:text-white transition-colors">refresh</span>
+            </div>
+            <div className="space-y-2">
+              <TransformProp objectId={activeId} />
+            </div>
+          </div>
+
+          {/* Materials Component */}
+          <div>
+            <h3 className="text-[11px] font-bold text-slate-300 mb-3">材质 (Materials)</h3>
+            <MaterialProp objectId={activeId} />
+          </div>
+
+          {/* Digital Twin Data */}
+          <div className="p-3 bg-primary/5 rounded border border-primary/20">
+            <div className="flex items-center text-primary mb-2">
+              <span className="material-symbols-outlined text-xs mr-2">database</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider">数字孪生数据</span>
+            </div>
+            <TwinDataProp objectId={activeId} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+/* Custom theme configuration for Tailwind v4 */
+@theme {
+  --color-primary: #3b82f6;
+  --color-accent: #f59e0b;
+  --color-bg-dark: #0c0e14;
+  --color-panel-dark: #161922;
+  --color-border-dark: #2d333f;
+  --color-header-dark: #1e222d;
+
+  --font-family-display: "Inter", "Microsoft YaHei", sans-serif;
+  --font-family-mono: "JetBrains Mono", monospace;
+}
+
+/* Material Symbols configuration - matching code.html */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+  font-size: 18px;
+}
+
+/* Panel title style - matching code.html - using plain CSS */
+.panel-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b; /* slate-500 */
+  padding: 0.5rem 0.75rem;
+  background-color: #1e222d; /* header-dark */
+  border-bottom: 1px solid #2d333f; /* border-dark */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Hierarchy item style - matching code.html - using plain CSS */
+.hierarchy-item {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.hierarchy-item:hover {
+  background-color: rgba(59, 130, 246, 0.1); /* primary/10 */
+}
+
+/* Inspector label style - matching code.html */
+.inspector-label {
+  font-size: 10px;
+  color: #64748b; /* slate-500 */
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+/* Viewport overlay style - matching code.html */
+.viewport-overlay {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Interactive elements in viewport */
+.interactive {
+  pointer-events: auto;
+}
+
+/* Custom scrollbar styling - thin style matching code.html */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Global scrollbar - thin style */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
