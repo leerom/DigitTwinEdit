@@ -24,6 +24,25 @@ export interface TwinComponent {
   status: 'online' | 'offline' | 'error';
 }
 
+// Camera Component
+export interface CameraComponent {
+  fov: number;
+  near: number;
+  far: number;
+  orthographic: boolean;
+  size?: number; // for orthographic
+}
+
+// Light Component
+export interface LightComponent {
+  color: string;
+  intensity: number;
+  type: 'directional' | 'point' | 'spot' | 'ambient';
+  castShadow?: boolean;
+  range?: number; // for point/spot
+  angle?: number; // for spot
+}
+
 // Object Types
 export enum ObjectType {
   GROUP = 'Group',
@@ -46,6 +65,8 @@ export interface SceneObject {
   components?: {
     mesh?: MeshComponent;
     twin?: TwinComponent;
+    camera?: CameraComponent;
+    light?: LightComponent;
     [key: string]: any;
   };
 }
