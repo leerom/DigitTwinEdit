@@ -97,7 +97,9 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth }) =
 });
 
 export const HierarchyPanel: React.FC = () => {
+  const sceneName = useSceneStore((state) => state.scene.name);
   const rootId = useSceneStore((state) => state.scene.root);
+  const rootObject = useSceneStore((state) => state.scene.objects[rootId]);
 
   return (
     <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
@@ -116,35 +118,14 @@ export const HierarchyPanel: React.FC = () => {
         <div className="hierarchy-item text-slate-400 font-semibold mb-1">
           <span className="material-symbols-outlined text-xs mr-1">expand_more</span>
           <span className="material-symbols-outlined text-xs mr-2 text-blue-400">deployed_code</span>
-          <span>SampleScene</span>
+          <span>{sceneName}</span>
         </div>
 
         {/* Scene Objects */}
         <div className="pl-4">
-          {/* Main Camera */}
-          <div className="hierarchy-item">
-            <span className="material-symbols-outlined text-xs mr-2 text-slate-500">videocam</span>
-            <span>Main Camera</span>
-          </div>
-
-          {/* Directional Light */}
-          <div className="hierarchy-item">
-            <span className="material-symbols-outlined text-xs mr-2 text-yellow-400">light_mode</span>
-            <span>Directional Light</span>
-          </div>
-
-          {/* Dynamic objects from store */}
-          <HierarchyItem id={rootId} depth={0} />
-
-          {/* Additional static items to match sample */}
-          <div className="hierarchy-item">
-            <span className="material-symbols-outlined text-xs mr-2 text-slate-500">grid_view</span>
-            <span>Ground_Plane</span>
-          </div>
-          <div className="hierarchy-item">
-            <span className="material-symbols-outlined text-xs mr-2 text-slate-500">precision_manufacturing</span>
-            <span>HVAC_System_Group</span>
-          </div>
+          {rootObject && rootObject.children.map((childId) => (
+            <HierarchyItem key={childId} id={childId} depth={0} />
+          ))}
         </div>
       </div>
     </div>
