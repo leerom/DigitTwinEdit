@@ -45,46 +45,11 @@ const AxisInput = ({ label, value, onChange, colorLabel }: { label: string, valu
   );
 };
 
-const Vector3Input = ({ label, value, onChange }: { label: string, value: (number | string)[], onChange: (newValue: number[]) => void }) => {
+const Vector3Input = ({ label, value, onChange }: { label: string, value: (number | string)[], onChange: (newValue: (number | string)[]) => void }) => {
   const handleChange = (axis: number, val: number) => {
-    // We need current values to update only one axis
-    // If current value is mixed, we still want to update all objects to the new value for this axis
-    // But we can't construct a full vector from mixed values easily here without context
-    // So we'll let the parent handle the update logic, here we just pass the constructed 'ideal' vector
-    // However, if we only have one value changing, we need to pass enough info.
-    // Actually, simpler: We construct a new vector where OTHER axes are kept as they are (or 0 if mixed? No.)
-
-    // Better approach: onChange receives the FULL new vector.
-    // If an axis is MIXED_VALUE, we can't really pass it back in the vector if we expect numbers.
-    // So we need to handle this carefully.
-
-    // Let's change the contract: onChange receives (axisIndex, newValue) or we assume non-changed values are preserved by the caller?
-    // The existing code expects a full vector.
-    // Let's try to reconstruct a vector, using 0 for mixed values as placeholders (or the user input).
-    // BUT the parent needs to know which axis changed to apply it correctly to multiple objects.
-
-    // To minimize changes, let's stick to the interface but maybe pass the previous value if known?
-    // Actually, for multi-edit, it is safer if we pass the *new value for the specific axis* and let the parent handle the merge.
-    // But to keep signature compatible with single object edit structure effectively:
-
-    // Let's modify the Vector3Input to just take the current display values (which might have mixed).
-    // And when a change happens, we construct a new array.
-
     const newValue = [...value];
     newValue[axis] = val;
-    // We cast to number[] because the handler will only use the changed value
-    // But wait, if we pass [MIXED, 5, MIXED] to updateTransform, it might try to set X to "---".
-    // We should probably change how Vector3Input works or how it talks to parent.
-
-    // Let's update `Vector3Input` to call a more specific handler?
-    // Or just pass the array and let parent deal with it.
-    // But the types say `value` is `(number|string)[]`.
-    // The `onChange` expects `number[]` in the old code. We should update the signature.
-
-    // Let's act as if we are passing a "partial" update effectively.
-    // We will call onChange with a special object or just the array and handle it in parent.
-
-    onChange(newValue as any); // We'll handle the type in the parent
+    onChange(newValue);
   };
 
   return (
