@@ -103,24 +103,8 @@ export const TransformProp: React.FC<{ objectIds: string[] }> = ({ objectIds }) 
       const current = obj.transform[type];
       const next = [...current];
 
-      // Update only changed axes (where newValue is a number)
-      // If newValue has MIXED_VALUE, it means that axis wasn't touched by the user in this interaction
-      // (Wait, Vector3Input logic needs to be robust here.
-      // If I edit X, Vector3Input will send [newX, oldY(maybe mixed), oldZ(maybe mixed)].
-      // So if I see a number, I apply it. If I see mixed, I keep original.)
-
-      // However, if the field WAS mixed, and I didn't touch it, it remains mixed in newValue.
-      // If the field WAS common (number), and I didn't touch it, it remains number in newValue.
-
-      // So:
-      // For each axis i:
-      // If newValue[i] is a number:
-      //    Check if it's different from common value?
-      //    Or better: Just apply it.
-      //    BUT wait. If common value was 5, and I didn't change it, newValue[i] is 5.
-      //    We should apply 5? Yes, setting it to what it already is is fine.
-      // If newValue[i] is MIXED_VALUE:
-      //    We must NOT touch the value on the object.
+      // Update only specific axes that have numeric values.
+      // If a value is MIXED_VALUE, preserve the object's original value for that axis.
 
       const finalVector = [
         typeof newValue[0] === 'number' ? (type === 'rotation' ? degToRad(newValue[0] as number) : newValue[0]) : next[0],
