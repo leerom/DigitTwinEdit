@@ -1,12 +1,16 @@
 import React from 'react';
 import { useEditorStore } from '../../stores/editorStore';
 import { useSceneStore } from '../../stores/sceneStore';
+import { ObjectType } from '@/types';
 import { TransformProp } from '../inspector/TransformProp';
 import { MaterialProp } from '../inspector/MaterialProp';
 import { TwinDataProp } from '../inspector/TwinDataProp';
+import { CameraProp } from '../inspector/specific/CameraProp';
+import { LightProp } from '../inspector/specific/LightProp';
 
 export const InspectorPanel: React.FC = () => {
   const activeId = useEditorStore((state) => state.activeId);
+  const selectedIds = useEditorStore((state) => state.selectedIds);
   const objects = useSceneStore((state) => state.scene.objects);
   const updateComponent = useSceneStore((state) => state.updateComponent);
 
@@ -31,6 +35,8 @@ export const InspectorPanel: React.FC = () => {
   const object = objects[activeId];
   if (!object) return null;
 
+  const isMultiSelect = selectedIds.length > 1;
+
   return (
     <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
       {/* Panel Header */}
@@ -48,17 +54,21 @@ export const InspectorPanel: React.FC = () => {
         <div className="p-4 border-b border-border-dark bg-header-dark/50">
           <div className="flex items-center space-x-3 mb-4">
             <div className="w-10 h-10 bg-slate-800 rounded flex items-center justify-center border border-white/5">
-              <span className="material-symbols-outlined text-primary">view_in_ar</span>
+              <span className="material-symbols-outlined text-primary">
+                {isMultiSelect ? 'select_all' : 'view_in_ar'}
+              </span>
             </div>
             <div className="flex-1">
               <input
                 className="bg-transparent border-none text-sm font-bold text-white focus:ring-0 p-0 w-full focus:outline-none"
                 type="text"
-                value={object.name}
+                value={isMultiSelect ? `${selectedIds.length} Objects Selected` : object.name}
                 onChange={(e) => updateComponent(activeId, 'name', { name: e.target.value })}
-                disabled
+                disabled={isMultiSelect}
               />
-              <div className="text-[10px] text-slate-500 uppercase tracking-tighter">Static Mesh Component</div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-tighter">
+                {isMultiSelect ? 'Multiple Selection' : 'Static Mesh Component'}
+              </div>
             </div>
           </div>
 
@@ -79,24 +89,38 @@ export const InspectorPanel: React.FC = () => {
               <span className="material-symbols-outlined text-xs text-slate-600 cursor-pointer hover:text-white transition-colors">refresh</span>
             </div>
             <div className="space-y-2">
-              <TransformProp objectIds={[activeId]} />
+              <TransformProp objectIds={selectedIds} />
             </div>
           </div>
 
-          {/* Materials Component */}
-          <div>
-            <h3 className="text-[11px] font-bold text-slate-300 mb-3">材质 (Materials)</h3>
-            <MaterialProp objectId={activeId} />
-          </div>
-
-          {/* Digital Twin Data */}
-          <div className="p-3 bg-primary/5 rounded border border-primary/20">
-            <div className="flex items-center text-primary mb-2">
-              <span className="material-symbols-outlined text-xs mr-2">database</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider">数字孪生数据</span>
+          {/* Materials Component - Single Select Only for now */}
+          {!isMultiSelect && (
+            <div>
+              <h3 className="text-[11px] font-bold text-slate-300 mb-3">材质 (Materials)</h3>
+              <MaterialProp objectId={activeId} />
             </div>
-            <TwinDataProp objectId={activeId} />
-          </div>
+          )}
+
+          {/* Camera Component */}
+          {object.type === ObjectType.CAMERA && (
+            <CameraProp objectIds={selectedIds} />
+          )}
+
+          {/* Light Component */}
+          {object.type === ObjectType.LIGHT && (
+            <LightProp objectIds={selectedIds} />
+          )}
+
+          {/* Digital Twin Data - Single Select Only for now */}
+          {!isMultiSelect && (
+            <div className="p-3 bg-primary/5 rounded border border-primary/20">
+              <div className="flex items-center text-primary mb-2">
+                <span className="material-symbols-outlined text-xs mr-2">database</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider">数字孪生数据</span>
+              </div>
+              <TwinDataProp objectId={activeId} />
+            </div>
+          )}
         </div>
       </div>
     </div>
