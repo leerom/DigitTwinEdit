@@ -86,6 +86,7 @@ export const Header: React.FC = () => {
     const newScene = SceneManager.createNewScene(name);
     loadScene(newScene);
     SceneManager.saveSceneToFile(newScene);
+    markClean();
     setShowNewSceneDialog(false);
   };
 
