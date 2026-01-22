@@ -36,6 +36,8 @@ export const InspectorPanel: React.FC = () => {
   if (!object) return null;
 
   const isMultiSelect = selectedIds.length > 1;
+  const isAllCameras = selectedIds.every(id => objects[id]?.type === ObjectType.CAMERA);
+  const isAllLights = selectedIds.every(id => objects[id]?.type === ObjectType.LIGHT);
 
   return (
     <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
@@ -102,12 +104,12 @@ export const InspectorPanel: React.FC = () => {
           )}
 
           {/* Camera Component */}
-          {object.type === ObjectType.CAMERA && (
+          {isAllCameras && (
             <CameraProp objectIds={selectedIds} />
           )}
 
           {/* Light Component */}
-          {object.type === ObjectType.LIGHT && (
+          {isAllLights && (
             <LightProp objectIds={selectedIds} />
           )}
 

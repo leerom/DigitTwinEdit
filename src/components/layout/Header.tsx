@@ -6,6 +6,7 @@ import { InputDialog } from '../common/InputDialog';
 import { SceneLoader } from '../../features/scene/services/SceneLoader';
 import { SceneManager } from '../../features/scene/services/SceneManager';
 import { useSceneStore } from '../../stores/sceneStore';
+import { useEditorStore } from '../../stores/editorStore';
 import { Upload, FileDown, Trash2, FilePlus } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -18,6 +19,7 @@ export const Header: React.FC = () => {
   const sceneLoader = new SceneLoader();
 
   const { isDirty, scene, markClean, loadScene } = useSceneStore();
+  const clearSelection = useEditorStore((state) => state.clearSelection);
 
   const handleImportClick = () => {
     // 触发文件选择
@@ -78,6 +80,7 @@ export const Header: React.FC = () => {
     loadScene(newScene);
     SceneManager.saveSceneToFile(newScene);
     markClean();
+    clearSelection();
     setShowNewSceneDialog(false);
   };
 

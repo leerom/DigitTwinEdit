@@ -40,6 +40,7 @@ export interface LightComponent {
   type: 'directional' | 'point' | 'spot' | 'ambient';
   castShadow?: boolean;
   range?: number; // for point/spot
+  decay?: number; // for point/spot
   angle?: number; // for spot
 }
 

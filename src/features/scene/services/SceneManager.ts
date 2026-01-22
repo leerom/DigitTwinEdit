@@ -43,8 +43,8 @@ export class SceneManager {
       visible: true,
       locked: false,
       transform: {
-        position: [0, 5, 10],
-        rotation: [-0.5, 0, 0], // Slight look down
+        position: [0, 1, -10],
+        rotation: [0, 0, 0],
         scale: [1, 1, 1],
       },
       components: {
@@ -61,8 +61,8 @@ export class SceneManager {
       visible: true,
       locked: false,
       transform: {
-        position: [5, 10, 5],
-        rotation: [-0.8, -0.6, 0], // Pointing down-ish
+        position: [0, 3, 0],
+        rotation: [50 * (Math.PI / 180), -30 * (Math.PI / 180), 0],
         scale: [1, 1, 1],
       },
       components: {

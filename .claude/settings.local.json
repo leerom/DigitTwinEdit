@@ -45,7 +45,17 @@
       "Bash(git checkout:*)",
       "Bash(git merge:*)",
       "Skill(superpowers:writing-plans)",
-      "Skill(superpowers:executing-plans)"
+      "Skill(superpowers:executing-plans)",
+      "mcp__chrome-devtools__click",
+      "mcp__chrome-devtools__fill",
+      "Bash(__NEW_LINE_ca6c157cd3081589__ echo \"Expected Properties:\")",
+      "mcp__chrome-devtools__press_key",
+      "Skill(superpowers:brainstorming)",
+      "Skill(superpowers:subagent-driven-development)",
+      "Skill(superpowers:finishing-a-development-branch)",
+      "Bash(git merge-base:*)",
+      "Bash(git worktree:*)",
+      "Skill(git_commit)"
     ]
   }
 }
