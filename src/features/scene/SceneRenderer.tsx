@@ -27,9 +27,9 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   if (!object) return null;
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
-    e.stopPropagation(); // Prevent clicking through to background
+    e.stopPropagation();
 
-    if (e.delta > 2) return; // Ignore drags
+    if (e.delta > 2) return;
 
     const isMultiSelect = e.ctrlKey || e.metaKey;
     select([id], isMultiSelect);
@@ -37,14 +37,12 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
 
   const { position, rotation, scale } = object.transform;
 
-  // Render children recursively
   const children = object.children.map((childId) => (
     <ObjectRenderer key={childId} id={childId} />
   ));
 
-  // Determine Material Props based on Render Mode
   const isWireframe = renderMode === 'wireframe';
-  const showEdges = renderMode === 'hybrid'; // Hybrid shows edges on top?
+  const showEdges = renderMode === 'hybrid';
 
   return (
     <group
@@ -69,7 +67,6 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
         </mesh>
       )}
 
-      {/* Camera Visualization */}
       {object.type === ObjectType.CAMERA && (
         <group>
            <perspectiveCamera
@@ -78,12 +75,10 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
              near={object.components?.camera?.near ?? 0.1}
              far={object.components?.camera?.far ?? 1000}
            />
-           {/* Camera Icon - Purple Box */}
            <mesh>
              <boxGeometry args={[0.5, 0.5, 0.5]} />
              <meshBasicMaterial color="#8800ff" wireframe={isWireframe} />
            </mesh>
-           {/* Arrow to show direction */}
            <mesh position={[0, 0, 0.5]} rotation={[Math.PI / 2, 0, 0]}>
              <coneGeometry args={[0.2, 0.5, 16]} />
              <meshBasicMaterial color="#8800ff" wireframe={isWireframe} />
@@ -91,7 +86,6 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
         </group>
       )}
 
-      {/* Light Visualization */}
       {object.type === ObjectType.LIGHT && (
         <group>
           <directionalLight
@@ -99,12 +93,10 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
             color={object.components?.light?.color ?? '#ffffff'}
             intensity={object.components?.light?.intensity ?? 1}
           />
-          {/* Light Icon - Yellow Sphere */}
           <mesh>
             <sphereGeometry args={[0.3, 16, 16]} />
             <meshBasicMaterial color="#ffff00" wireframe={isWireframe} />
           </mesh>
-          {/* Rays representation */}
            <group>
              {[0, Math.PI/2, Math.PI, -Math.PI/2].map((angle, i) => (
                <mesh key={i} rotation={[0, 0, angle]} position={[Math.cos(angle)*0.5, Math.sin(angle)*0.5, 0]}>
@@ -116,10 +108,8 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
         </group>
       )}
 
-      {/* Visual helper for empty groups or non-mesh objects */}
       {object.type === ObjectType.GROUP && (
         <group>
-            {/* Maybe a helper icon? */}
         </group>
       )}
 
@@ -130,7 +120,5 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
 
 export const SceneContent: React.FC = () => {
   const rootId = useSceneStore((state) => state.scene.root);
-  // We don't render root itself usually, or we do?
-  // Root is a Group.
   return <ObjectRenderer id={rootId} />;
 };

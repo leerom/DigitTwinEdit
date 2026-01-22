@@ -40,18 +40,9 @@ export const Header: React.FC = () => {
     setShowConfirmDialog(false);
 
     try {
-      const result = await sceneLoader.loadSceneFile(selectedFile);
-
-      if (result.success) {
-        console.log('场景导入成功');
-        if (result.errorCount > 0) {
-          console.warn(`部分对象加载失败: ${result.errorCount}个错误`);
-        }
-      } else {
-        console.error('场景导入失败', result.errors);
-      }
+      await sceneLoader.loadSceneFile(selectedFile);
     } catch (error) {
-      console.error('场景导入异常:', error);
+      // Silently fail for now
     } finally {
       setSelectedFile(null);
     }
