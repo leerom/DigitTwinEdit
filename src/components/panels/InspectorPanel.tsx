@@ -79,7 +79,7 @@ export const InspectorPanel: React.FC = () => {
               <span className="material-symbols-outlined text-xs text-slate-600 cursor-pointer hover:text-white transition-colors">refresh</span>
             </div>
             <div className="space-y-2">
-              <TransformProp objectId={activeId} />
+              <TransformProp objectIds={[activeId]} />
             </div>
           </div>
 
