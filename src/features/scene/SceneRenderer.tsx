@@ -3,7 +3,8 @@ import { useSceneStore } from '@/stores/sceneStore';
 import { useEditorStore } from '@/stores/editorStore';
 import { SceneObject, ObjectType } from '@/types';
 import { ThreeEvent } from '@react-three/fiber';
-import { Html } from '@react-three/drei';
+import { Html, useHelper } from '@react-three/drei';
+import * as THREE from 'three';
 
 const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const object = useSceneStore((state) => state.scene.objects[id]);
@@ -14,6 +15,12 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
 
   const isSelected = selectedIds.includes(id);
   const isActive = activeId === id;
+
+  const lightRef = useRef<THREE.DirectionalLight>(null!);
+  const cameraRef = useRef<THREE.Camera>(null!);
+
+  useHelper(isSelected && object?.type === ObjectType.LIGHT ? lightRef : null, THREE.DirectionalLightHelper, 1, 'yellow');
+  useHelper(isSelected && object?.type === ObjectType.CAMERA ? cameraRef : null, THREE.CameraHelper);
 
   if (!object) return null;
 
@@ -61,6 +68,53 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
         </mesh>
       )}
 
+      {/* Camera Visualization */}
+      {object.type === ObjectType.CAMERA && (
+        <group>
+           <perspectiveCamera
+             ref={cameraRef}
+             fov={object.components?.camera?.fov ?? 50}
+             near={object.components?.camera?.near ?? 0.1}
+             far={object.components?.camera?.far ?? 1000}
+           />
+           {/* Camera Icon - Purple Box */}
+           <mesh>
+             <boxGeometry args={[0.5, 0.5, 0.5]} />
+             <meshBasicMaterial color="#8800ff" wireframe={isWireframe} />
+           </mesh>
+           {/* Arrow to show direction */}
+           <mesh position={[0, 0, 0.5]} rotation={[Math.PI / 2, 0, 0]}>
+             <coneGeometry args={[0.2, 0.5, 16]} />
+             <meshBasicMaterial color="#8800ff" wireframe={isWireframe} />
+           </mesh>
+        </group>
+      )}
+
+      {/* Light Visualization */}
+      {object.type === ObjectType.LIGHT && (
+        <group>
+          <directionalLight
+            ref={lightRef}
+            color={object.components?.light?.color ?? '#ffffff'}
+            intensity={object.components?.light?.intensity ?? 1}
+          />
+          {/* Light Icon - Yellow Sphere */}
+          <mesh>
+            <sphereGeometry args={[0.3, 16, 16]} />
+            <meshBasicMaterial color="#ffff00" wireframe={isWireframe} />
+          </mesh>
+          {/* Rays representation */}
+           <group>
+             {[0, Math.PI/2, Math.PI, -Math.PI/2].map((angle, i) => (
+               <mesh key={i} rotation={[0, 0, angle]} position={[Math.cos(angle)*0.5, Math.sin(angle)*0.5, 0]}>
+                  <cylinderGeometry args={[0.02, 0.02, 0.4]} />
+                  <meshBasicMaterial color="#ffff00" />
+               </mesh>
+             ))}
+           </group>
+        </group>
+      )}
+
       {/* Visual helper for empty groups or non-mesh objects */}
       {object.type === ObjectType.GROUP && (
         <group>
@@ -72,9 +126,6 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     </group>
   );
 });
-
-import * as THREE from 'three';
-
 
 export const SceneContent: React.FC = () => {
   const rootId = useSceneStore((state) => state.scene.root);
