@@ -55,7 +55,8 @@
       "Skill(superpowers:finishing-a-development-branch)",
       "Bash(git merge-base:*)",
       "Bash(git worktree:*)",
-      "Skill(git_commit)"
+      "Skill(git_commit)",
+      "mcp__chrome-devtools__close_page"
     ]
   }
 }
