@@ -46,6 +46,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
 
   return (
     <group
+      name={id} // Add name prop to allow finding object by ID
       position={position}
       rotation={rotation}
       scale={scale}
