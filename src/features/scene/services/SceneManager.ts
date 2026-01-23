@@ -126,4 +126,34 @@ export class SceneManager {
       castShadow: true,
     };
   }
+
+  /**
+   * Creates a new mesh object with specified geometry
+   */
+  static createMesh(name: string, geometryType: 'box' | 'sphere' | 'plane' | 'cylinder' | 'torus' | 'capsule' = 'box'): SceneObject {
+      const id = uuidv4();
+      return {
+        id,
+        name,
+        type: ObjectType.MESH,
+        parentId: null,
+        children: [],
+        visible: true,
+        locked: false,
+        transform: {
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          scale: [1, 1, 1],
+        },
+        components: {
+          mesh: {
+            assetId: 'default',
+            materialId: 'default',
+            geometry: geometryType,
+            castShadow: true,
+            receiveShadow: true,
+          }
+        }
+      };
+  }
 }

@@ -7,7 +7,7 @@ import { SceneLoader } from '../../features/scene/services/SceneLoader';
 import { SceneManager } from '../../features/scene/services/SceneManager';
 import { useSceneStore } from '../../stores/sceneStore';
 import { useEditorStore } from '../../stores/editorStore';
-import { Upload, FileDown, Trash2, FilePlus } from 'lucide-react';
+import { Upload, FileDown, FilePlus, Box, Circle, Square, Sun, Layers, Cylinder } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -18,7 +18,7 @@ export const Header: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sceneLoader = new SceneLoader();
 
-  const { isDirty, scene, markClean, loadScene } = useSceneStore();
+  const { isDirty, scene, markClean, loadScene, addObject } = useSceneStore();
   const clearSelection = useEditorStore((state) => state.clearSelection);
 
   const handleImportClick = () => {
@@ -102,6 +102,56 @@ export const Header: React.FC = () => {
     },
   ];
 
+  const addMenuItems: DropdownMenuItem[] = [
+    {
+      label: '3D对象',
+      icon: <Box className="w-3 h-3" />,
+      children: [
+        {
+          label: '平面 (Plane)',
+          onClick: () => addObject(SceneManager.createMesh('Plane', 'plane')),
+          icon: <Square className="w-3 h-3" />,
+        },
+        {
+          label: '立方体 (Cube)',
+          onClick: () => addObject(SceneManager.createMesh('Cube', 'box')),
+          icon: <Box className="w-3 h-3" />,
+        },
+        {
+          label: '球体 (Sphere)',
+          onClick: () => addObject(SceneManager.createMesh('Sphere', 'sphere')),
+          icon: <Circle className="w-3 h-3" />,
+        },
+        {
+            label: '圆柱体 (Cylinder)',
+            onClick: () => addObject(SceneManager.createMesh('Cylinder', 'cylinder')),
+            icon: <Cylinder className="w-3 h-3" />,
+        },
+        {
+          label: '胶囊体 (Capsule)',
+          onClick: () => addObject(SceneManager.createMesh('Capsule', 'capsule')),
+          icon: <div className="w-3 h-3 border border-current rounded-full" />,
+        },
+      ]
+    },
+    {
+      label: '光源',
+      icon: <Sun className="w-3 h-3" />,
+      children: [
+        { label: '环境光 (Ambient)', disabled: true },
+        { label: '平行光 (Directional)', disabled: true },
+        { label: '半球光 (Hemisphere)', disabled: true },
+        { label: '点光源 (Point)', disabled: true },
+        { label: '聚光灯 (Spot)', disabled: true },
+      ]
+    },
+    {
+      label: '模型',
+      icon: <Layers className="w-3 h-3" />,
+      disabled: true
+    }
+  ];
+
   const MenuItem: React.FC<{ label: string }> = ({ label }) => (
     <button className="px-2 py-1 text-xs hover:bg-slate-700 rounded transition-colors text-slate-300">
       {label}
@@ -134,6 +184,14 @@ export const Header: React.FC = () => {
             items={sceneMenuItems}
           />
           <MenuItem label="编辑" />
+          <DropdownMenu
+            trigger={
+              <button className="px-2 py-1 text-xs hover:bg-slate-700 rounded transition-colors text-slate-300 flex items-center gap-1">
+                添加
+              </button>
+            }
+            items={addMenuItems}
+          />
           <MenuItem label="资产" />
           <MenuItem label="游戏对象" />
           <MenuItem label="组件" />

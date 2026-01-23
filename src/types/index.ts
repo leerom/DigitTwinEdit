@@ -12,6 +12,7 @@ export interface TransformComponent {
 export interface MeshComponent {
   assetId: string;
   materialId: string;
+  geometry?: 'box' | 'sphere' | 'plane' | 'cylinder' | 'torus' | 'capsule';
   castShadow: boolean;
   receiveShadow: boolean;
 }

@@ -1,9 +1,9 @@
 import React, { useRef } from 'react';
 import { useSceneStore } from '@/stores/sceneStore';
 import { useEditorStore } from '@/stores/editorStore';
-import { SceneObject, ObjectType } from '@/types';
+import { ObjectType } from '@/types';
 import { ThreeEvent } from '@react-three/fiber';
-import { Html, useHelper } from '@react-three/drei';
+import { useHelper } from '@react-three/drei';
 import * as THREE from 'three';
 
 const DEFAULT_BOX_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
@@ -12,11 +12,11 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const object = useSceneStore((state) => state.scene.objects[id]);
   const selectedIds = useEditorStore((state) => state.selectedIds);
   const select = useEditorStore((state) => state.select);
-  const activeId = useEditorStore((state) => state.activeId);
+  // const activeId = useEditorStore((state) => state.activeId);
   const renderMode = useEditorStore((state) => state.renderMode);
 
   const isSelected = selectedIds.includes(id);
-  const isActive = activeId === id;
+  // const isActive = activeId === id;
 
   const lightRef = useRef<THREE.DirectionalLight>(null!);
   const cameraRef = useRef<THREE.Camera>(null!);
@@ -45,6 +45,21 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const isWireframe = renderMode === 'wireframe';
   const showEdges = renderMode === 'hybrid';
 
+  const geometry = React.useMemo(() => {
+    if (object.type !== ObjectType.MESH) return null;
+    const geoType = object.components?.mesh?.geometry || 'box';
+
+    switch (geoType) {
+      case 'sphere': return new THREE.SphereGeometry(0.5, 32, 32);
+      case 'plane': return new THREE.PlaneGeometry(1, 1);
+      case 'cylinder': return new THREE.CylinderGeometry(0.5, 0.5, 1, 32);
+      case 'capsule': return new THREE.CapsuleGeometry(0.5, 1, 4, 8);
+      case 'torus': return new THREE.TorusGeometry(0.5, 0.2, 16, 100);
+      case 'box':
+      default: return DEFAULT_BOX_GEOMETRY;
+    }
+  }, [object.type, object.components?.mesh?.geometry]);
+
   return (
     <group
       name={id} // Add name prop to allow finding object by ID
@@ -53,8 +68,8 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       scale={scale}
       onClick={handleClick}
     >
-      {object.type === ObjectType.MESH && (
-        <mesh castShadow receiveShadow geometry={DEFAULT_BOX_GEOMETRY}>
+      {object.type === ObjectType.MESH && geometry && (
+        <mesh castShadow receiveShadow geometry={geometry}>
           <meshStandardMaterial
             color={isSelected ? '#ff9900' : (object.components?.mesh?.materialId === 'default' ? 'orange' : '#cccccc')}
             emissive={isSelected ? '#442200' : '#000000'}
@@ -62,7 +77,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
           />
            {showEdges && (
               <lineSegments>
-                <edgesGeometry args={[DEFAULT_BOX_GEOMETRY]} />
+                <edgesGeometry args={[geometry]} />
                 <lineBasicMaterial color="black" />
               </lineSegments>
            )}
