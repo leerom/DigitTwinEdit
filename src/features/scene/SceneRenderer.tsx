@@ -31,8 +31,9 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
 
     if (e.delta > 2) return;
 
-    const isMultiSelect = e.ctrlKey || e.metaKey;
-    select([id], isMultiSelect);
+    // Force single selection
+    // const isMultiSelect = e.ctrlKey || e.metaKey;
+    select([id], false);
   };
 
   const { position, rotation, scale } = object.transform;

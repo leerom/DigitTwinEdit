@@ -21,8 +21,9 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth }) =
 
   const handleSelect = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const isMulti = e.ctrlKey || e.metaKey;
-    select([id], isMulti);
+    // Single selection only as per requirement
+    // const isMulti = e.ctrlKey || e.metaKey;
+    select([id], false);
   };
 
   const toggleExpand = (e: React.MouseEvent) => {
