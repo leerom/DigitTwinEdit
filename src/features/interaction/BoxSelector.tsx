@@ -1,19 +1,21 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { useThree, useFrame } from '@react-three/fiber';
+import { useThree } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { useEditorStore } from '@/stores/editorStore';
 import { useSceneStore } from '@/stores/sceneStore';
 import * as THREE from 'three';
 
 export const BoxSelector: React.FC = () => {
-  const { gl, scene, camera } = useThree();
+  const { gl, camera } = useThree();
   const select = useEditorStore((state) => state.select);
   const objects = useSceneStore((state) => state.scene.objects);
-  const mode = useEditorStore((state) => state.mode);
+  const activeTool = useEditorStore((state) => state.activeTool); // Changed from mode to activeTool
 
   const startPoint = useRef<{ x: number; y: number } | null>(null);
   const [selectionBox, setSelectionBox] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const isSelecting = useRef(false);
+  // Track modifier state at the start of drag
+  const dragModifiers = useRef({ ctrl: false, alt: false, shift: false });
 
   // Helper to get mouse coords
   const getMousePos = (e: MouseEvent) => {
@@ -28,16 +30,31 @@ export const BoxSelector: React.FC = () => {
     const canvas = gl.domElement;
 
     const onMouseDown = (e: MouseEvent) => {
-      // Only start box selection if left click and NOT Alt/Right/Middle
-      // Also check if we hit a gizmo (Gizmo should stop propagation, but we are attaching to canvas)
-      // If we clicked an object, SelectionManager handles it.
-      // We need to differentiate "Click" vs "Drag Start".
+      // Only start box selection if left click and NOT Alt (Orbit)
+      // activeTool must be 'hand' (Q) or specific selection tool if we separate them?
+      // Requirement: "Left Drag draws selection box" usually implies Select Mode.
+      // But if activeTool is 'translate', drag usually moves the gizmo.
+      // If we miss the gizmo, we might want to box select? Or clear selection?
+      // Standard behavior: If miss gizmo, drag background -> Box Select.
+      // For now, let's allow it if activeTool is 'select' (which we mapped to 'hand' or default).
+      // Actually 'hand' (Q) is for Panning (Left Drag).
+      // So Box Select should probably happen when NOT in Hand mode, OR if we handle Q separately.
+      // Wait, "Q - Grab Tool (Hand Tool): View Navigation".
+      // So Q + Left Drag = Pan.
+      // Box Select usually happens with a specific Select Tool or when no other tool consumes the drag.
+      // If we are in W/E/R, dragging background usually rotates view (if no gizmo hit)? Or Box Selects?
+      // Unity: Q=Pan, W=Move. In W, dragging background = Box Select. Alt+Drag = Rotate.
+      // Let's implement: Left Drag = Box Select (unless Alt is pressed).
 
-      if (e.button !== 0 || e.altKey || mode !== 'select') return;
+      if (e.button !== 0 || e.altKey) return;
 
-      // We start tracking, but only show box if dragged threshold exceeded
+      // Check if we are in Hand mode -> Pan, not Select
+      if (activeTool === 'hand') return;
+
+      // We start tracking
       startPoint.current = getMousePos(e);
       isSelecting.current = true;
+      dragModifiers.current = { ctrl: e.ctrlKey || e.metaKey, alt: e.altKey, shift: e.shiftKey };
     };
 
     const onMouseMove = (e: MouseEvent) => {
@@ -60,7 +77,6 @@ export const BoxSelector: React.FC = () => {
 
     const onMouseUp = () => {
       if (isSelecting.current && selectionBox) {
-        // Perform Frustum Selection
         performBoxSelection();
       }
 
@@ -78,12 +94,11 @@ export const BoxSelector: React.FC = () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
     };
-  }, [gl, mode, selectionBox]); // Dep on selectionBox is risky if it changes fast, but here it's for closure? No, useRefs cover state.
+  }, [gl, activeTool, selectionBox]);
 
   const performBoxSelection = () => {
     if (!selectionBox) return;
 
-    // 1. Convert 2D box to Normalized Device Coordinates (NDC)
     const rect = gl.domElement.getBoundingClientRect();
     const startX = (selectionBox.x / rect.width) * 2 - 1;
     const startY = -((selectionBox.y / rect.height) * 2 - 1);
@@ -95,25 +110,15 @@ export const BoxSelector: React.FC = () => {
     const minY = Math.min(startY, endY);
     const maxY = Math.max(startY, endY);
 
-    // 2. Iterate all selectable objects and check if their center is inside the frustum
-    // Ideally we check bounding box intersection with frustum.
-    // Three.js has Frustum.setFromProjectionMatrix
-    // But here we are in 2D Screen Space check for centers is easier for MVP.
-    // Or we project object position to screen space.
-
     const newSelection: string[] = [];
 
-    // Traverse Scene Store objects
     Object.values(objects).forEach((obj) => {
-       if (obj.type === 'Group' || obj.id === 'root') return; // Skip groups/root? Depends on requirements. Usually leaf nodes.
+       if (obj.type === 'Group' || obj.id === 'root') return;
 
-       // Project position to screen
        const pos = new THREE.Vector3(...obj.transform.position);
-       pos.project(camera); // map to -1 to 1
+       pos.project(camera);
 
        if (pos.x >= minX && pos.x <= maxX && pos.y >= minY && pos.y <= maxY) {
-         // Also check z to ensure it's in front of camera?
-         // pos.z is between -1 (near) and 1 (far)
          if (pos.z >= -1 && pos.z <= 1) {
             newSelection.push(obj.id);
          }
@@ -121,10 +126,16 @@ export const BoxSelector: React.FC = () => {
     });
 
     if (newSelection.length > 0) {
-      select(newSelection, false); // Replace selection? or Append if Shift?
-      // Requirement: "Left Drag draws selection box"
-      // Usually Shift+Drag adds to selection.
-      // We can check shift key from last event or generic input state.
+      // Support modifiers:
+      // Ctrl: Append
+      // No modifier: Replace
+      // (Alt logic for deselect usually requires checking intersection with current selection, handled by store if passed properly)
+      // Here we just handle append via Ctrl.
+      const shouldAppend = dragModifiers.current.ctrl || dragModifiers.current.shift; // Treat shift as append too for standard conventions?
+      select(newSelection, shouldAppend);
+    } else if (!dragModifiers.current.ctrl && !dragModifiers.current.shift) {
+        // Clear selection if empty box and no append
+        select([], false);
     }
   };
 
