@@ -32,11 +32,15 @@ export const SceneView: React.FC = () => {
   }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    // If Hand Tool is active, do NOT enter Fly Mode on right click
+    // Let OrbitControls handle panning (Right Click = Pan by default)
+    if (activeTool === 'hand') return;
+
     if (e.button === 2 && viewMode === '3D') { // Right Click
       setNavigationMode('fly');
       e.currentTarget.requestPointerLock();
     }
-  }, [setNavigationMode, viewMode]);
+  }, [setNavigationMode, viewMode, activeTool]);
 
   const handleMouseUp = useCallback((e: React.MouseEvent) => {
     if (e.button === 2) {
