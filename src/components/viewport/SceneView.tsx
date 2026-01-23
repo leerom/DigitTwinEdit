@@ -95,7 +95,7 @@ export const SceneView: React.FC = () => {
           <BoxSelector />
           <InstanceManager />
           <SceneContent />
-          {/* <ActiveToolGizmo /> - To be added in Task 7 */}
+          <ActiveToolGizmo />
         </Suspense>
       </Canvas>
 

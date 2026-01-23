@@ -1,5 +1,6 @@
 // src/features/editor/tools/ActiveToolGizmo.tsx
 import { useRef } from 'react';
+import { useThree } from '@react-three/fiber';
 import { TransformControls } from '@react-three/drei';
 import { useActiveTool } from '../hooks/useEditorState';
 import { useEditorStore } from '@/stores/editorStore';
@@ -29,6 +30,7 @@ const getControlsMode = (tool: ToolType): 'translate' | 'rotate' | 'scale' => {
  */
 export const ActiveToolGizmo: React.FC = () => {
   const activeTool = useActiveTool();
+  const { scene } = useThree();
   const selectedIds = useEditorStore((state) => state.selectedIds);
   const objects = useSceneStore((state) => state.scene.objects);
   const updateTransform = useSceneStore((state) => state.updateTransform);
@@ -48,15 +50,24 @@ export const ActiveToolGizmo: React.FC = () => {
     return null;
   }
 
+  const targetObject = scene.getObjectByName(primaryObject.id);
   const mode = getControlsMode(activeTool);
 
   return (
     <TransformControls
       ref={controlsRef}
+      object={targetObject}
       mode={mode}
-      onObjectChange={() => {
-        // TODO: 实现 transform 更新逻辑
-        // 需要从 controls 获取最新的 transform 并更新到 store
+      onMouseUp={() => {
+        // Update transform in store when drag ends
+        if (controlsRef.current && controlsRef.current.object) {
+          const obj = controlsRef.current.object;
+          updateTransform(primaryObject.id, {
+            position: [obj.position.x, obj.position.y, obj.position.z],
+            rotation: [obj.rotation.x, obj.rotation.y, obj.rotation.z],
+            scale: [obj.scale.x, obj.scale.y, obj.scale.z],
+          });
+        }
       }}
     />
   );

@@ -3,6 +3,7 @@ import { useEditorStore } from '@/stores/editorStore';
 import { useInputState } from '@/features/editor/navigation/useInputState';
 import { buildShortcutKey } from '@/utils/platform';
 import { defaultShortcuts } from './shortcutRegistry';
+import { useSceneStore } from '@/stores/sceneStore';
 import type { ShortcutAction } from './types';
 
 export const KeyboardShortcutManager: React.FC = () => {
@@ -68,7 +69,12 @@ export const KeyboardShortcutManager: React.FC = () => {
           setActiveTool(shortcut.params);
           break;
         case 'selectAll':
-          // logic pending
+          const allIds = useSceneStore.getState().scene.objects
+            ? Object.values(useSceneStore.getState().scene.objects)
+                .filter(obj => obj.type !== 'Group' && obj.id !== 'root')
+                .map(obj => obj.id)
+            : [];
+          useEditorStore.getState().select(allIds);
           break;
         case 'focusObject':
           // logic pending

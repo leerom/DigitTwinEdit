@@ -3,17 +3,18 @@ import { create } from 'zustand';
 interface InputState {
   keys: Record<string, boolean>;
   setKey: (code: string, pressed: boolean) => void;
+  resetKeys: () => void;
 }
 
 /**
- * 高频输入状态管理器
- * 用于在 useFrame 循环中读取键盘状态，避免 React 重渲染
+ * High-frequency input state manager
+ * Used to read keyboard state in useFrame loops, avoiding React re-renders
  */
 export const useInputState = create<InputState>((set) => ({
   keys: {},
   setKey: (code, pressed) =>
     set((state) => {
-      // 只有在状态真正改变时才更新，虽然 Zustand 会自动处理，但显式检查更好
+      // Only update if state actually changed
       if (state.keys[code] === pressed) {
         return state;
       }
@@ -21,4 +22,5 @@ export const useInputState = create<InputState>((set) => ({
         keys: { ...state.keys, [code]: pressed },
       };
     }),
+  resetKeys: () => set({ keys: {} }),
 }));
