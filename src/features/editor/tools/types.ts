@@ -3,6 +3,8 @@ import type { ThreeEvent } from '@react-three/fiber';
 import type { ToolType, CursorMode } from '../shortcuts/types';
 import type { SceneObject } from '@/types';
 
+export type { ToolType };
+
 /**
  * 编辑器工具接口
  */
@@ -23,7 +25,7 @@ export interface EditorTool {
   onDeactivate: () => void;
 
   /** 渲染 Gizmo */
-  renderGizmo: (selectedObjects: SceneObject[]) => JSX.Element | null;
+  renderGizmo: (selectedObjects: SceneObject[]) => React.JSX.Element | null;
 
   /** 指针按下事件 */
   onPointerDown?: (event: ThreeEvent<PointerEvent>) => void;

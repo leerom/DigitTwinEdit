@@ -7,6 +7,6 @@
 // For MVP, we stick to single object transform.
 // Marking this file as placeholder for Phase 5.
 
-export const calculateGroupCenter = (objects: any[]) => {
+export const calculateGroupCenter = (_objects: any[]) => {
   // ...
 };

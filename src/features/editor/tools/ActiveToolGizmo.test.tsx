@@ -25,7 +25,7 @@ describe('ActiveToolGizmo', () => {
     useSceneStore.getState().addObject({
       id: testObjectId,
       name: 'Test Object',
-      type: 'Group',
+      type: 'Group' as any,
     });
 
     useEditorStore.getState().setActiveTool('translate');
