@@ -58,9 +58,9 @@ export const ActiveToolGizmo: React.FC = () => {
       ref={controlsRef}
       object={targetObject}
       mode={mode}
-      onMouseUp={() => {
-        // Update transform in store when drag ends
-        if (controlsRef.current && controlsRef.current.object) {
+      onChange={() => {
+        // Real-time update during drag
+        if (controlsRef.current && controlsRef.current.object && controlsRef.current.dragging) {
           const obj = controlsRef.current.object;
           updateTransform(primaryObject.id, {
             position: [obj.position.x, obj.position.y, obj.position.z],
