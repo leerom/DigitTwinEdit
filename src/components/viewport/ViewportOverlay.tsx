@@ -3,8 +3,8 @@ import { clsx } from 'clsx';
 import { useEditorStore } from '../../stores/editorStore';
 
 export const ViewportOverlay: React.FC = () => {
-  const mode = useEditorStore((state) => state.mode);
-  const setMode = useEditorStore((state) => state.setMode);
+  const activeTool = useEditorStore((state) => state.activeTool);
+  const setActiveTool = useEditorStore((state) => state.setActiveTool);
   const renderMode = useEditorStore((state) => state.renderMode);
   const setRenderMode = useEditorStore((state) => state.setRenderMode);
 
@@ -42,26 +42,26 @@ export const ViewportOverlay: React.FC = () => {
           <ToolBtn
             icon="pan_tool"
             title="Hand Tool (Q)"
-            active={mode === 'select'}
-            onClick={() => setMode('select')}
+            active={activeTool === 'hand'}
+            onClick={() => setActiveTool('hand')}
           />
           <ToolBtn
             icon="open_with"
             title="Move Tool (W)"
-            active={mode === 'translate'}
-            onClick={() => setMode('translate')}
+            active={activeTool === 'translate'}
+            onClick={() => setActiveTool('translate')}
           />
           <ToolBtn
             icon="sync"
             title="Rotate Tool (E)"
-            active={mode === 'rotate'}
-            onClick={() => setMode('rotate')}
+            active={activeTool === 'rotate'}
+            onClick={() => setActiveTool('rotate')}
           />
           <ToolBtn
             icon="aspect_ratio"
             title="Scale Tool (R)"
-            active={mode === 'scale'}
-            onClick={() => setMode('scale')}
+            active={activeTool === 'scale'}
+            onClick={() => setActiveTool('scale')}
           />
         </div>
 
