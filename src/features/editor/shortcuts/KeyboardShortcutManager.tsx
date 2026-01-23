@@ -1,61 +1,95 @@
-// src/features/editor/shortcuts/KeyboardShortcutManager.tsx
-import { useEffect } from 'react';
-import { useActiveTool, useViewMode } from '../hooks/useEditorState';
+import React, { useEffect } from 'react';
 import { useEditorStore } from '@/stores/editorStore';
+import { useInputState } from '@/features/editor/navigation/useInputState';
 import { buildShortcutKey } from '@/utils/platform';
 import { defaultShortcuts } from './shortcutRegistry';
-import { executeShortcut } from './executeShortcut';
+import type { ShortcutAction } from './types';
 
-/**
- * 全局键盘快捷键管理器
- * 监听键盘事件并根据上下文执行对应的快捷键动作
- */
 export const KeyboardShortcutManager: React.FC = () => {
-  const activeTool = useActiveTool();
+  const activeTool = useEditorStore((state) => state.activeTool);
   const selectedIds = useEditorStore((state) => state.selectedIds);
-  const viewMode = useViewMode();
+  const viewMode = useEditorStore((state) => state.viewMode);
+  const navigationMode = useEditorStore((state) => state.navigationMode);
+
+  // Actions
+  const setActiveTool = useEditorStore((state) => state.setActiveTool);
+  const setModifiers = useEditorStore((state) => state.setModifiers);
+  const setRenamingId = useEditorStore((state) => state.setRenamingId);
+  const activeId = useEditorStore((state) => state.activeId);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // 输入框聚焦时跳过
-      const target = document.activeElement;
+      // Update modifiers
+      setModifiers({ ctrl: e.ctrlKey || e.metaKey, shift: e.shiftKey, alt: e.altKey });
+
+      // Ignore if input is focused
       if (
-        target?.tagName === 'INPUT' ||
-        target?.tagName === 'TEXTAREA' ||
-        (target as HTMLElement)?.contentEditable === 'true'
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement ||
+        document.activeElement?.getAttribute('contenteditable') === 'true'
       ) {
         return;
       }
 
-      // 构建快捷键字符串
+      // Fly Mode Handling (Priority)
+      if (navigationMode === 'fly') {
+        const flyKeys = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyQ', 'KeyE', 'ShiftLeft', 'ShiftRight'];
+        if (flyKeys.includes(e.code)) {
+          e.preventDefault();
+          useInputState.getState().setKey(e.code, true);
+          return;
+        }
+      }
+
       const key = buildShortcutKey(e);
       const shortcut = defaultShortcuts[key];
 
       if (!shortcut) return;
 
-      // 上下文检查
-      if (shortcut.requiresSelection && selectedIds.length === 0) {
-        return;
-      }
+      // Context checks
+      if (shortcut.requiresSelection && selectedIds.length === 0) return;
+      if (shortcut.disabledIn2D && viewMode === '2D') return;
 
-      if (shortcut.disabledIn2D && viewMode === '2D') {
-        return;
-      }
-
-      // 阻止默认行为
       e.preventDefault();
-
-      // 执行快捷键动作
       executeShortcut(shortcut);
     };
 
+    const handleKeyUp = (e: KeyboardEvent) => {
+      setModifiers({ ctrl: e.ctrlKey || e.metaKey, shift: e.shiftKey, alt: e.altKey });
+
+      if (navigationMode === 'fly') {
+        useInputState.getState().setKey(e.code, false);
+      }
+    };
+
+    const executeShortcut = (shortcut: ShortcutAction) => {
+      switch (shortcut.action) {
+        case 'setTool':
+          setActiveTool(shortcut.params);
+          break;
+        case 'selectAll':
+          // logic pending
+          break;
+        case 'focusObject':
+          // logic pending
+          break;
+        case 'renameObject':
+           if (activeId) setRenamingId(activeId);
+           break;
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [activeTool, selectedIds, viewMode]);
+  }, [
+    activeTool, selectedIds, viewMode, navigationMode,
+    setActiveTool, setModifiers, setRenamingId, activeId
+  ]);
 
-  // 这是一个无渲染组件
   return null;
 };

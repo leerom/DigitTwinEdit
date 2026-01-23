@@ -1,4 +1,3 @@
-// src/features/editor/shortcuts/shortcutRegistry.ts
 import type { ShortcutRegistry } from './types';
 
 export const defaultShortcuts: ShortcutRegistry = {
