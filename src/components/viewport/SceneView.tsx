@@ -24,6 +24,7 @@ export const SceneView: React.FC = () => {
   const clearSelection = useEditorStore((state) => state.clearSelection);
   const setNavigationMode = useEditorStore((state) => state.setNavigationMode);
   const viewMode = useEditorStore((state) => state.viewMode);
+  const activeTool = useEditorStore((state) => state.activeTool);
 
   // Handle Right Click for Fly Mode
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
@@ -44,10 +45,13 @@ export const SceneView: React.FC = () => {
     }
   }, [setNavigationMode]);
 
+  // Dynamic cursor style based on active tool
+  const cursorStyle = activeTool === 'hand' ? 'grab' : 'default';
+
   return (
     <div
       className="w-full h-full relative bg-black"
-      style={{ position: 'relative' }}
+      style={{ position: 'relative', cursor: cursorStyle }}
       onContextMenu={handleContextMenu}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
