@@ -1,4 +1,3 @@
-// src/features/editor/hooks/useEditorState.ts
 import { useEditorStore } from '@/stores/editorStore';
 
 /**

@@ -1,14 +1,18 @@
-// src/stores/editorStore.test.ts
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useEditorStore } from './editorStore';
 
 describe('EditorStore - Tool System', () => {
   beforeEach(() => {
-    // Reset to default state
-    useEditorStore.getState().setActiveTool('hand');
-    useEditorStore.getState().setCursorMode('default');
-    useEditorStore.getState().setModifiers({ ctrl: false, shift: false, alt: false });
-    useEditorStore.getState().setNavigationMode('orbit');
+    // Reset store before each test
+    // Use setState to reset if actions are not yet available or reliable
+    useEditorStore.setState({
+      activeTool: 'hand',
+      cursorMode: 'default',
+      modifiers: { ctrl: false, shift: false, alt: false },
+      navigationMode: 'orbit',
+      viewMode: '3D',
+      renamingId: null
+    } as any);
   });
 
   it('should switch active tool', () => {
@@ -51,5 +55,25 @@ describe('EditorStore - Tool System', () => {
 
     setNavigationMode('orbit');
     expect(useEditorStore.getState().navigationMode).toBe('orbit');
+  });
+
+  it('should switch view mode', () => {
+    const { setViewMode } = useEditorStore.getState();
+
+    setViewMode('2D');
+    expect(useEditorStore.getState().viewMode).toBe('2D');
+
+    setViewMode('3D');
+    expect(useEditorStore.getState().viewMode).toBe('3D');
+  });
+
+  it('should manage renaming id', () => {
+    const { setRenamingId } = useEditorStore.getState();
+
+    setRenamingId('obj-123');
+    expect(useEditorStore.getState().renamingId).toBe('obj-123');
+
+    setRenamingId(null);
+    expect(useEditorStore.getState().renamingId).toBeNull();
   });
 });
