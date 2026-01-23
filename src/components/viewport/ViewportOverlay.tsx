@@ -41,25 +41,25 @@ export const ViewportOverlay: React.FC = () => {
         <div className="bg-black/60 backdrop-blur border border-white/10 rounded p-0.5 flex">
           <ToolBtn
             icon="pan_tool"
-            title="Hand Tool (Q)"
+            title="抓手工具 (Q)"
             active={activeTool === 'hand'}
             onClick={() => setActiveTool('hand')}
           />
           <ToolBtn
             icon="open_with"
-            title="Move Tool (W)"
+            title="移动工具 (W)"
             active={activeTool === 'translate'}
             onClick={() => setActiveTool('translate')}
           />
           <ToolBtn
             icon="sync"
-            title="Rotate Tool (E)"
+            title="旋转工具 (E)"
             active={activeTool === 'rotate'}
             onClick={() => setActiveTool('rotate')}
           />
           <ToolBtn
             icon="aspect_ratio"
-            title="Scale Tool (R)"
+            title="缩放工具 (R)"
             active={activeTool === 'scale'}
             onClick={() => setActiveTool('scale')}
           />

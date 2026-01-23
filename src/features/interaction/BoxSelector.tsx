@@ -48,6 +48,10 @@ export const BoxSelector: React.FC = () => {
 
       if (e.button !== 0 || e.altKey) return;
 
+      // If we are in Move/Rotate/Scale mode, we usually do NOT want box selection
+      // unless we specifically support it. Requirement says: "In W/E/R, do NOT box select".
+      if (activeTool === 'translate' || activeTool === 'rotate' || activeTool === 'scale') return;
+
       // Check if we are in Hand mode -> Pan, not Select
       if (activeTool === 'hand') return;
 
