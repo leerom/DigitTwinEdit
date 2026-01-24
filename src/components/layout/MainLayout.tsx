@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLayoutStore } from '../../stores/layoutStore';
+import { GlobalDialogs } from '../common/GlobalDialogs';
 
 interface MainLayoutProps {
   header: React.ReactNode;
@@ -95,6 +96,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
           <span className="font-mono">v2.4.0-PRO</span>
         </div>
       </footer>
+
+      {/* Global Dialogs */}
+      <GlobalDialogs />
     </div>
   );
 };

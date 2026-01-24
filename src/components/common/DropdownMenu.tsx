@@ -63,7 +63,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
             className={twMerge(
               'w-full px-3 py-2 text-left text-xs text-white hover:bg-accent-blue/20 transition-colors flex items-center justify-between gap-2',
               item.disabled && 'opacity-50 cursor-not-allowed hover:bg-transparent',
-              !isSubmenu && index > 0 && 'border-t border-border-default/50'
+              !isSubmenu && index > 0 && 'border-t border-border-dark/50'
             )}
           >
              <div className="flex items-center gap-2">
@@ -73,7 +73,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
              <ChevronRight className="w-3 h-3 text-slate-400" />
           </button>
 
-          <div className="absolute left-full top-0 min-w-[160px] bg-panel-bg border border-border-default rounded shadow-lg hidden group-hover/submenu:block -ml-1">
+          <div className="absolute left-full top-0 min-w-[160px] bg-header-dark/90 backdrop-blur-sm border border-border-dark rounded shadow-lg hidden group-hover/submenu:block -ml-1">
              {item.children.map((child, idx) => renderMenuItem(child, idx, true))}
           </div>
         </div>
@@ -107,7 +107,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
       </div>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 min-w-[160px] bg-panel-bg border border-border-default rounded shadow-lg z-50">
+        <div className="absolute top-full left-0 mt-1 min-w-[160px] bg-header-dark/90 backdrop-blur-sm border border-border-dark rounded shadow-lg z-50">
           {items.map((item, index) => renderMenuItem(item, index))}
         </div>
       )}

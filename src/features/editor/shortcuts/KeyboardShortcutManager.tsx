@@ -52,7 +52,11 @@ export const KeyboardShortcutManager: React.FC = () => {
       if (shortcut.disabledIn2D && viewMode === '2D') return;
 
       e.preventDefault();
-      executeShortcut(shortcut);
+
+      // Import and call external executeShortcut
+      import('./executeShortcut').then(({ executeShortcut: exec }) => {
+        exec(shortcut);
+      });
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -60,28 +64,6 @@ export const KeyboardShortcutManager: React.FC = () => {
 
       if (navigationMode === 'fly') {
         useInputState.getState().setKey(e.code, false);
-      }
-    };
-
-    const executeShortcut = (shortcut: ShortcutAction) => {
-      switch (shortcut.action) {
-        case 'setTool':
-          setActiveTool(shortcut.params);
-          break;
-        case 'selectAll':
-          const allIds = useSceneStore.getState().scene.objects
-            ? Object.values(useSceneStore.getState().scene.objects)
-                .filter(obj => obj.type !== 'Group' && obj.id !== 'root')
-                .map(obj => obj.id)
-            : [];
-          useEditorStore.getState().select(allIds);
-          break;
-        case 'focusObject':
-          // logic pending
-          break;
-        case 'renameObject':
-           if (activeId) setRenamingId(activeId);
-           break;
       }
     };
 

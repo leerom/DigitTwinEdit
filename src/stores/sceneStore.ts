@@ -33,6 +33,7 @@ interface SceneState {
   reparentObject: (id: string, newParentId: string | null, index?: number) => void;
   updateComponent: (id: string, componentKey: string, data: Record<string, unknown>) => void;
   updateObject: (id: string, data: Partial<SceneObject>) => void;
+  restoreObject: (obj: SceneObject) => void;
   loadScene: (scene: Scene) => void;
 
   // Dirty state actions
@@ -271,6 +272,22 @@ export const useSceneStore = create<SceneState>()(
                   state.isDirty = true;
               }
           }),
+
+      restoreObject: (obj) =>
+        set((state) => {
+          state.scene.objects[obj.id] = obj;
+
+          // If parent exists, ensure child is in parent's children list
+          if (obj.parentId && state.scene.objects[obj.parentId]) {
+            const parent = state.scene.objects[obj.parentId];
+            if (!parent.children.includes(obj.id)) {
+              parent.children.push(obj.id);
+            }
+          }
+
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
+        }),
 
       loadScene: (newScene) =>
         set((state) => {

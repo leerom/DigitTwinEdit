@@ -10,10 +10,12 @@ const DEFAULT_BOX_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
 
 const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const object = useSceneStore((state) => state.scene.objects[id]);
+
   const selectedIds = useEditorStore((state) => state.selectedIds);
   const select = useEditorStore((state) => state.select);
-  // const activeId = useEditorStore((state) => state.activeId);
   const renderMode = useEditorStore((state) => state.renderMode);
+
+  // Hooks must render unconditionally - DO NOT return null here before hooks
 
   const isSelected = selectedIds.includes(id);
   // const isActive = activeId === id;
@@ -21,10 +23,9 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const lightRef = useRef<THREE.DirectionalLight>(null!);
   const cameraRef = useRef<THREE.Camera>(null!);
 
+  // Safe access to object properties for hooks
   useHelper(isSelected && object?.type === ObjectType.LIGHT ? lightRef : null, THREE.DirectionalLightHelper, 1, 'yellow');
   useHelper(isSelected && object?.type === ObjectType.CAMERA ? cameraRef : null, THREE.CameraHelper);
-
-  if (!object) return null;
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
@@ -36,17 +37,11 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     select([id], false);
   };
 
-  const { position, rotation, scale } = object.transform;
-
-  const children = object.children.map((childId) => (
-    <ObjectRenderer key={childId} id={childId} />
-  ));
-
   const isWireframe = renderMode === 'wireframe';
   const showEdges = renderMode === 'hybrid';
 
   const geometry = React.useMemo(() => {
-    if (object.type !== ObjectType.MESH) return null;
+    if (!object || object.type !== ObjectType.MESH) return null;
     const geoType = object.components?.mesh?.geometry || 'box';
 
     switch (geoType) {
@@ -58,7 +53,16 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       case 'box':
       default: return DEFAULT_BOX_GEOMETRY;
     }
-  }, [object.type, object.components?.mesh?.geometry]);
+  }, [object?.type, object?.components?.mesh?.geometry]);
+
+  // Now we can safely return null if object doesn't exist (deleted)
+  if (!object) return null;
+
+  const { position, rotation, scale } = object.transform || { position: [0,0,0], rotation: [0,0,0], scale: [1,1,1] };
+
+  const children = object.children?.map((childId) => (
+    <ObjectRenderer key={childId} id={childId} />
+  )) || [];
 
   return (
     <group

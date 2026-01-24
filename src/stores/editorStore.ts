@@ -47,6 +47,10 @@ interface EditorState {
   renamingId: string | null;
   setRenamingId: (id: string | null) => void;
 
+  // Global Dialog State
+  showDeleteConfirmation: boolean;
+  setDeleteConfirmation: (visible: boolean) => void;
+
   // Actions
   setMode: (mode: EditorMode) => void;
   setRenderMode: (mode: RenderMode) => void;
@@ -81,6 +85,7 @@ export const useEditorStore = create<EditorState>()(
       navigationMode: 'orbit',
       viewMode: '3D',
       renamingId: null,
+      showDeleteConfirmation: false,
 
       // Actions
       setMode: (mode) => set({ mode }),
@@ -101,6 +106,8 @@ export const useEditorStore = create<EditorState>()(
       setViewMode: (mode) => set({ viewMode: mode }),
 
       setRenamingId: (id) => set({ renamingId: id }),
+
+      setDeleteConfirmation: (visible) => set({ showDeleteConfirmation: visible }),
 
       select: (ids, append = false) =>
         set((state) => {

@@ -1,6 +1,8 @@
 // src/features/editor/shortcuts/executeShortcut.ts
 import { useEditorStore } from '@/stores/editorStore';
 import { useSceneStore } from '@/stores/sceneStore';
+import { useHistoryStore } from '@/stores/historyStore';
+import { DeleteObjectsCommand } from '@/features/editor/commands/DeleteObjectsCommand';
 import type { ShortcutAction } from './types';
 
 /**
@@ -41,15 +43,21 @@ export const executeShortcut = (shortcut: ShortcutAction): void => {
       }
       break;
 
-    case 'deleteObject':
-      // TODO: Implement delete with confirmation
-      console.warn('deleteObject action not implemented yet');
+    case 'deleteObject': {
+      const selectedIds = useEditorStore.getState().selectedIds;
+      if (selectedIds.length > 0) {
+        useEditorStore.getState().setDeleteConfirmation(true);
+      }
       break;
+    }
 
-    case 'deleteObjectImmediate':
-      // TODO: Implement immediate delete
-      console.warn('deleteObjectImmediate action not implemented yet');
+    case 'deleteObjectImmediate': {
+      const selectedIds = useEditorStore.getState().selectedIds;
+      if (selectedIds.length > 0) {
+        useHistoryStore.getState().execute(new DeleteObjectsCommand(selectedIds));
+      }
       break;
+    }
 
     case 'duplicateObject':
       // TODO: Implement object duplication
@@ -57,13 +65,11 @@ export const executeShortcut = (shortcut: ShortcutAction): void => {
       break;
 
     case 'undo':
-      // TODO: Implement undo
-      console.warn('undo action not implemented yet');
+      useHistoryStore.getState().undo();
       break;
 
     case 'redo':
-      // TODO: Implement redo
-      console.warn('redo action not implemented yet');
+      useHistoryStore.getState().redo();
       break;
 
     case 'resetTransform':
