@@ -6,7 +6,6 @@
       "Bash(powershell.exe:*)",
       "Bash(tree:*)",
       "Bash(powershell:*)",
-      "WebSearch",
       "Bash(git remote add:*)",
       "Bash(git remote set-url:*)",
       "Bash(git add:*)",
@@ -21,7 +20,6 @@
       "mcp__chrome-devtools__take_screenshot",
       "Bash(npm install:*)",
       "Bash(dir:*)",
-      "Bash(grep:*)",
       "mcp__chrome-devtools__new_page",
       "mcp__chrome-devtools__take_snapshot",
       "Bash(npm search:*)",
@@ -56,7 +54,15 @@
       "Bash(git merge-base:*)",
       "Bash(git worktree:*)",
       "Skill(git_commit)",
-      "mcp__chrome-devtools__close_page"
+      "mcp__chrome-devtools__close_page",
+      "Bash(where:*)",
+      "Bash(typescript-language-server:*)",
+      "Bash(claude /doctor:*)",
+      "Bash(echo:*)",
+      "Bash(cmd /c echo:*)",
+      "Bash(cmd /c where:*)",
+      "Bash(claude:*)",
+      "Bash(cmd /c dir:*)"
     ]
   }
 }

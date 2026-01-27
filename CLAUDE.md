@@ -2,151 +2,142 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 项目概述
+## 常用命令（Vite + Vitest + Playwright）
 
-数字孪生三维场景编辑器(Digital Twin 3D Scene Editor) - 一个类似Unity编辑器的三维场景编辑工具,专注于工业数字孪生场景的构建与编辑。
+> 项目使用 Vite + React + TypeScript（ESM）。测试：Vitest（unit/组件）+ Playwright（e2e）。
 
-## 核心架构组件
+### 安装依赖
 
-基于需求文档,系统应包含以下主要模块:
+```bash
+npm install
+```
 
-### 1. 界面布局结构
-- **顶部工具栏**: 文件、编辑、资产、游戏对象、组件、窗口、帮助等核心功能入口
-- **Hierarchy(层级视图)**: 左侧面板,展示场景内所有对象的树形层级结构
-- **Scene View(场景视图)**: 中央主编辑区域,3D场景可视化与交互编辑
-- **Inspector(检视器)**: 右侧面板,显示选中对象的属性面板
-- **Project/Resources窗口**: 底部资源管理区,双Tab页切换项目资源与公共资产库
+### 本地开发
 
-### 2. Scene View核心功能系统
+```bash
+npm run dev
+```
 
-#### 渲染模式系统(右上角工具栏)
-三种互斥渲染模式:
-- **线框模式(Wireframe)**: 仅显示物体线框结构,不含材质纹理
-- **标准模式(Shaded)**: 默认模式,完整渲染材质、光影、纹理
-- **线框+标准模式**: 融合模式,同时显示材质效果与线框结构
+### 生产构建
 
-#### 编辑工具系统(左侧垂直工具栏)
-五种核心编辑工具,对应快捷键Q/W/E/R/Y:
-- **Q - 抓手工具(Hand Tool)**: 视图导航,鼠标切换为"抓手"图标
-- **W - 移动工具(Move Tool)**: 显示XYZ轴彩色箭头(红X、绿Y、蓝Z)
-- **E - 旋转工具(Rotate Tool)**: 显示XYZ轴彩色圆环
-- **R - 缩放工具(Scale Tool)**: 显示XYZ轴彩色立方体
-- **Y - 综合变换工具(Transform Tool)**: 集成移动/旋转/缩放功能
+```bash
+npm run build
+```
 
-#### 三维坐标系辅助工具(右下角)
-- 显示XYZ轴向标识(X右向、Y上向、Z前向)
-- 支持点击轴向切换至该轴的正视图/侧视图
-- Shift+点击中心点恢复默认透视视角
+### 预览构建产物
 
-### 3. 交互操作系统
+```bash
+npm run preview
+```
 
-#### 视图导航操作(不改变物体属性)
-- **对象选择**: 左键拖动绘制选择框,Ctrl+左键加选,Alt+左键减选
-- **视角旋转**: Alt+左键拖动(仅3D模式)
-- **视角缩放**: 鼠标滚轮或Alt+右键拖动,Shift加速
-- **视图平移**: 中键拖动或Q+左键拖动,方向键平移
-- **飞越漫游**: 按住右键(鼠标变"眼睛"),WASD前后左右,Q/E上下,Shift加速
-- **视角聚焦**: F键聚焦选中物体,Shift+F锁定跟随物体
+### 运行测试（Vitest）
 
-#### 物体编辑操作
-- **批量操作**: Ctrl+A全选,Ctrl+D复制,Delete删除
-- **属性编辑**: F2重命名,Ctrl+Shift+Z重置变换属性
-- **工具切换**: Q/W/E/R/Y直接激活对应编辑工具
+```bash
+npm test
+```
 
-#### 跨系统适配
-- Windows: 使用Ctrl/Alt键
-- Mac: Ctrl替换为Command,Alt替换为Option
+- UI 模式：
 
-### 4. 资源管理系统
+```bash
+npm run test:ui
+```
 
-#### Project窗口(项目内资源)
-- Assets目录结构: Scenes/Materials/TwinBody/Scripts等
-- 支持拖拽到场景/层级视图使用
-- 显示项目已引用的资源文件(JSON场景、材质、模型等)
+- 覆盖率：
 
-#### Resources窗口(公共资产库)
-- 公共模型库(建筑/设备/部件)
-- 公共材质库(PBR/标准材质)
-- 公共场景模板
-- 支持预览、筛选、拖拽到Project或Scene使用
+```bash
+npm run coverage
+```
 
-### 5. 数字孪生数据集成
-Inspector面板需显示:
-- 外部ID(如METRO-A1-42)
-- 实时数据(当前温度、连接状态等)
-- 孪生体元数据
+> Vitest 配置在 `vite.config.ts:14`，使用 `jsdom`，并通过 `src/setupTests.ts` 注入测试环境。
 
-## 技术实现建议
+### 运行 e2e（Playwright）
 
-### 推荐技术栈方向
-- **前端3D引擎**: Three.js/Babylon.js用于Scene View渲染
-- **UI框架**: React/Vue + TailwindCSS(参考UI_Sample/code.html已使用)
-- **数据格式**: JSON用于场景文件存储(.json场景文件)
-- **3D模型格式**: FBX/GLB/GLTF支持
+Playwright 配置在 `playwright.config.ts:4`：
+- e2e 目录：`tests/e2e`
+- 会自动启动开发服务器：`npm run dev`，并等待 `http://localhost:5173`
 
-### 关键设计模式
-- **工具系统**: 策略模式管理Q/W/E/R/Y五种编辑工具
-- **渲染模式**: 状态模式切换线框/标准/融合渲染
-- **选择系统**: 观察者模式同步Hierarchy与Scene View的选中状态
-- **命令模式**: 实现撤销/重做操作(Ctrl+Z/Ctrl+Y)
-- **组件系统**: ECS(实体-组件-系统)架构管理游戏对象
+常用命令：
 
-### 状态管理重点
-- 当前激活的编辑工具(Q/W/E/R/Y之一)
-- 当前激活的渲染模式(线框/标准/融合)
-- 当前选中的对象列表
-- 视图状态(相机位置/旋转/缩放)
-- 鼠标状态(箭头/抓手/眼睛图标切换)
+```bash
+npx playwright test
+```
 
-### 性能优化关注点
-- 场景对象层级树的高效渲染与选择
-- 大规模场景的视锥剔除(Frustum Culling)
-- 三维控件(Gizmo)的实时更新性能
-- 右上角统计信息(Draw Calls/Tris/Verts)实时计算
+```bash
+npx playwright test --ui
+```
 
-## 重要约定
 
-### 操作逻辑优先级
-1. 无论激活何种编辑工具,均可使用Alt+鼠标/中键进行视图调整,无需切换至抓手工具
-2. 工具激活需有清晰视觉反馈(高亮/箭头标注/背景变色)
-3. 未选中物体时,除抓手工具外其他工具仅显示图标不可操作
-4. 快捷键操作需即时响应无延迟
+## 代码结构与运行时架构（高层视图）
 
-### 视觉反馈标准
-- 工具激活状态需明显视觉标识(如布局图中[ACTIVE]状态)
-- 鼠标状态切换清晰可辨(箭头/抓手/眼睛)
-- XYZ轴颜色约定: 红色X轴、绿色Y轴、蓝色Z轴
-- 选中物体需在Hierarchy中高亮显示
+### 应用入口与整体布局
 
-### 坐标系约定
-- 世界坐标系: X右向、Y上向、Z前向
-- 支持Global/Local坐标系切换(参考UI示例)
-- 三维坐标系辅助工具与世界坐标系保持一致
+- React 入口：`src/main.tsx:1` → 渲染 `App`
+- 组合式编辑器布局：`src/App.tsx:26`
+  - `MainLayout` 管理整体区域（顶部/左侧层级/中间 SceneView/右侧 Inspector/底部 Project）：`src/components/layout/MainLayout.tsx:13`
 
-### 文件命名规范
-- 场景文件: *.json (如Scene1.json)
-- 材质文件: *.mat (如Metal_Rough.mat)
-- 模型文件: *.fbx/*.glb (如Pillar_A.fbx)
+### Scene View（3D 视口）
 
-## 开发注意事项
+- 视口组件：`src/components/viewport/SceneView.tsx:23`
+  - 基于 `@react-three/fiber` 的 `<Canvas>`；场景内容由 `SceneRenderer` 提供：`src/features/scene/SceneRenderer.tsx`
+  - 叠加层 UI：`ViewportOverlay`（右上角渲染模式/工具栏等）：`src/components/viewport/ViewportOverlay.tsx`
+  - 右下角视图 Gizmo：`ViewGizmo`：`src/components/viewport/ViewGizmo.tsx`
+  - 相机系统（轨道/Fly 等导航）：`CameraSystem`：`src/features/editor/navigation/CameraSystem.tsx`
+  - 工具 Gizmo 入口：`ActiveToolGizmo`：`src/features/editor/tools/ActiveToolGizmo.tsx`
 
-### 2D/3D模式差异
-- 2D模式下禁用: 旋转视角、飞越漫游模式
-- 2D模式下右键拖动替代为视图平移功能
-- 其余操作逻辑与3D模式保持一致
+### 状态管理（Zustand）
 
-### 操作互不干扰原则
-- 视图导航操作与物体编辑工具互不干扰
-- 视角调整不影响已激活的编辑工具状态
-- 切换工具后可无缝继续之前的编辑操作
+本项目核心状态集中在三个 store：
 
-### UI布局自适应
-- 窗口内元素层级清晰,互不遮挡
-- 渲染模式工具栏(右上)、编辑工具栏(左侧)、坐标系工具(右下)
-- 布局自适应不同屏幕尺寸,确保按钮易点击不误触
+- `useSceneStore`：场景数据模型 + 导入/dirty 状态
+  - `src/stores/sceneStore.ts:125`
+  - 保存 `scene.objects`（树形层级）、`isDirty`、导入进度等
+- `useEditorStore`：编辑器交互状态（工具/导航/选中/视图模式）
+  - `src/stores/editorStore.ts:63`
+  - 关键字段：`activeTool`、`selectedIds`、`navigationMode`、`viewMode`
+- `useHistoryStore`：撤销/重做（命令模式）
+  - `src/stores/historyStore.ts:15`
+  - `execute(cmd)` 会调用 `cmd.execute()` 并入栈；支持 `merge()` 以合并连续操作（如拖拽更新）
 
-## 参考文档位置
-- `rawRequirements/SceneView功能需求.md`: Scene View详细功能需求
-- `rawRequirements/三维场景编辑器功能需求.md`: 整体界面布局说明
-- `rawRequirements/场景编辑器(Scene View)操作指南.md`: 鼠标/键盘操作指南
-- `rawRequirements/UI_Sample/code.html`: UI设计参考实现(TailwindCSS)
+### 命令系统（Undo/Redo）
+
+- 命令接口：`src/features/editor/commands/Command.ts`
+- 示例命令：`src/features/editor/commands/DeleteObjectsCommand.ts`
+
+### 交互系统（选择/拖拽/投放）
+
+- 框选：`src/features/interaction/BoxSelector.tsx`
+- 选中状态同步与逻辑：`src/features/interaction/SelectionManager.tsx`
+- 拖放：`src/features/interaction/DropManager.ts`
+
+### 场景导入/导出 与资源加载
+
+- 场景管理与保存：`src/features/scene/services/SceneManager.ts:12`（保存为 JSON 并下载）
+- 场景加载/格式转换：
+  - `src/features/scene/services/SceneLoader.ts`
+  - `src/features/scene/services/SceneFormatConverter.ts`
+- 模型加载：`src/features/scene/services/ModelLoader.ts`
+- 资产加载：`src/features/assets/AssetLoader.ts`
+
+### Inspector（属性面板）
+
+- Inspector 面板：`src/components/panels/InspectorPanel.tsx`
+- 常见属性组件：
+  - Transform：`src/components/inspector/TransformProp.tsx`
+  - Light：`src/components/inspector/specific/LightProp.tsx`
+  - Camera：`src/components/inspector/specific/CameraProp.tsx`
+  - Twin 数据：`src/components/inspector/TwinDataProp.tsx`
+
+
+## 需求文档位置（实现功能时的对照来源）
+
+原始需求在 `rawRequirements/`（见 `rawRequirements/README.md`）：
+- `rawRequirements/SceneView功能需求.md`
+- `rawRequirements/三维场景编辑器功能需求.md`
+- `rawRequirements/场景编辑器(Scene View)操作指南.md`
+- `rawRequirements/UI_Sample/code.html`
+
+
+## 已知环境/配置备注
+
+- TS 路径别名：`@/* -> src/*`（`tsconfig.json:24`，Vite 同步别名在 `vite.config.ts:9`）
+- Vitest 排除 e2e：`vite.config.ts:19`（`tests/e2e/**`）
