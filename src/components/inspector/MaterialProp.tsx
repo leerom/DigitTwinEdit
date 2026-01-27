@@ -1,37 +1,91 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useSceneStore } from '@/stores/sceneStore';
+import { useHistoryStore } from '@/stores/historyStore';
+import type { MaterialSpec, MaterialType } from '@/types';
+import { ChangeMaterialTypeCommand } from '@/features/editor/commands/ChangeMaterialTypeCommand';
+import { UpdateMaterialPropsCommand } from '@/features/editor/commands/UpdateMaterialPropsCommand';
+import { NumberInput } from './common/NumberInput';
+
+const MATERIAL_TYPES: readonly MaterialType[] = [
+  'MeshStandardMaterial',
+  'MeshPhysicalMaterial',
+  'MeshPhongMaterial',
+  'MeshLambertMaterial',
+  'MeshBasicMaterial',
+] as const;
+
+function getMaterialPropNumber(props: Record<string, unknown>, key: string, fallback: number): number {
+  const v = props[key];
+  return typeof v === 'number' ? v : fallback;
+}
 
 export const MaterialProp: React.FC<{ objectId: string }> = ({ objectId }) => {
+  const material = useSceneStore((state) => state.scene.objects[objectId]?.components?.mesh?.material) as MaterialSpec | undefined;
+
+  const type = material?.type ?? 'MeshStandardMaterial';
+  const props = (material?.props ?? {}) as Record<string, unknown>;
+
+  const fields = useMemo(() => {
+    switch (type) {
+      case 'MeshPhysicalMaterial':
+        return ['roughness', 'metalness', 'clearcoat', 'clearcoatRoughness', 'ior', 'transmission', 'thickness'] as const;
+      case 'MeshPhongMaterial':
+        return ['shininess'] as const;
+      case 'MeshStandardMaterial':
+        return ['roughness', 'metalness'] as const;
+      case 'MeshLambertMaterial':
+      case 'MeshBasicMaterial':
+      default:
+        return [] as const;
+    }
+  }, [type]);
+
+  const exec = (cmd: any) => useHistoryStore.getState().execute(cmd);
+
+  const handleTypeChange = (nextType: MaterialType) => {
+    exec(new ChangeMaterialTypeCommand(objectId, nextType));
+  };
+
+  const handlePropChange = (key: string, value: number) => {
+    exec(new UpdateMaterialPropsCommand(objectId, { [key]: value }));
+  };
+
   return (
-    <div className="bg-[#0c0e14] border border-[#2d333f] p-3 rounded-sm">
-      <div className="flex items-center space-x-3 mb-3">
-        <div className="w-8 h-8 rounded bg-[#008b8b] border border-white/10"></div>
-        <div className="flex-1 overflow-hidden">
-            <div className="text-[10px] text-[#cccccc] truncate">Mat_Industrial_Steel_01</div>
-            <div className="text-[8px] text-[#64748b]">PBR Shader</div>
-        </div>
-        <span className="material-symbols-outlined text-[12px] text-[#64748b] cursor-pointer hover:text-white">edit</span>
+    <div className="bg-[#0c0e14] border border-[#2d333f] p-3 rounded-sm space-y-3">
+      <div className="flex items-center justify-between">
+        <label className="text-[11px] text-[#999999] font-medium">类型</label>
+        <select
+          className="bg-transparent text-[12px] text-white border border-[#2d333f] rounded px-2 py-1"
+          value={type}
+          onChange={(e) => handleTypeChange(e.target.value as MaterialType)}
+        >
+          {MATERIAL_TYPES.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <div className="space-y-3">
-        <div>
-            <div className="flex justify-between text-[9px] text-[#64748b] mb-1">
-                <span>基础粗糙度</span>
-                <span>0.42</span>
-            </div>
-            <div className="h-1 bg-[#1e222d] rounded-full overflow-hidden">
-                <div className="bg-[#3b82f6] h-full w-[42%]"></div>
-            </div>
-        </div>
-        <div>
-            <div className="flex justify-between text-[9px] text-[#64748b] mb-1">
-                <span>金属性度</span>
-                <span>0.15</span>
-            </div>
-            <div className="h-1 bg-[#1e222d] rounded-full overflow-hidden">
-                <div className="bg-[#f59e0b] h-full w-[15%]"></div>
-            </div>
-        </div>
+      <div className="flex items-center justify-between">
+        <label className="text-[11px] text-[#999999] font-medium">Color</label>
+        <input
+          type="color"
+          value={(typeof props.color === 'string' ? props.color : '#cccccc') as string}
+          onChange={(e) => exec(new UpdateMaterialPropsCommand(objectId, { color: e.target.value }))}
+          className="w-8 h-6 bg-transparent border-0 p-0 cursor-pointer"
+        />
       </div>
+
+      {fields.map((key) => (
+        <NumberInput
+          key={key}
+          label={key}
+          value={getMaterialPropNumber(props, key, 0)}
+          onChange={(val) => handlePropChange(key, val)}
+          step="0.01"
+        />
+      ))}
     </div>
   );
 };

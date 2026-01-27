@@ -98,8 +98,8 @@ export const InspectorPanel: React.FC = () => {
             </div>
           )}
 
-          {/* Materials Component - Single Select Only, Not for Camera */}
-          {!isMultiSelect && !isAllCameras && (
+          {/* Materials Component - Single Select Only, Not for Camera/Light */}
+          {!isMultiSelect && !isAllCameras && !isAllLights && (
             <div>
               <h3 className="text-[11px] font-bold text-slate-300 mb-3">材质 (Materials)</h3>
               <MaterialProp objectId={activeId} />
