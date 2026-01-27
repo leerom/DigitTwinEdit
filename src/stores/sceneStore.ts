@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { Scene, SceneObject, TransformComponent, ObjectType } from '@/types';
+import { Scene, SceneObject, TransformComponent, ObjectType, MaterialSpec } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface ImportProgress {
@@ -33,6 +33,7 @@ interface SceneState {
   reparentObject: (id: string, newParentId: string | null, index?: number) => void;
   updateComponent: (id: string, componentKey: string, data: Record<string, unknown>) => void;
   updateObject: (id: string, data: Partial<SceneObject>) => void;
+  updateMeshMaterialSpec: (id: string, spec: import('@/types').MaterialSpec) => void;
   restoreObject: (obj: SceneObject) => void;
   loadScene: (scene: Scene) => void;
 
@@ -272,6 +273,17 @@ export const useSceneStore = create<SceneState>()(
                   state.isDirty = true;
               }
           }),
+
+      updateMeshMaterialSpec: (id, spec) =>
+        set((state) => {
+          const obj = state.scene.objects[id];
+          const mesh = obj?.components?.mesh;
+          if (!mesh) return;
+
+          mesh.material = spec;
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
+        }),
 
       restoreObject: (obj) =>
         set((state) => {
