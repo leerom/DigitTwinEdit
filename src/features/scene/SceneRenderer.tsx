@@ -1,10 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useSceneStore } from '@/stores/sceneStore';
 import { useEditorStore } from '@/stores/editorStore';
-import { ObjectType } from '@/types';
+import { MaterialSpec, ObjectType } from '@/types';
 import { ThreeEvent } from '@react-three/fiber';
 import { useHelper } from '@react-three/drei';
 import * as THREE from 'three';
+import { createThreeMaterial } from '@/features/materials/materialFactory';
 
 const DEFAULT_BOX_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
 
@@ -40,7 +41,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const isWireframe = renderMode === 'wireframe';
   const showEdges = renderMode === 'hybrid';
 
-  const geometry = React.useMemo(() => {
+  const geometry = useMemo(() => {
     if (!object || object.type !== ObjectType.MESH) return null;
     const geoType = object.components?.mesh?.geometry || 'box';
 
@@ -64,6 +65,29 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     <ObjectRenderer key={childId} id={childId} />
   )) || [];
 
+  const materialSpec = useMemo<MaterialSpec | null>(() => {
+    if (object.type !== ObjectType.MESH) return null;
+    return object.components?.mesh?.material ?? null;
+  }, [object.type, object.components?.mesh?.material]);
+
+  const materialRef = useRef<THREE.Material | null>(null);
+  const lastTypeRef = useRef<MaterialSpec['type'] | null>(null);
+
+  // 当组件卸载时 dispose；当材质类型切换时重建并 dispose 旧材质
+  useEffect(() => {
+    return () => {
+      materialRef.current?.dispose();
+      materialRef.current = null;
+      lastTypeRef.current = null;
+    };
+  }, []);
+
+  if (materialSpec && lastTypeRef.current !== materialSpec.type) {
+    materialRef.current?.dispose();
+    materialRef.current = createThreeMaterial(materialSpec);
+    lastTypeRef.current = materialSpec.type;
+  }
+
   return (
     <group
       name={id} // Add name prop to allow finding object by ID
@@ -72,13 +96,8 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       scale={scale}
       onClick={handleClick}
     >
-      {object.type === ObjectType.MESH && geometry && (
-        <mesh castShadow receiveShadow geometry={geometry}>
-          <meshStandardMaterial
-            color={isSelected ? '#ff9900' : (object.components?.mesh?.materialId === 'default' ? 'orange' : '#cccccc')}
-            emissive={isSelected ? '#442200' : '#000000'}
-            wireframe={isWireframe}
-          />
+      {object.type === ObjectType.MESH && geometry && materialRef.current && (
+        <mesh castShadow receiveShadow geometry={geometry} material={materialRef.current}>
            {showEdges && (
               <lineSegments>
                 <edgesGeometry args={[geometry]} />
