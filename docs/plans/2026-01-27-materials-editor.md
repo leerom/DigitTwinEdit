@@ -30,18 +30,31 @@
 ### Task 1: 定义 MaterialSpec 类型（TDD）
 
 **Files:**
-- Modify: `src/types/index.ts`（新增 MaterialType/MaterialSpec 类型，并扩展 MeshComponent 支持 `material?: MaterialSpec` 或新增 `components.material`，以最终实现为准）
-- Test: `src/types/materialSpec.test.ts`（若项目已有 types 测试模式则沿用；否则放到 `src/features/scene/...` 也可）
+- Modify: `src/types/index.ts`（新增 MaterialType/MaterialSpec 类型，并扩展 `MeshComponent` 新增 `material?: MaterialSpec` 字段。保留 `materialId` 以兼容现有逻辑/旧场景。）
+- Test: `src/types/materialSpec.test.ts`（用 TS 类型约束确保缺少类型时会 fail）
 
 **Step 1: Write the failing test**
 
+> 说明：此测试的目的不是断言运行时行为，而是让 TypeScript 在缺少 `MaterialSpec` 类型/`MeshComponent.material` 字段时直接报错（从而“红灯”）。
+
 ```ts
 import { describe, it, expect } from 'vitest';
+import type { MaterialSpec, MeshComponent } from './index';
 
-describe('MaterialSpec types', () => {
-  it('should allow supported material types', () => {
-    const spec = { type: 'MeshStandardMaterial', props: {} };
-    expect(spec.type).toBe('MeshStandardMaterial');
+describe('MaterialSpec/mesh material typing', () => {
+  it('should typecheck MaterialSpec and MeshComponent.material', () => {
+    const spec: MaterialSpec = { type: 'MeshStandardMaterial', props: {} };
+
+    const mesh: MeshComponent = {
+      assetId: 'default',
+      materialId: 'default',
+      castShadow: true,
+      receiveShadow: true,
+      geometry: 'box',
+      material: spec,
+    };
+
+    expect(mesh.material?.type).toBe('MeshStandardMaterial');
   });
 });
 ```
@@ -49,14 +62,14 @@ describe('MaterialSpec types', () => {
 **Step 2: Run test to verify it fails**
 
 Run: `npm test`
-Expected: FAIL（类型/路径不存在或 TS 报错）
+Expected: FAIL（缺少导出类型/字段导致 TS 报错）
 
 **Step 3: Write minimal implementation**
 
 在 `src/types/index.ts` 中新增：
-- `MaterialType` 联合类型
+- `MaterialType` 联合类型（5 种：Standard/Basic/Lambert/Phong/Physical）
 - `MaterialSpec`（`type` + `props`）
-- 在 `MeshComponent` 中新增字段：`material?: MaterialSpec`（推荐放 mesh 下，跟 geometry/materialId 同处）
+- 在 `MeshComponent` 中新增字段：`material?: MaterialSpec`
 
 **Step 4: Run test to verify it passes**
 
@@ -190,20 +203,24 @@ git commit -m "feat: add material props normalization"
 ```ts
 import { describe, it, expect } from 'vitest';
 import { useSceneStore } from '@/stores/sceneStore';
+import { SceneManager } from '@/features/scene/services/SceneManager';
 import { ChangeMaterialTypeCommand } from './ChangeMaterialTypeCommand';
 
 describe('material commands', () => {
   it('should change type and undo', () => {
-    const store = useSceneStore.getState();
-    const id = store.addObject({ name: 'Cube' }) as any; // 按现有 addObject 行为调整
+    // 注意：sceneStore.addObject() 当前不返回 id，因此测试使用 SceneManager.createMesh() 生成带 id 的对象再 add。
+    const obj = SceneManager.createMesh('Cube', 'box');
+    useSceneStore.getState().addObject(obj, 'root');
 
-    const before = useSceneStore.getState().scene.objects[id].components.mesh.material.type;
+    const id = obj.id;
+    const before = useSceneStore.getState().scene.objects[id].components?.mesh?.material?.type;
+
     const cmd = new ChangeMaterialTypeCommand(id, 'MeshPhysicalMaterial');
     cmd.execute();
-    expect(useSceneStore.getState().scene.objects[id].components.mesh.material.type).toBe('MeshPhysicalMaterial');
+    expect(useSceneStore.getState().scene.objects[id].components?.mesh?.material?.type).toBe('MeshPhysicalMaterial');
 
     cmd.undo();
-    expect(useSceneStore.getState().scene.objects[id].components.mesh.material.type).toBe(before);
+    expect(useSceneStore.getState().scene.objects[id].components?.mesh?.material?.type).toBe(before);
   });
 });
 ```
