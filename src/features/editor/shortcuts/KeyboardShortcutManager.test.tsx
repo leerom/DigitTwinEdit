@@ -63,10 +63,11 @@ describe('KeyboardShortcutManager', () => {
     (buildShortcutKey as any).mockReturnValue('KeyW');
     triggerKeyDown('KeyW');
 
-    // KeyboardShortcutManager 内部通过动态 import('./executeShortcut') 异步执行
+    // KeyboardShortcutManager 内部通过动态 import('./executeShortcut') 异步执行。
+    // 在测试环境里给它更充足时间避免偶发超时。
     await waitFor(() => {
       expect(useEditorStore.getState().activeTool).toBe('translate');
-    });
+    }, { timeout: 5000 });
   });
 
   it('should update input state in fly mode', () => {

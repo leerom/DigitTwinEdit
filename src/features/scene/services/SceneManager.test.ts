@@ -75,4 +75,11 @@ describe('SceneManager', () => {
       expect(filename).toBe('Save Test.json');
     });
   });
+
+  describe('createMesh', () => {
+    it('should create mesh with default MeshStandardMaterial spec', () => {
+      const obj = SceneManager.createMesh('Cube', 'box');
+      expect(obj.components?.mesh?.material?.type).toBe('MeshStandardMaterial');
+    });
+  });
 });
