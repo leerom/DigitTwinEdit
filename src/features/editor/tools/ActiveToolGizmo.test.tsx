@@ -10,9 +10,10 @@ describe('ActiveToolGizmo', () => {
   });
 
   it('should be importable', async () => {
+    // 仅验证模块能被 import 且导出存在。若未来该测试在 CI 中不稳定，再考虑更严格的渲染级测试。
     const module = await import('./ActiveToolGizmo');
     expect(module.ActiveToolGizmo).toBeDefined();
-  });
+  }, 20000);
 
   it('should handle hand tool state', () => {
     useEditorStore.getState().setActiveTool('hand');

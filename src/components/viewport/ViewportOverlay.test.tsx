@@ -25,9 +25,11 @@ describe('ViewportOverlay', () => {
 
   it('renders tool buttons', () => {
     render(<ViewportOverlay />);
-    expect(screen.getByTitle(/Hand Tool/)).toBeInTheDocument();
-    expect(screen.getByTitle(/Move Tool/)).toBeInTheDocument();
-    expect(screen.getByTitle(/Rotate Tool/)).toBeInTheDocument();
-    expect(screen.getByTitle(/Scale Tool/)).toBeInTheDocument();
+
+    // title 文案已本地化为中文（见 ViewportOverlay.tsx）
+    expect(screen.getByTitle(/抓手工具/)).toBeInTheDocument();
+    expect(screen.getByTitle(/移动工具/)).toBeInTheDocument();
+    expect(screen.getByTitle(/旋转工具/)).toBeInTheDocument();
+    expect(screen.getByTitle(/缩放工具/)).toBeInTheDocument();
   });
 });

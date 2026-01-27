@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { KeyboardShortcutManager } from './KeyboardShortcutManager';
 import { useEditorStore } from '@/stores/editorStore';
 import { useInputState } from '@/features/editor/navigation/useInputState';
@@ -57,13 +57,16 @@ describe('KeyboardShortcutManager', () => {
     document.body.removeChild(input);
   });
 
-  it('should switch tool in orbit mode', () => {
+  it('should switch tool in orbit mode', async () => {
     render(<KeyboardShortcutManager />);
 
     (buildShortcutKey as any).mockReturnValue('KeyW');
     triggerKeyDown('KeyW');
 
-    expect(useEditorStore.getState().activeTool).toBe('translate');
+    // KeyboardShortcutManager 内部通过动态 import('./executeShortcut') 异步执行
+    await waitFor(() => {
+      expect(useEditorStore.getState().activeTool).toBe('translate');
+    });
   });
 
   it('should update input state in fly mode', () => {

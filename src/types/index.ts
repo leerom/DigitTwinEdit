@@ -8,10 +8,25 @@ export interface TransformComponent {
   scale: Vector3;
 }
 
+// Material Spec (serializable)
+export type MaterialType =
+  | 'MeshStandardMaterial'
+  | 'MeshBasicMaterial'
+  | 'MeshLambertMaterial'
+  | 'MeshPhongMaterial'
+  | 'MeshPhysicalMaterial';
+
+export type MaterialSpec = {
+  type: MaterialType;
+  // 受白名单约束；值在渲染层/编辑器层做校验与归一化
+  props: Record<string, unknown>;
+};
+
 // Mesh Component
 export interface MeshComponent {
   assetId: string;
   materialId: string;
+  material?: MaterialSpec;
   geometry?: 'box' | 'sphere' | 'plane' | 'cylinder' | 'torus' | 'capsule';
   castShadow: boolean;
   receiveShadow: boolean;
