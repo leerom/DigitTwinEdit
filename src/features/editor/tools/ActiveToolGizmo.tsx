@@ -51,6 +51,11 @@ export const ActiveToolGizmo: React.FC = () => {
   }
 
   const targetObject = scene.getObjectByName(primaryObject.id);
+  if (!targetObject) {
+    // 对象可能刚被删除/尚未挂载到 three scene，避免给 TransformControls 传入非法 object
+    return null;
+  }
+
   const mode = getControlsMode(activeTool);
 
   return (

@@ -16,8 +16,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const select = useEditorStore((state) => state.select);
   const renderMode = useEditorStore((state) => state.renderMode);
 
-  // Hooks must render unconditionally - DO NOT return null here before hooks
-
+  // Hooks 必须每次渲染保持一致调用次数，这里不能在 hooks 之间提前 return
   const isSelected = selectedIds.includes(id);
   // const isActive = activeId === id;
 
@@ -42,7 +41,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const showEdges = renderMode === 'hybrid';
 
   const geometry = useMemo(() => {
-    if (!object || object.type !== ObjectType.MESH) return null;
+    if (!object || object?.type !== ObjectType.MESH) return null;
     const geoType = object.components?.mesh?.geometry || 'box';
 
     switch (geoType) {
@@ -56,19 +55,16 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     }
   }, [object?.type, object?.components?.mesh?.geometry]);
 
-  // Now we can safely return null if object doesn't exist (deleted)
-  if (!object) return null;
+  const { position, rotation, scale } = object?.transform || { position: [0,0,0], rotation: [0,0,0], scale: [1,1,1] };
 
-  const { position, rotation, scale } = object.transform || { position: [0,0,0], rotation: [0,0,0], scale: [1,1,1] };
-
-  const children = object.children?.map((childId) => (
+  const children = object?.children?.map((childId) => (
     <ObjectRenderer key={childId} id={childId} />
   )) || [];
 
   const materialSpec = useMemo<MaterialSpec | null>(() => {
-    if (object.type !== ObjectType.MESH) return null;
+    if (object?.type !== ObjectType.MESH) return null;
     return object.components?.mesh?.material ?? null;
-  }, [object.type, object.components?.mesh?.material]);
+  }, [object?.type, object?.components?.mesh?.material]);
 
   const materialRef = useRef<THREE.Material | null>(null);
   const lastTypeRef = useRef<MaterialSpec['type'] | null>(null);
@@ -115,6 +111,11 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     mat.needsUpdate = true;
   }, [materialSpec]);
 
+  // 对象被删除的瞬间仍可能触发一次渲染；这里用空 group 兜底，避免访问 undefined 导致 Canvas 树崩溃
+  if (!object) {
+    return <group name={id} />;
+  }
+
   return (
     <group
       name={id} // Add name prop to allow finding object by ID
@@ -123,7 +124,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       scale={scale}
       onClick={handleClick}
     >
-      {object.type === ObjectType.MESH && geometry && materialRef.current && (
+      {object?.type === ObjectType.MESH && geometry && materialRef.current && (
         <mesh castShadow receiveShadow geometry={geometry} material={materialRef.current}>
            {showEdges && (
               <lineSegments>
@@ -134,7 +135,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
         </mesh>
       )}
 
-      {object.type === ObjectType.CAMERA && (
+      {object?.type === ObjectType.CAMERA && (
         <group>
            <perspectiveCamera
              ref={cameraRef}
@@ -153,7 +154,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
         </group>
       )}
 
-      {object.type === ObjectType.LIGHT && (
+      {object?.type === ObjectType.LIGHT && (
         <group>
           <directionalLight
             ref={lightRef}
@@ -175,7 +176,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
         </group>
       )}
 
-      {object.type === ObjectType.GROUP && (
+      {object?.type === ObjectType.GROUP && (
         <group>
         </group>
       )}
