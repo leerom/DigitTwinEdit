@@ -1,10 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useSceneStore } from '@/stores/sceneStore';
 import { useEditorStore } from '@/stores/editorStore';
-import { ObjectType } from '@/types';
+import { MaterialSpec, ObjectType } from '@/types';
 import { ThreeEvent } from '@react-three/fiber';
 import { useHelper } from '@react-three/drei';
 import * as THREE from 'three';
+import { createThreeMaterial } from '@/features/materials/materialFactory';
 
 const DEFAULT_BOX_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
 
@@ -40,7 +41,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const isWireframe = renderMode === 'wireframe';
   const showEdges = renderMode === 'hybrid';
 
-  const geometry = React.useMemo(() => {
+  const geometry = useMemo(() => {
     if (!object || object.type !== ObjectType.MESH) return null;
     const geoType = object.components?.mesh?.geometry || 'box';
 
@@ -64,6 +65,56 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     <ObjectRenderer key={childId} id={childId} />
   )) || [];
 
+  const materialSpec = useMemo<MaterialSpec | null>(() => {
+    if (object.type !== ObjectType.MESH) return null;
+    return object.components?.mesh?.material ?? null;
+  }, [object.type, object.components?.mesh?.material]);
+
+  const materialRef = useRef<THREE.Material | null>(null);
+  const lastTypeRef = useRef<MaterialSpec['type'] | null>(null);
+
+  // 当组件卸载时 dispose；当材质类型切换时重建并 dispose 旧材质
+  useEffect(() => {
+    return () => {
+      materialRef.current?.dispose();
+      materialRef.current = null;
+      lastTypeRef.current = null;
+    };
+  }, []);
+
+  // 注意：材质 props（如 color/roughness/metalness）变化时也要实时联动到 SceneView。
+  // 这里用「类型变化就重建」+「props 变化就同步到现有实例」的组合策略：
+  // - type 变：dispose 旧实例，new 新实例
+  // - props 变：把 props 逐项 apply 到当前 material，并标记 needsUpdate
+  if (materialSpec && lastTypeRef.current !== materialSpec.type) {
+    materialRef.current?.dispose();
+    materialRef.current = createThreeMaterial(materialSpec);
+    lastTypeRef.current = materialSpec.type;
+  }
+
+  useEffect(() => {
+    if (!materialSpec || !materialRef.current) return;
+
+    const mat: any = materialRef.current;
+    const props = (materialSpec.props ?? {}) as Record<string, unknown>;
+
+    for (const [key, value] of Object.entries(props)) {
+      if (key === 'color' && typeof value === 'string' && mat.color?.set) {
+        mat.color.set(value);
+        continue;
+      }
+
+      if (key === 'specular' && typeof value === 'string' && mat.specular?.set) {
+        mat.specular.set(value);
+        continue;
+      }
+
+      mat[key] = value as any;
+    }
+
+    mat.needsUpdate = true;
+  }, [materialSpec]);
+
   return (
     <group
       name={id} // Add name prop to allow finding object by ID
@@ -72,13 +123,8 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       scale={scale}
       onClick={handleClick}
     >
-      {object.type === ObjectType.MESH && geometry && (
-        <mesh castShadow receiveShadow geometry={geometry}>
-          <meshStandardMaterial
-            color={isSelected ? '#ff9900' : (object.components?.mesh?.materialId === 'default' ? 'orange' : '#cccccc')}
-            emissive={isSelected ? '#442200' : '#000000'}
-            wireframe={isWireframe}
-          />
+      {object.type === ObjectType.MESH && geometry && materialRef.current && (
+        <mesh castShadow receiveShadow geometry={geometry} material={materialRef.current}>
            {showEdges && (
               <lineSegments>
                 <edgesGeometry args={[geometry]} />

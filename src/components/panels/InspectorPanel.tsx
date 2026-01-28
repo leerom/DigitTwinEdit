@@ -41,7 +41,7 @@ export const InspectorPanel: React.FC = () => {
   const isAllLights = selectedIds.every(id => objects[id]?.type === ObjectType.LIGHT);
 
   // Check if selected object is main camera
-  const isMainCamera = activeId && objects[activeId]?.type === ObjectType.CAMERA && objects[activeId]?.name === 'Main Camera';
+  const isMainCamera = !!(activeId && objects[activeId]?.type === ObjectType.CAMERA && objects[activeId]?.name === 'Main Camera');
 
   return (
     <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
@@ -98,8 +98,8 @@ export const InspectorPanel: React.FC = () => {
             </div>
           )}
 
-          {/* Materials Component - Single Select Only, Not for Camera */}
-          {!isMultiSelect && !isAllCameras && (
+          {/* Materials Component - Single Select Only, Not for Camera/Light */}
+          {!isMultiSelect && !isAllCameras && !isAllLights && (
             <div>
               <h3 className="text-[11px] font-bold text-slate-300 mb-3">材质 (Materials)</h3>
               <MaterialProp objectId={activeId} />

@@ -149,6 +149,16 @@ export class SceneManager {
           mesh: {
             assetId: 'default',
             materialId: 'default',
+            material: {
+              type: 'MeshStandardMaterial',
+              props: {
+                color: '#cccccc',
+                wireframe: false,
+                transparent: false,
+                opacity: 1,
+                side: 'FrontSide',
+              },
+            },
             geometry: geometryType,
             castShadow: true,
             receiveShadow: true,
