@@ -22,5 +22,5 @@ export const defaultShortcuts: ShortcutRegistry = {
   'Ctrl+KeyY': { action: 'redo', priority: 3 },
 
   // 三键组合 (Priority 4)
-  'Ctrl+Shift+KeyZ': { action: 'resetTransform', priority: 4, requiresSelection: true },
+  'Ctrl+Shift+KeyZ': { action: 'redo', priority: 4 },
 };

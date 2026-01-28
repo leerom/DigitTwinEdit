@@ -26,7 +26,7 @@ describe('ViewportOverlay', () => {
   it('renders tool buttons', () => {
     render(<ViewportOverlay />);
 
-    // title 文案已本地化为中文（见 ViewportOverlay.tsx）
+    // 按界面上的中文 title 进行断言
     expect(screen.getByTitle(/抓手工具/)).toBeInTheDocument();
     expect(screen.getByTitle(/移动工具/)).toBeInTheDocument();
     expect(screen.getByTitle(/旋转工具/)).toBeInTheDocument();

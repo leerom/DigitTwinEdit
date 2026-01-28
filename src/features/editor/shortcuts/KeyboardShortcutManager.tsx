@@ -23,13 +23,18 @@ export const KeyboardShortcutManager: React.FC = () => {
       // Update modifiers
       setModifiers({ ctrl: e.ctrlKey || e.metaKey, shift: e.shiftKey, alt: e.altKey });
 
-      // Ignore if input is focused
-      if (
+      // Ignore most shortcuts if an editable element is focused.
+      // Exception: allow Undo/Redo to work even while editing numeric/color inputs.
+      const isEditableFocused =
         document.activeElement instanceof HTMLInputElement ||
         document.activeElement instanceof HTMLTextAreaElement ||
-        document.activeElement?.getAttribute('contenteditable') === 'true'
-      ) {
-        return;
+        document.activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditableFocused) {
+        const key = buildShortcutKey(e);
+        const shortcut = defaultShortcuts[key];
+        const isUndoRedo = shortcut?.action === 'undo' || shortcut?.action === 'redo';
+        if (!isUndoRedo) return;
       }
 
       // Fly Mode Handling (Priority)
@@ -38,6 +43,7 @@ export const KeyboardShortcutManager: React.FC = () => {
         if (flyKeys.includes(e.code)) {
           e.preventDefault();
           useInputState.getState().setKey(e.code, true);
+          // Fly mode should not trigger other shortcuts (e.g. setTool)
           return;
         }
       }

@@ -41,7 +41,7 @@ export const InspectorPanel: React.FC = () => {
   const isAllLights = selectedIds.every(id => objects[id]?.type === ObjectType.LIGHT);
 
   // Check if selected object is main camera
-  const isMainCamera = activeId && objects[activeId]?.type === ObjectType.CAMERA && objects[activeId]?.name === 'Main Camera';
+  const isMainCamera = !!(activeId && objects[activeId]?.type === ObjectType.CAMERA && objects[activeId]?.name === 'Main Camera');
 
   return (
     <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
