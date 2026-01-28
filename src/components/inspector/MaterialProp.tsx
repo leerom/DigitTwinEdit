@@ -55,7 +55,7 @@ export const MaterialProp: React.FC<{ objectId: string }> = ({ objectId }) => {
       <div className="flex items-center justify-between">
         <label className="text-[11px] text-[#999999] font-medium">类型</label>
         <select
-          className="bg-transparent text-[12px] text-white border border-[#2d333f] rounded px-2 py-1"
+          className="bg-[#0c0e14] text-[12px] text-white border border-[#2d333f] rounded px-2 py-1"
           value={type}
           onChange={(e) => handleTypeChange(e.target.value as MaterialType)}
         >
@@ -77,15 +77,42 @@ export const MaterialProp: React.FC<{ objectId: string }> = ({ objectId }) => {
         />
       </div>
 
-      {fields.map((key) => (
-        <NumberInput
-          key={key}
-          label={key}
-          value={getMaterialPropNumber(props, key, 0)}
-          onChange={(val) => handlePropChange(key, val)}
-          step="0.01"
-        />
-      ))}
+      {fields.map((key) => {
+        const value = getMaterialPropNumber(props, key, 0);
+
+        // 基于 three.js 文档/示例设定合理的 UI 取值范围
+        const range = (() => {
+          switch (key) {
+            case 'roughness':
+            case 'metalness':
+            case 'clearcoat':
+            case 'clearcoatRoughness':
+            case 'transmission':
+              return { min: 0, max: 1, step: '0.01' };
+            case 'ior':
+              return { min: 1, max: 2.333, step: '0.001' };
+            case 'thickness':
+              return { min: 0, max: undefined, step: '0.01' };
+            case 'shininess':
+              // 你指定：0~1
+              return { min: 0, max: 1, step: '0.01' };
+            default:
+              return { min: undefined, max: undefined, step: '0.01' };
+          }
+        })();
+
+        return (
+          <NumberInput
+            key={key}
+            label={key}
+            value={value}
+            onChange={(val) => handlePropChange(key, val)}
+            step={range.step}
+            min={range.min}
+            max={range.max}
+          />
+        );
+      })}
     </div>
   );
 };

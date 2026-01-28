@@ -82,11 +82,38 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     };
   }, []);
 
+  // 注意：材质 props（如 color/roughness/metalness）变化时也要实时联动到 SceneView。
+  // 这里用「类型变化就重建」+「props 变化就同步到现有实例」的组合策略：
+  // - type 变：dispose 旧实例，new 新实例
+  // - props 变：把 props 逐项 apply 到当前 material，并标记 needsUpdate
   if (materialSpec && lastTypeRef.current !== materialSpec.type) {
     materialRef.current?.dispose();
     materialRef.current = createThreeMaterial(materialSpec);
     lastTypeRef.current = materialSpec.type;
   }
+
+  useEffect(() => {
+    if (!materialSpec || !materialRef.current) return;
+
+    const mat: any = materialRef.current;
+    const props = (materialSpec.props ?? {}) as Record<string, unknown>;
+
+    for (const [key, value] of Object.entries(props)) {
+      if (key === 'color' && typeof value === 'string' && mat.color?.set) {
+        mat.color.set(value);
+        continue;
+      }
+
+      if (key === 'specular' && typeof value === 'string' && mat.specular?.set) {
+        mat.specular.set(value);
+        continue;
+      }
+
+      mat[key] = value as any;
+    }
+
+    mat.needsUpdate = true;
+  }, [materialSpec]);
 
   return (
     <group

@@ -25,10 +25,13 @@ export const KeyboardShortcutManager: React.FC = () => {
 
       // Ignore most shortcuts if an editable element is focused.
       // Exception: allow Undo/Redo to work even while editing numeric/color inputs.
+      const activeEl = document.activeElement as Element | null;
       const isEditableFocused =
-        document.activeElement instanceof HTMLInputElement ||
-        document.activeElement instanceof HTMLTextAreaElement ||
-        document.activeElement?.getAttribute('contenteditable') === 'true';
+        activeEl instanceof HTMLInputElement ||
+        activeEl instanceof HTMLTextAreaElement ||
+        activeEl?.getAttribute('contenteditable') === 'true' ||
+        // <input type="color"> 会在聚焦时打开浏览器原生面板，此时也需要允许 Undo/Redo
+        !!activeEl?.closest('input[type="color"]');
 
       if (isEditableFocused) {
         const key = buildShortcutKey(e);
