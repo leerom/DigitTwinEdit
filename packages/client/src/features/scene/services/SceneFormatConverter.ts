@@ -206,7 +206,7 @@ export class SceneFormatConverter {
         assets[assetId] = {
           id: assetId,
           name: obj.name || 'Asset',
-          type: AssetType.MODEL,
+          type: 'model',
           path: obj.userData.fileInfo.url,
         };
       }

@@ -1,6 +1,8 @@
 // Re-export scene types from client
 // These types are already defined in client/src/types/index.ts
 
+import type { AssetType } from './asset.js';
+
 // Core Vector type
 export type Vector3 = [number, number, number];
 
@@ -94,13 +96,6 @@ export interface SceneObject {
   };
 }
 
-// Asset Types
-export enum AssetType {
-  MODEL = 'model',
-  MATERIAL = 'material',
-  TEXTURE = 'texture',
-}
-
 // Asset Reference
 export interface AssetReference {
   id: string;
@@ -108,6 +103,15 @@ export interface AssetReference {
   type: AssetType;
   path: string;
   thumbnail?: string;
+  assetDbId?: number; // Database asset ID
+}
+
+// Material Reference
+export interface MaterialReference {
+  id: string;
+  name: string;
+  path: string; // API path to material
+  materialDbId?: number; // Database asset ID
 }
 
 // Scene Settings
@@ -128,6 +132,7 @@ export interface Scene {
   root: string;
   objects: Record<string, SceneObject>;
   assets: Record<string, AssetReference>;
+  materials?: Record<string, MaterialReference>; // 材质引用
   settings: SceneSettings;
 }
 

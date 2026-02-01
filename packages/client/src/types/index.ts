@@ -1,6 +1,10 @@
 // Core Vector type
 export type Vector3 = [number, number, number];
 
+// Import shared types
+import type { AssetType as SharedAssetType, AssetReference as SharedAssetReference, MaterialReference as SharedMaterialReference } from '@digittwinedit/shared';
+export type { AssetType, AssetReference, MaterialReference } from '@digittwinedit/shared';
+
 // Core Transform Component
 export interface TransformComponent {
   position: Vector3;
@@ -92,22 +96,6 @@ export interface SceneObject {
   };
 }
 
-// Asset Types
-export enum AssetType {
-  MODEL = 'model',
-  MATERIAL = 'material',
-  TEXTURE = 'texture',
-}
-
-// Asset Reference
-export interface AssetReference {
-  id: string;
-  name: string;
-  type: AssetType;
-  path: string;
-  thumbnail?: string;
-}
-
 // Scene Settings
 export interface SceneSettings {
   environment: string;
@@ -126,6 +114,7 @@ export interface Scene {
   updatedAt: string;
   root: string;
   objects: Record<string, SceneObject>;
-  assets: Record<string, AssetReference>;
+  assets: Record<string, SharedAssetReference>;
+  materials?: Record<string, SharedMaterialReference>;
   settings: SceneSettings;
 }

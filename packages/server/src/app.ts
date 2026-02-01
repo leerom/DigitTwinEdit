@@ -8,6 +8,8 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/auth.js';
 import projectRoutes from './routes/projects.js';
 import sceneRoutes from './routes/scenes.js';
+import assetRoutes from './routes/assets.js';
+import materialRoutes from './routes/materials.js';
 
 // 加载环境变量
 dotenv.config();
@@ -55,6 +57,8 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/projects/:projectId/scenes', sceneRoutes);
+app.use('/api', assetRoutes);
+app.use('/api', materialRoutes);
 
 // 404处理
 app.use(notFoundHandler);
