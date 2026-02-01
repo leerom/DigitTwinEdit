@@ -1,6 +1,13 @@
 import { AssetModel, type CreateAssetData, type AssetRow, type AssetType } from '../models/Asset.js';
 import { fileStorage } from '../utils/fileStorage.js';
-import sharp from 'sharp';
+
+// 尝试导入sharp，如果失败则使用null
+let sharp: any = null;
+try {
+  sharp = (await import('sharp')).default;
+} catch (error) {
+  console.warn('Sharp module not available. Thumbnail generation will be disabled.');
+}
 
 export class AssetService {
   /**
@@ -108,6 +115,12 @@ export class AssetService {
     fileBuffer: Buffer,
     type: AssetType
   ): Promise<string | null> {
+    // 如果sharp不可用，跳过缩略图生成
+    if (!sharp) {
+      console.warn('Sharp not available, skipping thumbnail generation');
+      return null;
+    }
+
     try {
       let thumbnailBuffer: Buffer;
 
