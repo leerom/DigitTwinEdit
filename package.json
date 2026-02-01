@@ -4,12 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -p tsconfig.build.json && vite build",
-    "preview": "vite preview",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "coverage": "vitest run --coverage"
+    "dev": "pnpm --filter client dev",
+    "dev:server": "pnpm --filter server dev",
+    "dev:all": "pnpm --parallel --filter {client,server} dev",
+    "build": "pnpm --filter shared build && pnpm --filter server build && pnpm --filter client build",
+    "preview": "pnpm --filter client preview",
+    "test": "pnpm --recursive test",
+    "test:ui": "pnpm --filter client test:ui",
+    "coverage": "pnpm --filter client coverage"
   },
   "repository": {
     "type": "git",
