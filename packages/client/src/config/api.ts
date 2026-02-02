@@ -30,10 +30,10 @@ apiClient.interceptors.response.use(
     // 处理错误响应
     if (error.response?.status === 401) {
       // 未认证 - 可以触发登出或跳转到登录页
-      console.error('Unauthorized - please login');
+      console.error('未授权 - 请登录');
     }
 
-    const errorMessage = error.response?.data?.message || error.message || 'An error occurred';
+    const errorMessage = error.response?.data?.message || error.message || '发生错误';
     return Promise.reject(new Error(errorMessage));
   }
 );

@@ -33,7 +33,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         error: null,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      const errorMessage = error instanceof Error ? error.message : '登录失败';
       set({
         user: null,
         isAuthenticated: false,
@@ -55,7 +55,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         error: null,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Registration failed';
+      const errorMessage = error instanceof Error ? error.message : '注册失败';
       set({
         user: null,
         isAuthenticated: false,

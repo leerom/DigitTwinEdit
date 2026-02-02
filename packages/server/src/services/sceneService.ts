@@ -55,7 +55,7 @@ export class SceneService {
       throw new Error('Access denied');
     }
 
-    // 如果没有提供数据，创建默认空场景
+    // 如果没有提供数据，创建带有默认相机和光源的场景
     const sceneData: Scene = data || {
       id: `scene_${Date.now()}`,
       name,
@@ -69,19 +69,63 @@ export class SceneService {
           name: 'Root',
           type: 'Group' as any,
           parentId: null,
-          children: [],
+          children: ['camera_default', 'light_default'],
           visible: true,
-          locked: false,
+          locked: true,
           transform: {
             position: [0, 0, 0],
             rotation: [0, 0, 0],
             scale: [1, 1, 1],
           },
         },
+        camera_default: {
+          id: 'camera_default',
+          name: 'Main Camera',
+          type: 'Camera' as any,
+          parentId: 'root',
+          children: [],
+          visible: true,
+          locked: false,
+          transform: {
+            position: [0, 1, -10],
+            rotation: [0, 0, 0],
+            scale: [1, 1, 1],
+          },
+          components: {
+            camera: {
+              fov: 60,
+              near: 0.1,
+              far: 1000,
+              orthographic: false,
+            },
+          },
+        },
+        light_default: {
+          id: 'light_default',
+          name: 'Directional Light',
+          type: 'Light' as any,
+          parentId: 'root',
+          children: [],
+          visible: true,
+          locked: false,
+          transform: {
+            position: [0, 3, 0],
+            rotation: [50 * (Math.PI / 180), -30 * (Math.PI / 180), 0],
+            scale: [1, 1, 1],
+          },
+          components: {
+            light: {
+              color: '#ffffff',
+              intensity: 1,
+              type: 'directional',
+              castShadow: true,
+            },
+          },
+        },
       },
       assets: {},
       settings: {
-        environment: 'studio',
+        environment: 'default',
         gridVisible: true,
         backgroundColor: '#1a1a1a',
       },

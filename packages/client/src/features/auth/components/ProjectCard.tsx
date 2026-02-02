@@ -10,10 +10,10 @@ interface ProjectCardProps {
 export function ProjectCard({ project, isSelected, onSelect }: ProjectCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
+    return date.toLocaleDateString('zh-CN', {
       year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
   };
 
@@ -56,7 +56,7 @@ export function ProjectCard({ project, isSelected, onSelect }: ProjectCardProps)
       {/* 更新时间 */}
       <div className="flex items-center text-gray-500 text-xs">
         <Calendar className="w-3 h-3 mr-1" />
-        <span>Updated {formatDate(project.updated_at)}</span>
+        <span>更新于 {formatDate(project.updated_at)}</span>
       </div>
     </button>
   );

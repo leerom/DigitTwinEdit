@@ -20,10 +20,10 @@ export function RegisterDialog({ onClose }: RegisterDialogProps) {
 
     try {
       await authApi.register({ username, password, email });
-      alert('Registration successful! Please sign in.');
+      alert('注册成功！请登录。');
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      setError(err.message || '注册失败');
     } finally {
       setIsLoading(false);
     }
@@ -34,7 +34,7 @@ export function RegisterDialog({ onClose }: RegisterDialogProps) {
       <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-white">Create Account</h2>
+          <h2 className="text-2xl font-bold text-white">创建账号</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
@@ -48,7 +48,7 @@ export function RegisterDialog({ onClose }: RegisterDialogProps) {
           {/* Username */}
           <div>
             <label htmlFor="reg-username" className="block text-sm font-medium text-gray-300 mb-2">
-              Username *
+              用户名 *
             </label>
             <input
               id="reg-username"
@@ -56,7 +56,7 @@ export function RegisterDialog({ onClose }: RegisterDialogProps) {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-              placeholder="Choose a username"
+              placeholder="请选择用户名"
               required
             />
           </div>
@@ -64,7 +64,7 @@ export function RegisterDialog({ onClose }: RegisterDialogProps) {
           {/* Email */}
           <div>
             <label htmlFor="reg-email" className="block text-sm font-medium text-gray-300 mb-2">
-              Email (optional)
+              邮箱（可选）
             </label>
             <input
               id="reg-email"
@@ -79,7 +79,7 @@ export function RegisterDialog({ onClose }: RegisterDialogProps) {
           {/* Password */}
           <div>
             <label htmlFor="reg-password" className="block text-sm font-medium text-gray-300 mb-2">
-              Password *
+              密码 *
             </label>
             <input
               id="reg-password"
@@ -87,7 +87,7 @@ export function RegisterDialog({ onClose }: RegisterDialogProps) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-              placeholder="At least 6 characters"
+              placeholder="至少6个字符"
               required
               minLength={6}
             />
@@ -107,7 +107,7 @@ export function RegisterDialog({ onClose }: RegisterDialogProps) {
               onClick={onClose}
               className="flex-1 py-2 px-4 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
             >
-              Cancel
+              取消
             </button>
             <button
               type="submit"
@@ -117,12 +117,12 @@ export function RegisterDialog({ onClose }: RegisterDialogProps) {
               {isLoading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Creating...
+                  创建中...
                 </>
               ) : (
                 <>
                   <UserPlus size={18} />
-                  Register
+                  注册
                 </>
               )}
             </button>

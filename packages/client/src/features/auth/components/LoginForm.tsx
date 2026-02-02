@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { LogIn, Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '../../../stores/authStore';
-import type { ProjectResponse } from '@digittwinedit/shared';
 
 interface LoginFormProps {
-  selectedProject: ProjectResponse | null;
   onSuccess: () => void;
+  onShowRegister?: () => void;
 }
 
-export function LoginForm({ selectedProject, onSuccess }: LoginFormProps) {
+export function LoginForm({ onSuccess, onShowRegister }: LoginFormProps) {
   const { login, isLoading, error } = useAuthStore();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -17,11 +16,6 @@ export function LoginForm({ selectedProject, onSuccess }: LoginFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!selectedProject) {
-      alert('Please select a project first');
-      return;
-    }
 
     try {
       await login(username, password, rememberMe);
@@ -33,20 +27,13 @@ export function LoginForm({ selectedProject, onSuccess }: LoginFormProps) {
 
   return (
     <div className="w-full max-w-md">
-      <h2 className="text-2xl font-bold text-white mb-6">Sign In</h2>
-
-      {selectedProject && (
-        <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-          <p className="text-sm text-gray-400">Selected project:</p>
-          <p className="text-white font-medium">{selectedProject.name}</p>
-        </div>
-      )}
+      <h2 className="text-2xl font-bold text-white mb-6">登录</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* 用户名 */}
         <div>
           <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
-            Username
+            用户名
           </label>
           <input
             id="username"
@@ -54,7 +41,7 @@ export function LoginForm({ selectedProject, onSuccess }: LoginFormProps) {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-            placeholder="Enter your username"
+            placeholder="请输入用户名"
             autoFocus
             required
           />
@@ -63,7 +50,7 @@ export function LoginForm({ selectedProject, onSuccess }: LoginFormProps) {
         {/* 密码 */}
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
-            Password
+            密码
           </label>
           <div className="relative">
             <input
@@ -72,7 +59,7 @@ export function LoginForm({ selectedProject, onSuccess }: LoginFormProps) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 pr-10"
-              placeholder="Enter your password"
+              placeholder="请输入密码"
               required
             />
             <button
@@ -95,7 +82,7 @@ export function LoginForm({ selectedProject, onSuccess }: LoginFormProps) {
             className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
           />
           <label htmlFor="remember-me" className="ml-2 text-sm text-gray-300">
-            Remember me
+            记住我
           </label>
         </div>
 
@@ -109,22 +96,34 @@ export function LoginForm({ selectedProject, onSuccess }: LoginFormProps) {
         {/* 登录按钮 */}
         <button
           type="submit"
-          disabled={!selectedProject || isLoading}
+          disabled={isLoading}
           className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {isLoading ? (
             <>
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Signing in...
+              登录中...
             </>
           ) : (
             <>
               <LogIn size={20} />
-              Sign In
+              登录
             </>
           )}
         </button>
       </form>
+
+      {/* 注册链接 */}
+      {onShowRegister && (
+        <div className="mt-4 text-center">
+          <button
+            onClick={onShowRegister}
+            className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            还没有账号？立即注册
+          </button>
+        </div>
+      )}
     </div>
   );
 }
