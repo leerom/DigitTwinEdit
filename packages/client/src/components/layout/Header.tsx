@@ -22,6 +22,8 @@ export const Header: React.FC = () => {
 
   const { isDirty, scene, markClean, loadScene, addObject } = useSceneStore();
   const clearSelection = useEditorStore((state) => state.clearSelection);
+  const select = useEditorStore((state) => state.select);
+  const setActiveTool = useEditorStore((state) => state.setActiveTool);
 
   const handleImportClick = () => {
     // 触发文件选择
@@ -86,6 +88,16 @@ export const Header: React.FC = () => {
     setShowNewSceneDialog(false);
   };
 
+  const handleAddMesh = (
+    name: string,
+    geometryType: 'box' | 'sphere' | 'plane' | 'cylinder' | 'torus' | 'capsule'
+  ) => {
+    const newObject = SceneManager.createMesh(name, geometryType);
+    addObject(newObject);
+    select([newObject.id], false);
+    setActiveTool('translate');
+  };
+
   const sceneMenuItems: DropdownMenuItem[] = [
     {
       label: '新建场景',
@@ -111,27 +123,27 @@ export const Header: React.FC = () => {
       children: [
         {
           label: '平面 (Plane)',
-          onClick: () => addObject(SceneManager.createMesh('Plane', 'plane')),
+          onClick: () => handleAddMesh('Plane', 'plane'),
           icon: <Square className="w-3 h-3" />,
         },
         {
           label: '立方体 (Cube)',
-          onClick: () => addObject(SceneManager.createMesh('Cube', 'box')),
+          onClick: () => handleAddMesh('Cube', 'box'),
           icon: <Box className="w-3 h-3" />,
         },
         {
           label: '球体 (Sphere)',
-          onClick: () => addObject(SceneManager.createMesh('Sphere', 'sphere')),
+          onClick: () => handleAddMesh('Sphere', 'sphere'),
           icon: <Circle className="w-3 h-3" />,
         },
         {
             label: '圆柱体 (Cylinder)',
-            onClick: () => addObject(SceneManager.createMesh('Cylinder', 'cylinder')),
+            onClick: () => handleAddMesh('Cylinder', 'cylinder'),
             icon: <Cylinder className="w-3 h-3" />,
         },
         {
           label: '胶囊体 (Capsule)',
-          onClick: () => addObject(SceneManager.createMesh('Capsule', 'capsule')),
+          onClick: () => handleAddMesh('Capsule', 'capsule'),
           icon: <div className="w-3 h-3 border border-current rounded-full" />,
         },
       ]
