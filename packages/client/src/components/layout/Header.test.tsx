@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import { Header } from './Header';
 import { describe, it, expect, vi } from 'vitest';
 
@@ -20,7 +21,11 @@ vi.mock('../../stores/layoutStore', () => ({
 
 describe('Header', () => {
   it('renders menu items', () => {
-    render(<Header />);
+    render(
+      <BrowserRouter>
+        <Header />
+      </BrowserRouter>
+    );
     expect(screen.getByText('场景')).toBeInTheDocument();
     expect(screen.getByText('编辑')).toBeInTheDocument();
     expect(screen.getByText('窗口')).toBeInTheDocument();

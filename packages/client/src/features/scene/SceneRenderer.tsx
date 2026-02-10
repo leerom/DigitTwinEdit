@@ -9,6 +9,11 @@ import { createThreeMaterial } from '@/features/materials/materialFactory';
 
 const DEFAULT_BOX_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
 
+export const resolveWireframeOverride = (renderMode: string, materialSpec: MaterialSpec | null) => {
+  if (renderMode === 'wireframe') return true;
+  return materialSpec?.props?.wireframe ?? false;
+};
+
 const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const object = useSceneStore((state) => state.scene.objects[id]);
 
@@ -37,7 +42,6 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     select([id], false);
   };
 
-  const isWireframe = renderMode === 'wireframe';
   const showEdges = renderMode === 'hybrid';
 
   const geometry = useMemo(() => {
@@ -111,6 +115,14 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     mat.needsUpdate = true;
   }, [materialSpec]);
 
+  useEffect(() => {
+    if (!materialSpec || !materialRef.current) return;
+
+    const mat: any = materialRef.current;
+    mat.wireframe = resolveWireframeOverride(renderMode, materialSpec);
+    mat.needsUpdate = true;
+  }, [renderMode, materialSpec]);
+
   // 对象被删除的瞬间仍可能触发一次渲染；这里用空 group 兜底，避免访问 undefined 导致 Canvas 树崩溃
   if (!object) {
     return <group name={id} />;
@@ -145,11 +157,11 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
            />
            <mesh>
              <boxGeometry args={[0.5, 0.5, 0.5]} />
-             <meshBasicMaterial color="#8800ff" wireframe={isWireframe} />
+             <meshBasicMaterial color="#8800ff" />
            </mesh>
            <mesh position={[0, 0, 0.5]} rotation={[Math.PI / 2, 0, 0]}>
              <coneGeometry args={[0.2, 0.5, 16]} />
-             <meshBasicMaterial color="#8800ff" wireframe={isWireframe} />
+             <meshBasicMaterial color="#8800ff" />
            </mesh>
         </group>
       )}
@@ -163,7 +175,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
           />
           <mesh>
             <sphereGeometry args={[0.3, 16, 16]} />
-            <meshBasicMaterial color="#ffff00" wireframe={isWireframe} />
+            <meshBasicMaterial color="#ffff00" />
           </mesh>
            <group>
              {[0, Math.PI/2, Math.PI, -Math.PI/2].map((angle, i) => (
