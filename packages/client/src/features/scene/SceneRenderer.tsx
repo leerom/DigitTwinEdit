@@ -112,16 +112,9 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       mat[key] = value as any;
     }
 
-    mat.needsUpdate = true;
-  }, [materialSpec]);
-
-  useEffect(() => {
-    if (!materialSpec || !materialRef.current) return;
-
-    const mat: any = materialRef.current;
     mat.wireframe = resolveWireframeOverride(renderMode, materialSpec);
     mat.needsUpdate = true;
-  }, [renderMode, materialSpec]);
+  }, [materialSpec, renderMode, selectedIds]);
 
   // 对象被删除的瞬间仍可能触发一次渲染；这里用空 group 兜底，避免访问 undefined 导致 Canvas 树崩溃
   if (!object) {
