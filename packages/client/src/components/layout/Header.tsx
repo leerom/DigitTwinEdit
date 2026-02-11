@@ -7,7 +7,7 @@ import { SceneLoader } from '../../features/scene/services/SceneLoader';
 import { SceneManager } from '../../features/scene/services/SceneManager';
 import { useSceneStore } from '../../stores/sceneStore';
 import { useEditorStore } from '../../stores/editorStore';
-import { Upload, FileDown, FilePlus, Box, Circle, Square, Sun, Layers, Cylinder } from 'lucide-react';
+import { Upload, FileDown, FilePlus, Box, Circle, Square, Sun, Layers, Cylinder, FolderOpen, Save, FileInput } from 'lucide-react';
 import { SceneSwitcher } from '../../features/scene/components/SceneSwitcher';
 import { UserMenu } from '../UserMenu';
 
@@ -105,6 +105,32 @@ export const Header: React.FC = () => {
       icon: <FilePlus className="w-3 h-3" />,
     },
     {
+      label: '打开场景',
+      onClick: handleImportClick,
+      icon: <FolderOpen className="w-3 h-3" />,
+    },
+    {
+      label: '',
+      separator: true,
+    },
+    {
+      label: '保存场景',
+      onClick: () => {
+        SceneManager.saveSceneToFile(scene);
+        markClean();
+      },
+      icon: <Save className="w-3 h-3" />,
+    },
+    {
+      label: '场景另存为',
+      onClick: () => SceneManager.saveSceneToFile(scene),
+      icon: <FileInput className="w-3 h-3" />,
+    },
+    {
+      label: '',
+      separator: true,
+    },
+    {
       label: '导入场景',
       onClick: handleImportClick,
       icon: <Upload className="w-3 h-3" />,
@@ -113,6 +139,34 @@ export const Header: React.FC = () => {
       label: '导出场景',
       onClick: () => SceneManager.saveSceneToFile(scene),
       icon: <FileDown className="w-3 h-3" />,
+    },
+    {
+      label: '',
+      separator: true,
+    },
+    {
+      label: '新建项目',
+      onClick: () => {
+        // TODO: 实现新建项目功能
+        console.log('新建项目');
+      },
+      icon: <FilePlus className="w-3 h-3" />,
+    },
+    {
+      label: '打开项目',
+      onClick: () => {
+        // TODO: 实现打开项目功能
+        console.log('打开项目');
+      },
+      icon: <FolderOpen className="w-3 h-3" />,
+    },
+    {
+      label: '保存项目',
+      onClick: () => {
+        // TODO: 实现保存项目功能
+        console.log('保存项目');
+      },
+      icon: <Save className="w-3 h-3" />,
     },
   ];
 

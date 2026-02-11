@@ -6,15 +6,15 @@ import { AssetCard } from '../assets/AssetCard.js';
 import { UploadProgressList } from '../assets/UploadProgress.js';
 import type { AssetType } from '@digittwinedit/shared';
 
-type FolderType = 'models' | 'materials' | 'textures';
+type FolderType = 'scenes' | 'models' | 'materials' | 'textures';
 
 export const ProjectPanel: React.FC = () => {
-  const [activeTab, setActiveTab] = React.useState<'project' | 'resources'>('resources');
-  const [selectedFolder, setSelectedFolder] = useState<FolderType>('models');
+  const [activeTab, setActiveTab] = React.useState<'project' | 'resources'>('project');
+  const [selectedFolder, setSelectedFolder] = useState<FolderType>('scenes');
   const [selectedAssetId, setSelectedAssetId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { currentProject } = useProjectStore();
+  const { currentProject, scenes } = useProjectStore();
   const {
     assets,
     isLoading,
@@ -27,7 +27,7 @@ export const ProjectPanel: React.FC = () => {
 
   // 加载资产
   useEffect(() => {
-    if (currentProject && activeTab === 'resources') {
+    if (currentProject && activeTab === 'project' && selectedFolder !== 'scenes') {
       const assetType: AssetType = selectedFolder === 'models' ? 'model' : selectedFolder === 'materials' ? 'material' : 'texture';
       loadAssets(currentProject.id, assetType);
     }
@@ -123,132 +123,190 @@ export const ProjectPanel: React.FC = () => {
 
       {/* Content Area */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Sidebar: Folder Tree */}
-        <aside className="w-64 border-r border-border-dark overflow-y-auto custom-scrollbar p-2">
-          <div className="space-y-1">
-            {/* Assets Root */}
-            <div className="flex items-center space-x-2 text-xs text-slate-400 px-2 py-1 rounded">
-              <span className="material-symbols-outlined text-xs">expand_more</span>
-              <span className="material-symbols-outlined text-xs text-amber-500">folder_open</span>
-              <span>Assets</span>
-            </div>
+        {activeTab === 'project' ? (
+          <>
+            {/* Left Sidebar: Folder Tree */}
+            <aside className="w-64 border-r border-border-dark overflow-y-auto custom-scrollbar p-2">
+              <div className="space-y-1">
+                {/* Assets Root */}
+                <div className="flex items-center space-x-2 text-xs text-slate-400 px-2 py-1 rounded">
+                  <span className="material-symbols-outlined text-xs">expand_more</span>
+                  <span className="material-symbols-outlined text-xs text-amber-500">folder_open</span>
+                  <span>Assets</span>
+                </div>
 
-            {/* Subfolders */}
-            <div className="pl-4 space-y-1">
-              <div
-                className={clsx(
-                  "flex items-center space-x-2 text-xs cursor-pointer px-2 py-1 rounded",
-                  selectedFolder === 'models'
-                    ? "text-slate-300 bg-primary/10"
-                    : "text-slate-500 hover:text-white hover:bg-slate-800"
-                )}
-                onClick={() => setSelectedFolder('models')}
-              >
-                <span className="material-symbols-outlined text-xs">deployed_code</span>
-                <span>Models</span>
-              </div>
+                {/* Subfolders */}
+                <div className="pl-4 space-y-1">
+                  <div
+                    className={clsx(
+                      "flex items-center space-x-2 text-xs cursor-pointer px-2 py-1 rounded",
+                      selectedFolder === 'scenes'
+                        ? "text-slate-300 bg-primary/10"
+                        : "text-slate-500 hover:text-white hover:bg-slate-800"
+                    )}
+                    onClick={() => setSelectedFolder('scenes')}
+                  >
+                    <span className="material-symbols-outlined text-xs">photo_library</span>
+                    <span>Scenes</span>
+                  </div>
 
-              <div
-                className={clsx(
-                  "flex items-center space-x-2 text-xs cursor-pointer px-2 py-1 rounded",
-                  selectedFolder === 'materials'
-                    ? "text-slate-300 bg-primary/10"
-                    : "text-slate-500 hover:text-white hover:bg-slate-800"
-                )}
-                onClick={() => setSelectedFolder('materials')}
-              >
-                <span className="material-symbols-outlined text-xs">texture</span>
-                <span>Materials</span>
-              </div>
+                  <div
+                    className={clsx(
+                      "flex items-center space-x-2 text-xs cursor-pointer px-2 py-1 rounded",
+                      selectedFolder === 'models'
+                        ? "text-slate-300 bg-primary/10"
+                        : "text-slate-500 hover:text-white hover:bg-slate-800"
+                    )}
+                    onClick={() => setSelectedFolder('models')}
+                  >
+                    <span className="material-symbols-outlined text-xs">deployed_code</span>
+                    <span>Models</span>
+                  </div>
 
-              <div
-                className={clsx(
-                  "flex items-center space-x-2 text-xs cursor-pointer px-2 py-1 rounded",
-                  selectedFolder === 'textures'
-                    ? "text-slate-300 bg-primary/10"
-                    : "text-slate-500 hover:text-white hover:bg-slate-800"
-                )}
-                onClick={() => setSelectedFolder('textures')}
-              >
-                <span className="material-symbols-outlined text-xs">image</span>
-                <span>Textures</span>
-              </div>
-            </div>
-          </div>
-        </aside>
+                  <div
+                    className={clsx(
+                      "flex items-center space-x-2 text-xs cursor-pointer px-2 py-1 rounded",
+                      selectedFolder === 'materials'
+                        ? "text-slate-300 bg-primary/10"
+                        : "text-slate-500 hover:text-white hover:bg-slate-800"
+                    )}
+                    onClick={() => setSelectedFolder('materials')}
+                  >
+                    <span className="material-symbols-outlined text-xs">texture</span>
+                    <span>Materials</span>
+                  </div>
 
-        {/* Main Content: Asset Grid */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Toolbar */}
-          <div className="flex items-center justify-between p-2 border-b border-border-dark">
-            <div className="text-xs text-slate-400">
-              {assets.length} 个资产
-            </div>
-
-            {selectedFolder !== 'materials' && (
-              <button
-                onClick={handleUploadClick}
-                className="flex items-center space-x-1 px-3 py-1 bg-primary hover:bg-primary-hover text-white text-xs rounded transition-colors"
-                disabled={!currentProject}
-              >
-                <span className="material-symbols-outlined text-sm">upload</span>
-                <span>上传</span>
-              </button>
-            )}
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept={getAcceptTypes()}
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-          </div>
-
-          {/* Asset Grid */}
-          <div className="flex-1 p-4 overflow-y-auto custom-scrollbar">
-            {isLoading ? (
-              <div className="flex items-center justify-center h-full text-slate-500">
-                <div className="flex flex-col items-center space-y-2">
-                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                  <span className="text-xs">加载中...</span>
+                  <div
+                    className={clsx(
+                      "flex items-center space-x-2 text-xs cursor-pointer px-2 py-1 rounded",
+                      selectedFolder === 'textures'
+                        ? "text-slate-300 bg-primary/10"
+                        : "text-slate-500 hover:text-white hover:bg-slate-800"
+                    )}
+                    onClick={() => setSelectedFolder('textures')}
+                  >
+                    <span className="material-symbols-outlined text-xs">image</span>
+                    <span>Textures</span>
+                  </div>
                 </div>
               </div>
-            ) : assets.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-slate-500">
-                <div className="flex flex-col items-center space-y-2">
-                  <span className="material-symbols-outlined text-4xl">folder_open</span>
-                  <span className="text-xs">暂无资产</span>
-                  {selectedFolder !== 'materials' && (
-                    <button
-                      onClick={handleUploadClick}
-                      className="text-primary hover:underline text-xs"
-                    >
-                      点击上传
-                    </button>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-10 gap-4 content-start">
-                {assets.map((asset) => (
-                  <AssetCard
-                    key={asset.id}
-                    asset={asset}
-                    selected={selectedAssetId === asset.id}
-                    onSelect={() => setSelectedAssetId(asset.id)}
-                    onDelete={() => handleDeleteAsset(asset.id)}
-                    onDragStart={(e) => handleAssetDragStart(e, asset.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+            </aside>
 
-          {/* Upload Progress */}
-          <UploadProgressList uploads={uploadProgress} />
-        </div>
+            {/* Main Content: Asset Grid */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {/* Toolbar */}
+              <div className="flex items-center justify-between p-2 border-b border-border-dark">
+                <div className="text-xs text-slate-400">
+                  {selectedFolder === 'scenes' ? `${scenes.length} 个场景` : `${assets.length} 个资产`}
+                </div>
+
+                {selectedFolder !== 'materials' && selectedFolder !== 'scenes' && (
+                  <button
+                    onClick={handleUploadClick}
+                    className="flex items-center space-x-1 px-3 py-1 bg-primary hover:bg-primary-hover text-white text-xs rounded transition-colors"
+                    disabled={!currentProject}
+                  >
+                    <span className="material-symbols-outlined text-sm">upload</span>
+                    <span>上传</span>
+                  </button>
+                )}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept={getAcceptTypes()}
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </div>
+
+              {/* Content Grid */}
+              <div className="flex-1 p-4 overflow-y-auto custom-scrollbar">
+                {selectedFolder === 'scenes' ? (
+                  // 场景列表
+                  scenes.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-slate-500">
+                      <div className="flex flex-col items-center space-y-2">
+                        <span className="material-symbols-outlined text-4xl">photo_library</span>
+                        <span className="text-xs">暂无场景</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-10 gap-4 content-start">
+                      {scenes.map((scene) => (
+                        <div
+                          key={scene.id}
+                          className="flex flex-col items-center p-2 rounded bg-slate-800/50 hover:bg-slate-700/50 cursor-pointer transition-colors"
+                        >
+                          <div className="w-full aspect-square bg-slate-700 rounded mb-2 flex items-center justify-center">
+                            <span className="material-symbols-outlined text-4xl text-slate-500">photo_library</span>
+                          </div>
+                          <span className="text-xs text-slate-300 truncate w-full text-center">{scene.name}</span>
+                          {scene.is_active && (
+                            <span className="text-[10px] text-primary mt-1">活动场景</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                ) : (
+                  // 资产列表
+                  isLoading ? (
+                    <div className="flex items-center justify-center h-full text-slate-500">
+                      <div className="flex flex-col items-center space-y-2">
+                        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        <span className="text-xs">加载中...</span>
+                      </div>
+                    </div>
+                  ) : assets.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-slate-500">
+                      <div className="flex flex-col items-center space-y-2">
+                        <span className="material-symbols-outlined text-4xl">folder_open</span>
+                        <span className="text-xs">暂无资产</span>
+                        {selectedFolder !== 'materials' && (
+                          <button
+                            onClick={handleUploadClick}
+                            className="text-primary hover:underline text-xs"
+                          >
+                            点击上传
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-10 gap-4 content-start">
+                      {assets.map((asset) => (
+                        <AssetCard
+                          key={asset.id}
+                          asset={asset}
+                          selected={selectedAssetId === asset.id}
+                          onSelect={() => setSelectedAssetId(asset.id)}
+                          onDelete={() => handleDeleteAsset(asset.id)}
+                          onDragStart={(e) => handleAssetDragStart(e, asset.id)}
+                        />
+                      ))}
+                    </div>
+                  )
+                )}
+              </div>
+
+              {/* Upload Progress */}
+              <UploadProgressList uploads={uploadProgress} />
+            </div>
+          </>
+        ) : (
+          /* 资产库页签 - 空状态 */
+          <div className="flex-1 flex items-center justify-center text-slate-500">
+            <div className="flex flex-col items-center space-y-4">
+              <span className="material-symbols-outlined text-6xl text-slate-600">inventory_2</span>
+              <div className="text-center">
+                <p className="text-base text-slate-400 mb-1">资产库</p>
+                <p className="text-xs text-slate-500">等待后台资产库服务对接后展示内容</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

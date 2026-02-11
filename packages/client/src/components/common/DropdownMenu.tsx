@@ -8,6 +8,7 @@ export interface DropdownMenuItem {
   disabled?: boolean;
   icon?: React.ReactNode;
   children?: DropdownMenuItem[];
+  separator?: boolean; // 是否为分隔线
 }
 
 export interface DropdownMenuProps {
@@ -56,14 +57,24 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
   };
 
   const renderMenuItem = (item: DropdownMenuItem, index: number, isSubmenu: boolean = false) => {
+    // 渲染分隔线
+    if (item.separator) {
+      return (
+        <div
+          key={index}
+          className="my-1 border-t border-slate-600"
+          style={{ height: '1px' }}
+        />
+      );
+    }
+
     if (item.children) {
       return (
         <div key={index} className="relative group/submenu w-full">
           <button
             className={twMerge(
               'w-full px-3 py-2 text-left text-xs text-white hover:bg-accent-blue/20 transition-colors flex items-center justify-between gap-2',
-              item.disabled && 'opacity-50 cursor-not-allowed hover:bg-transparent',
-              !isSubmenu && index > 0 && 'border-t border-border-dark/50'
+              item.disabled && 'opacity-50 cursor-not-allowed hover:bg-transparent'
             )}
           >
              <div className="flex items-center gap-2">
@@ -87,8 +98,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
         disabled={item.disabled}
         className={twMerge(
           'w-full px-3 py-2 text-left text-xs text-white hover:bg-accent-blue/20 transition-colors flex items-center gap-2',
-          item.disabled && 'opacity-50 cursor-not-allowed hover:bg-transparent',
-          !isSubmenu && index > 0 && 'border-t border-border-default/50'
+          item.disabled && 'opacity-50 cursor-not-allowed hover:bg-transparent'
         )}
       >
         {item.icon && <span className="w-4 h-4">{item.icon}</span>}

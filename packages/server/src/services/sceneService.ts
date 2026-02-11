@@ -131,9 +131,16 @@ export class SceneService {
       },
     };
 
+    // 创建场景
     const scene = await SceneModel.create(projectId, name, sceneData);
 
-    return SceneModel.toDetailResponse(scene);
+    // 自动激活新创建的场景
+    const activatedScene = await SceneModel.setActive(scene.id, projectId);
+    if (!activatedScene) {
+      throw new Error('Failed to activate scene');
+    }
+
+    return SceneModel.toDetailResponse(activatedScene);
   }
 
   // 更新场景
