@@ -129,3 +129,92 @@ describe('SceneStore - Import State', () => {
     });
   });
 });
+
+describe('sceneStore - add asset to scene', () => {
+  beforeEach(() => {
+    act(() => {
+      useSceneStore.setState({
+        scene: {
+          id: 'test-scene',
+          name: 'Test Scene',
+          version: '1.0.0',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          root: 'root',
+          objects: {
+            root: {
+              id: 'root',
+              name: 'Root',
+              type: 'group',
+              parentId: null,
+              children: [],
+              visible: true,
+              locked: false,
+              transform: {
+                position: [0, 0, 0],
+                rotation: [0, 0, 0],
+                scale: [1, 1, 1],
+              },
+            },
+          },
+          assets: {},
+          settings: {
+            environment: 'default',
+            gridVisible: true,
+            backgroundColor: '#1a1a1a',
+          },
+        },
+        isDirty: false,
+      });
+    });
+  });
+
+  it('should add model asset to scene center', () => {
+    const mockAsset = {
+      id: 1,
+      name: 'model.glb',
+      type: 'model' as const,
+      project_id: 1,
+      file_path: '/uploads/model.glb',
+      file_size: 1024,
+      created_at: '',
+      updated_at: '',
+    };
+
+    act(() => {
+      useSceneStore.getState().addAssetToScene(mockAsset);
+    });
+
+    const state = useSceneStore.getState();
+    const rootChildren = state.scene.objects.root.children;
+    expect(rootChildren).toHaveLength(1);
+
+    const newObjectId = rootChildren[0];
+    const newObject = state.scene.objects[newObjectId];
+
+    expect(newObject.name).toBe('model');
+    expect(newObject.type).toBe('Mesh');
+    expect(newObject.transform.position).toEqual([0, 0, 0]);
+    expect(newObject.components?.model?.path).toBe('/uploads/model.glb');
+    expect(state.isDirty).toBe(true);
+  });
+
+  it('should throw error if asset type is not model', () => {
+    const mockAsset = {
+      id: 2,
+      name: 'texture.png',
+      type: 'texture' as const,
+      project_id: 1,
+      file_path: '/uploads/texture.png',
+      file_size: 2048,
+      created_at: '',
+      updated_at: '',
+    };
+
+    expect(() => {
+      act(() => {
+        useSceneStore.getState().addAssetToScene(mockAsset);
+      });
+    }).toThrow('Only model assets can be added to scene');
+  });
+});

@@ -36,6 +36,7 @@ interface SceneState {
   updateMeshMaterialSpec: (id: string, spec: import('@/types').MaterialSpec) => void;
   restoreObject: (obj: SceneObject) => void;
   loadScene: (scene: Scene) => void;
+  addAssetToScene: (asset: import('@digittwinedit/shared').Asset) => void;
 
   // Dirty state actions
   markDirty: () => void;
@@ -305,6 +306,47 @@ export const useSceneStore = create<SceneState>()(
         set((state) => {
           state.scene = newScene;
           state.isDirty = false;
+        }),
+
+      addAssetToScene: (asset) =>
+        set((state) => {
+          // 只支持模型资产
+          if (asset.type !== 'model') {
+            throw new Error('Only model assets can be added to scene');
+          }
+
+          const id = uuidv4();
+          const name = asset.name.replace(/\.[^/.]+$/, ''); // 移除文件扩展名
+
+          const newObject: SceneObject = {
+            id,
+            name,
+            type: ObjectType.MESH,
+            parentId: state.scene.root,
+            children: [],
+            visible: true,
+            locked: false,
+            transform: {
+              position: [0, 0, 0],
+              rotation: [0, 0, 0],
+              scale: [1, 1, 1],
+            },
+            components: {
+              model: {
+                path: asset.file_path,
+              },
+            },
+          };
+
+          state.scene.objects[id] = newObject;
+
+          // 添加到根对象的子对象列表
+          if (state.scene.objects[state.scene.root]) {
+            state.scene.objects[state.scene.root].children.push(id);
+          }
+
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
         }),
 
       // Dirty state actions
