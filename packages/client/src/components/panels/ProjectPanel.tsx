@@ -2,7 +2,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import { clsx } from 'clsx';
 import { useAssetStore } from '../../stores/assetStore.js';
 import { useProjectStore } from '../../stores/projectStore.js';
+import { useSceneStore } from '../../stores/sceneStore.js';
 import { AssetCard } from '../assets/AssetCard.js';
+import { SceneCard } from './SceneCard.js';
 import { UploadProgressList } from '../assets/UploadProgress.js';
 import type { AssetType } from '@digittwinedit/shared';
 
@@ -14,7 +16,7 @@ export const ProjectPanel: React.FC = () => {
   const [selectedAssetId, setSelectedAssetId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { currentProject, scenes } = useProjectStore();
+  const { currentProject, scenes, activateScene, updateSceneMetadata, deleteScene } = useProjectStore();
   const {
     assets,
     isLoading,
@@ -22,8 +24,10 @@ export const ProjectPanel: React.FC = () => {
     loadAssets,
     uploadAsset,
     deleteAsset,
+    updateAsset,
     getAssetUrl,
   } = useAssetStore();
+  const { addAssetToScene } = useSceneStore();
 
   // 加载资产
   useEffect(() => {
@@ -32,6 +36,84 @@ export const ProjectPanel: React.FC = () => {
       loadAssets(currentProject.id, assetType);
     }
   }, [currentProject, selectedFolder, activeTab, loadAssets]);
+
+  // 场景操作处理函数
+  const handleSceneOpen = async (sceneId: number) => {
+    if (!currentProject) return;
+    try {
+      await activateScene(currentProject.id, sceneId);
+    } catch (error) {
+      console.error('Failed to activate scene:', error);
+      alert('激活场景失败，请重试');
+    }
+  };
+
+  const handleSceneRename = async (sceneId: number, newName: string) => {
+    if (!newName.trim()) {
+      alert('名称不能为空');
+      return;
+    }
+    if (newName.length > 255) {
+      alert('名称过长（最多255字符）');
+      return;
+    }
+    try {
+      await updateSceneMetadata(sceneId, { name: newName });
+    } catch (error) {
+      console.error('Failed to rename scene:', error);
+      alert('重命名失败，请重试');
+    }
+  };
+
+  const handleSceneDelete = async (sceneId: number) => {
+    const scene = scenes.find((s) => s.id === sceneId);
+    if (scene?.is_active) {
+      alert('无法删除活动场景，请先切换到其他场景');
+      return;
+    }
+    if (!confirm('确定要删除这个场景吗？')) return;
+
+    try {
+      await deleteScene(sceneId);
+    } catch (error) {
+      console.error('Failed to delete scene:', error);
+      alert('删除场景失败，请重试');
+    }
+  };
+
+  // 资产操作处理函数
+  const handleAssetOpen = async (assetId: number) => {
+    const asset = assets.find((a) => a.id === assetId);
+    if (!asset) return;
+
+    try {
+      addAssetToScene(asset);
+    } catch (error) {
+      console.error('Failed to add asset to scene:', error);
+      alert('添加资产到场景失败，请重试');
+    }
+  };
+
+  const handleAssetRename = async (assetId: number, newName: string) => {
+    if (!newName.trim()) {
+      alert('名称不能为空');
+      return;
+    }
+    if (newName.length > 255) {
+      alert('名称过长（最多255字符）');
+      return;
+    }
+    if (/[<>:"/\\|?*]/.test(newName)) {
+      alert('名称包含非法字符');
+      return;
+    }
+    try {
+      await updateAsset(assetId, { name: newName });
+    } catch (error) {
+      console.error('Failed to rename asset:', error);
+      alert('重命名失败，请重试');
+    }
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -235,18 +317,13 @@ export const ProjectPanel: React.FC = () => {
                   ) : (
                     <div className="grid grid-cols-10 gap-4 content-start">
                       {scenes.map((scene) => (
-                        <div
+                        <SceneCard
                           key={scene.id}
-                          className="flex flex-col items-center p-2 rounded bg-slate-800/50 hover:bg-slate-700/50 cursor-pointer transition-colors"
-                        >
-                          <div className="w-full aspect-square bg-slate-700 rounded mb-2 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-4xl text-slate-500">photo_library</span>
-                          </div>
-                          <span className="text-xs text-slate-300 truncate w-full text-center">{scene.name}</span>
-                          {scene.is_active && (
-                            <span className="text-[10px] text-primary mt-1">活动场景</span>
-                          )}
-                        </div>
+                          scene={scene}
+                          onOpen={() => handleSceneOpen(scene.id)}
+                          onRename={(name) => handleSceneRename(scene.id, name)}
+                          onDelete={() => handleSceneDelete(scene.id)}
+                        />
                       ))}
                     </div>
                   )
@@ -282,6 +359,8 @@ export const ProjectPanel: React.FC = () => {
                           asset={asset}
                           selected={selectedAssetId === asset.id}
                           onSelect={() => setSelectedAssetId(asset.id)}
+                          onOpen={() => handleAssetOpen(asset.id)}
+                          onRename={(name) => handleAssetRename(asset.id, name)}
                           onDelete={() => handleDeleteAsset(asset.id)}
                           onDragStart={(e) => handleAssetDragStart(e, asset.id)}
                         />
