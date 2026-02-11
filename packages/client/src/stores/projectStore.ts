@@ -41,6 +41,8 @@ interface ProjectState {
   updateScene: (sceneData: Scene) => Promise<void>;
   autoSaveScene: (sceneData: Scene) => Promise<void>;
   deleteScene: (sceneId: number) => Promise<void>;
+  activateScene: (projectId: number, sceneId: number) => Promise<void>;
+  updateSceneMetadata: (sceneId: number, data: { name?: string }) => Promise<void>;
 
   // 工具方法
   clearError: () => void;
@@ -272,6 +274,44 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to delete scene';
+      set({ error: errorMessage });
+      throw error;
+    }
+  },
+
+  // 激活场景
+  activateScene: async (projectId: number, sceneId: number) => {
+    try {
+      await sceneApi.activateScene(projectId, sceneId);
+      set((state) => ({
+        scenes: state.scenes.map((s) => ({
+          ...s,
+          is_active: s.id === sceneId,
+        })),
+      }));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to activate scene';
+      set({ error: errorMessage });
+      throw error;
+    }
+  },
+
+  // 更新场景元数据（如名称）
+  updateSceneMetadata: async (sceneId: number, data: { name?: string }) => {
+    const { currentProject } = get();
+    if (!currentProject) {
+      throw new Error('No active project');
+    }
+
+    try {
+      const response = await sceneApi.updateScene(currentProject.id, sceneId, data);
+      set((state) => ({
+        scenes: state.scenes.map((s) =>
+          s.id === sceneId ? { ...s, name: response.scene.name } : s
+        ),
+      }));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update scene metadata';
       set({ error: errorMessage });
       throw error;
     }
