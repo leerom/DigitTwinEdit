@@ -5,8 +5,10 @@ import { Dialog } from '../common/Dialog';
 import { InputDialog } from '../common/InputDialog';
 import { SceneLoader } from '../../features/scene/services/SceneLoader';
 import { SceneManager } from '../../features/scene/services/SceneManager';
+import { getUniqueSceneName } from '../../utils/sceneNameUtils';
 import { useSceneStore } from '../../stores/sceneStore';
 import { useEditorStore } from '../../stores/editorStore';
+import { useProjectStore } from '../../stores/projectStore';
 import { Upload, FileDown, FilePlus, Box, Circle, Square, Sun, Layers, Cylinder, FolderOpen, Save, FileInput } from 'lucide-react';
 import { SceneSwitcher } from '../../features/scene/components/SceneSwitcher';
 import { UserMenu } from '../UserMenu';
@@ -20,7 +22,8 @@ export const Header: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sceneLoader = new SceneLoader();
 
-  const { isDirty, scene, markClean, loadScene, addObject } = useSceneStore();
+  const { isDirty, scene, markClean, addObject } = useSceneStore();
+  const { autoSaveScene, scenes, createScene } = useProjectStore();
   const clearSelection = useEditorStore((state) => state.clearSelection);
   const select = useEditorStore((state) => state.select);
   const setActiveTool = useEditorStore((state) => state.setActiveTool);
@@ -67,11 +70,18 @@ export const Header: React.FC = () => {
     }
   };
 
-  const handleSaveAndProceed = () => {
-    SceneManager.saveSceneToFile(scene);
-    markClean();
-    setShowSaveConfirmDialog(false);
-    setShowNewSceneDialog(true);
+  const handleSaveAndProceed = async () => {
+    try {
+      // 保存到数据库而不是下载文件
+      await autoSaveScene(scene);
+      markClean();
+      setShowSaveConfirmDialog(false);
+      setShowNewSceneDialog(true);
+    } catch (error) {
+      console.error('保存场景失败:', error);
+      alert('保存场景失败，请重试');
+      // 保持在对话框，允许用户重试
+    }
   };
 
   const handleDontSaveAndProceed = () => {
@@ -79,13 +89,27 @@ export const Header: React.FC = () => {
     setShowNewSceneDialog(true);
   };
 
-  const handleCreateScene = (name: string) => {
-    const newScene = SceneManager.createNewScene(name);
-    loadScene(newScene);
-    SceneManager.saveSceneToFile(newScene);
-    markClean();
-    clearSelection();
-    setShowNewSceneDialog(false);
+  const handleCreateScene = async (name: string) => {
+    try {
+      // 处理空白输入
+      const trimmedName = name.trim() || '新建场景';
+
+      // 去重处理
+      const uniqueName = getUniqueSceneName(trimmedName, scenes);
+
+      // 调用 projectStore 创建场景（会自动保存到数据库并包含默认相机和光源）
+      await createScene(uniqueName);
+
+      // 清除选中状态
+      clearSelection();
+
+      // 关闭对话框
+      setShowNewSceneDialog(false);
+    } catch (error) {
+      console.error('创建场景失败:', error);
+      alert('创建场景失败，请重试');
+      // 保持对话框打开，允许用户重试
+    }
   };
 
   const handleAddMesh = (
