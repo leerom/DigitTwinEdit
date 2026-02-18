@@ -6,6 +6,10 @@ import { useSceneStore } from '../../stores/sceneStore.js';
 import { AssetCard } from '../assets/AssetCard.js';
 import { SceneCard } from './SceneCard.js';
 import { UploadProgressList } from '../assets/UploadProgress.js';
+import { ContextMenu, type ContextMenuItem } from '../common/ContextMenu.js';
+import { Dialog } from '../common/Dialog.js';
+import { InputDialog } from '../common/InputDialog.js';
+import { useNewSceneFlow } from '../../hooks/useNewSceneFlow.js';
 import type { AssetType } from '@digittwinedit/shared';
 
 type FolderType = 'scenes' | 'models' | 'materials' | 'textures';
@@ -28,6 +32,19 @@ export const ProjectPanel: React.FC = () => {
     getAssetUrl,
   } = useAssetStore();
   const { addAssetToScene } = useSceneStore();
+
+  const {
+    showSaveConfirmDialog,
+    showNewSceneDialog,
+    handleNewSceneClick,
+    handleSaveAndProceed,
+    handleDiscardAndProceed,
+    handleCancelSave,
+    handleCreateScene,
+    handleCancelCreate,
+  } = useNewSceneFlow();
+
+  const [blankContextMenu, setBlankContextMenu] = useState<{ x: number; y: number } | null>(null);
 
   // 加载资产
   useEffect(() => {
@@ -168,6 +185,33 @@ export const ProjectPanel: React.FC = () => {
     }
   };
 
+  const blankAreaMenuItems: ContextMenuItem[] = [
+    {
+      label: '新建',
+      icon: 'add',
+      onClick: handleNewSceneClick,
+    },
+    {
+      label: '打开',
+      icon: 'play_arrow',
+      onClick: () => {},
+      disabled: true,
+    },
+    {
+      label: '重命名',
+      icon: 'edit',
+      onClick: () => {},
+      disabled: true,
+    },
+    {
+      label: '删除',
+      icon: 'delete',
+      onClick: () => {},
+      danger: true,
+      disabled: true,
+    },
+  ];
+
   return (
     <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
       {/* Panel Header with Tabs */}
@@ -304,7 +348,17 @@ export const ProjectPanel: React.FC = () => {
               </div>
 
               {/* Content Grid */}
-              <div className="flex-1 p-4 overflow-y-auto custom-scrollbar">
+              <div
+                className="flex-1 p-4 overflow-y-auto custom-scrollbar"
+                onContextMenu={
+                  selectedFolder === 'scenes'
+                    ? (e) => {
+                        e.preventDefault();
+                        setBlankContextMenu({ x: e.clientX, y: e.clientY });
+                      }
+                    : undefined
+                }
+              >
                 {selectedFolder === 'scenes' ? (
                   // 场景列表
                   scenes.length === 0 ? (
@@ -323,6 +377,7 @@ export const ProjectPanel: React.FC = () => {
                           onOpen={() => handleSceneOpen(scene.id)}
                           onRename={(name) => handleSceneRename(scene.id, name)}
                           onDelete={() => handleSceneDelete(scene.id)}
+                          onNew={handleNewSceneClick}
                         />
                       ))}
                     </div>
@@ -387,6 +442,60 @@ export const ProjectPanel: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* 空白处右键菜单 */}
+      {blankContextMenu && (
+        <ContextMenu
+          items={blankAreaMenuItems}
+          position={blankContextMenu}
+          onClose={() => setBlankContextMenu(null)}
+        />
+      )}
+
+      {/* 保存确认对话框 */}
+      <Dialog
+        isOpen={showSaveConfirmDialog}
+        onClose={handleCancelSave}
+        title="保存更改？"
+        className="max-w-[400px]"
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-text-primary">
+            当前场景有未保存的更改，是否在创建新场景前保存？
+          </p>
+          <div className="flex justify-end gap-2 mt-2">
+            <button
+              onClick={handleCancelSave}
+              className="px-3 py-1.5 text-xs text-text-secondary hover:text-white transition-colors"
+            >
+              取消
+            </button>
+            <button
+              onClick={handleDiscardAndProceed}
+              className="px-3 py-1.5 text-xs text-red-400 hover:text-red-300 border border-red-500/30 rounded hover:bg-red-500/10 transition-colors"
+            >
+              不保存
+            </button>
+            <button
+              onClick={handleSaveAndProceed}
+              className="px-3 py-1.5 text-xs bg-accent-blue hover:bg-accent-blue/90 text-white rounded transition-colors"
+            >
+              保存
+            </button>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* 新建场景命名对话框 */}
+      <InputDialog
+        isOpen={showNewSceneDialog}
+        title="新建场景"
+        placeholder="请输入场景名称"
+        defaultValue="新建场景"
+        onConfirm={handleCreateScene}
+        onCancel={handleCancelCreate}
+        confirmText="创建"
+      />
     </div>
   );
 };
