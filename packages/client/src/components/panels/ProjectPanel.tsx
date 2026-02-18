@@ -20,7 +20,7 @@ export const ProjectPanel: React.FC = () => {
   const [selectedAssetId, setSelectedAssetId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { currentProject, scenes, activateScene, updateSceneMetadata, deleteScene } = useProjectStore();
+  const { currentProject, scenes, switchScene, updateSceneMetadata, deleteScene } = useProjectStore();
   const {
     assets,
     isLoading,
@@ -58,10 +58,10 @@ export const ProjectPanel: React.FC = () => {
   const handleSceneOpen = async (sceneId: number) => {
     if (!currentProject) return;
     try {
-      await activateScene(currentProject.id, sceneId);
+      await switchScene(sceneId);
     } catch (error) {
-      console.error('Failed to activate scene:', error);
-      alert('激活场景失败，请重试');
+      console.error('Failed to switch scene:', error);
+      alert('切换场景失败，请重试');
     }
   };
 

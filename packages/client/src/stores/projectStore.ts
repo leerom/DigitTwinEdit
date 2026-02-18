@@ -204,11 +204,12 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       // 加载场景数据
       const response = await sceneApi.getScene(currentProject.id, sceneId);
 
-      set({
+      set((state) => ({
+        scenes: state.scenes.map((s) => ({ ...s, is_active: s.id === sceneId })),
         currentScene: response.scene.data,
         currentSceneId: sceneId,
         isLoading: false,
-      });
+      }));
 
       // 同步到 sceneStore
       const { useSceneStore } = await import('./sceneStore');

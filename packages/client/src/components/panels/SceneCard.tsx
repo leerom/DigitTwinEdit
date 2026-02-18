@@ -101,6 +101,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
           selected && 'ring-2 ring-primary'
         )}
         onClick={onSelect}
+        onDoubleClick={() => { if (!isRenaming) onOpen?.(); }}
         onContextMenu={handleContextMenu}
       >
         <div className="w-full aspect-square bg-slate-700 rounded mb-2 flex items-center justify-center">

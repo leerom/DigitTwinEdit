@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { DropdownMenu, DropdownMenuItem } from '../common/DropdownMenu';
 import { ConfirmDialog } from '../../features/scene/components/ConfirmDialog';
+import { OpenSceneDialog } from '../../features/scene/components/OpenSceneDialog';
 import { Dialog } from '../common/Dialog';
 import { InputDialog } from '../common/InputDialog';
 import { SceneLoader } from '../../features/scene/services/SceneLoader';
@@ -14,6 +15,7 @@ import { UserMenu } from '../UserMenu';
 
 export const Header: React.FC = () => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showOpenSceneDialog, setShowOpenSceneDialog] = useState(false);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -87,7 +89,7 @@ export const Header: React.FC = () => {
     },
     {
       label: '打开场景',
-      onClick: handleImportClick,
+      onClick: () => setShowOpenSceneDialog(true),
       icon: <FolderOpen className="w-3 h-3" />,
     },
     {
@@ -276,6 +278,12 @@ export const Header: React.FC = () => {
         onCancel={handleCancelImport}
         confirmText="确认"
         cancelText="取消"
+      />
+
+      {/* Open Scene Dialog */}
+      <OpenSceneDialog
+        isOpen={showOpenSceneDialog}
+        onClose={() => setShowOpenSceneDialog(false)}
       />
 
       {/* New Scene Input Dialog */}
