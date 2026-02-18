@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSceneStore } from '../../stores/sceneStore';
 import { useEditorStore } from '../../stores/editorStore';
+import { useProjectStore } from '../../stores/projectStore';
 import { ObjectType } from '../../types';
 import { clsx } from 'clsx';
 
@@ -95,7 +96,10 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth }) =
 });
 
 export const HierarchyPanel: React.FC = () => {
-  const sceneName = useSceneStore((state) => state.scene.name);
+  const currentSceneId = useProjectStore((state) => state.currentSceneId);
+  const sceneName = useProjectStore((state) =>
+    state.scenes.find((s) => s.id === currentSceneId)?.name ?? ''
+  );
   const rootId = useSceneStore((state) => state.scene.root);
   const rootObject = useSceneStore((state) => state.scene.objects[rootId]);
 
