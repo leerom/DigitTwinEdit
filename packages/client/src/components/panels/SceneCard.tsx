@@ -7,6 +7,7 @@ interface SceneCardProps {
   scene: Scene;
   selected?: boolean;
   onSelect?: () => void;
+  onNew?: () => void;
   onOpen?: () => void;
   onRename?: (newName: string) => void;
   onDelete?: () => void;
@@ -16,6 +17,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
   scene,
   selected,
   onSelect,
+  onNew,
   onOpen,
   onRename,
   onDelete,
@@ -66,6 +68,11 @@ export const SceneCard: React.FC<SceneCardProps> = ({
   };
 
   const menuItems: ContextMenuItem[] = [
+    {
+      label: '新建',
+      icon: 'add',
+      onClick: () => onNew?.(),
+    },
     {
       label: '打开',
       icon: 'play_arrow',

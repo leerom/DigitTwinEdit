@@ -84,4 +84,26 @@ describe('SceneCard', () => {
     expect(handleRename).not.toHaveBeenCalled();
     expect(screen.getByText('Test Scene')).toBeInTheDocument();
   });
+
+  it('右键菜单包含"新建"选项', () => {
+    const handleNew = vi.fn();
+    render(<SceneCard scene={mockScene} onNew={handleNew} />);
+
+    // 触发右键菜单
+    const card = screen.getByText(mockScene.name).closest('div')!;
+    fireEvent.contextMenu(card);
+
+    expect(screen.getByText('新建')).toBeInTheDocument();
+  });
+
+  it('点击"新建"菜单项触发 onNew 回调', () => {
+    const handleNew = vi.fn();
+    render(<SceneCard scene={mockScene} onNew={handleNew} />);
+
+    const card = screen.getByText(mockScene.name).closest('div')!;
+    fireEvent.contextMenu(card);
+    fireEvent.click(screen.getByText('新建'));
+
+    expect(handleNew).toHaveBeenCalledTimes(1);
+  });
 });
