@@ -3,6 +3,7 @@ import { clsx } from 'clsx';
 import { useAssetStore } from '../../stores/assetStore.js';
 import { useProjectStore } from '../../stores/projectStore.js';
 import { useSceneStore } from '../../stores/sceneStore.js';
+import { useEditorStore } from '../../stores/editorStore.js';
 import { AssetCard } from '../assets/AssetCard.js';
 import { SceneCard } from './SceneCard.js';
 import { UploadProgressList } from '../assets/UploadProgress.js';
@@ -17,7 +18,6 @@ type FolderType = 'scenes' | 'models' | 'materials' | 'textures';
 export const ProjectPanel: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState<'project' | 'resources'>('project');
   const [selectedFolder, setSelectedFolder] = useState<FolderType>('scenes');
-  const [selectedAssetId, setSelectedAssetId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { currentProject, scenes, switchScene, updateSceneMetadata, deleteScene } = useProjectStore();
@@ -25,13 +25,16 @@ export const ProjectPanel: React.FC = () => {
     assets,
     isLoading,
     uploadProgress,
+    selectedAssetId,
     loadAssets,
     uploadAsset,
     deleteAsset,
     updateAsset,
     getAssetUrl,
+    selectAsset,
   } = useAssetStore();
   const { addAssetToScene } = useSceneStore();
+  const clearSelection = useEditorStore((state) => state.clearSelection);
 
   const {
     showSaveConfirmDialog,
@@ -161,7 +164,7 @@ export const ProjectPanel: React.FC = () => {
       try {
         await deleteAsset(assetId);
         if (selectedAssetId === assetId) {
-          setSelectedAssetId(null);
+          selectAsset(null);
         }
       } catch (error) {
         console.error('Failed to delete asset:', error);
@@ -418,7 +421,10 @@ export const ProjectPanel: React.FC = () => {
                           key={asset.id}
                           asset={asset}
                           selected={selectedAssetId === asset.id}
-                          onSelect={() => setSelectedAssetId(asset.id)}
+                          onSelect={() => {
+                            selectAsset(asset.id);
+                            clearSelection();
+                          }}
                           onOpen={() => handleAssetOpen(asset.id)}
                           onRename={(name) => handleAssetRename(asset.id, name)}
                           onDelete={() => handleDeleteAsset(asset.id)}
