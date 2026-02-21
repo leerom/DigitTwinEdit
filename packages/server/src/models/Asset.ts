@@ -77,7 +77,7 @@ export class AssetModel {
   // 更新资产
   static async update(
     id: number,
-    updates: Partial<Pick<AssetRow, 'name' | 'thumbnail_path' | 'metadata'>>
+    updates: Partial<Pick<AssetRow, 'name' | 'thumbnail_path' | 'metadata' | 'file_size' | 'mime_type'>>
   ): Promise<AssetRow | null> {
     const fields: string[] = [];
     const values: any[] = [];
@@ -94,6 +94,14 @@ export class AssetModel {
     if (updates.metadata !== undefined) {
       fields.push(`metadata = $${paramIndex++}`);
       values.push(JSON.stringify(updates.metadata));
+    }
+    if (updates.file_size !== undefined) {
+      fields.push(`file_size = $${paramIndex++}`);
+      values.push(updates.file_size);
+    }
+    if (updates.mime_type !== undefined) {
+      fields.push(`mime_type = $${paramIndex++}`);
+      values.push(updates.mime_type);
     }
 
     if (fields.length === 0) {

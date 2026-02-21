@@ -195,6 +195,38 @@ export class AssetService {
   async renameAsset(assetId: number, newName: string): Promise<AssetRow | null> {
     return AssetModel.update(assetId, { name: newName });
   }
+
+  /**
+   * 替换资产文件（保持 asset.id 和 file_path 不变）
+   *
+   * 用于重新导入：原地覆盖 GLB 文件，更新 file_size 和 mime_type。
+   * 保持 file_path 不变，确保场景中已加载的模型引用不失效。
+   */
+  async replaceAssetFile(
+    assetId: number,
+    file: Express.Multer.File
+  ): Promise<AssetRow> {
+    const asset = await AssetModel.findById(assetId);
+    if (!asset) {
+      throw new Error('Asset not found');
+    }
+
+    // 覆盖同路径文件（fs.writeFile 自动覆盖）
+    const { writeFile } = await import('fs/promises');
+    const fullPath = fileStorage.getFullPath(asset.file_path);
+    await writeFile(fullPath, file.buffer);
+
+    // 更新 DB 中的文件大小和 MIME 类型
+    const updatedAsset = await AssetModel.update(assetId, {
+      file_size: file.size,
+      mime_type: file.mimetype,
+    });
+
+    if (!updatedAsset) {
+      throw new Error('Failed to update asset record');
+    }
+    return updatedAsset;
+  }
 }
 
 export const assetService = new AssetService();

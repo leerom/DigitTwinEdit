@@ -180,7 +180,9 @@ export const ProjectPanel: React.FC = () => {
   const getAcceptTypes = () => {
     switch (selectedFolder) {
       case 'models':
-        return '.glb,.gltf,.fbx,.obj';
+        // FBX 文件需要通过「添加 > 模型 > 导入 FBX」菜单导入（含转换流程），
+        // 此处仅接受已转换的格式，避免用户误上传原始 FBX。
+        return '.glb,.gltf,.obj';
       case 'textures':
         return '.png,.jpg,.jpeg,.webp';
       default:

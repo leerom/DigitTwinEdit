@@ -53,6 +53,30 @@ export const assetsApi = {
     await apiClient.delete(`/assets/${assetId}`);
   },
 
+  // 替换资产文件（用于重新导入，保持 asset.id 不变）
+  async replaceAssetFile(
+    assetId: number,
+    file: File,
+    onUploadProgress?: (progressEvent: any) => void
+  ): Promise<Asset> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await axios.put(
+      `${API_BASE_URL}/assets/${assetId}/file`,
+      formData,
+      {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress,
+      }
+    );
+
+    return response.data.asset;
+  },
+
   // 更新资产
   async updateAsset(
     assetId: number,

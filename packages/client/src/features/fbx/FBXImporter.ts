@@ -1,4 +1,5 @@
 import { assetsApi } from '../../api/assets';
+import type { Asset } from '@digittwinedit/shared';
 import type { FBXImportSettings, ImportProgress } from './types';
 
 /** FBX 文件最大支持 500MB */
@@ -103,6 +104,83 @@ export class FBXImporter {
 
     onProgress({ step: '导入完成', percent: 100 });
     return { fbxAssetId: fbxAsset.id, glbAssetId: glbAsset.id };
+  }
+
+  /**
+   * 使用原始 FBX 和新的配置重新导入
+   *
+   * 流程：
+   * 1. 从服务器下载原始 FBX
+   * 2. Worker 重新转换（使用新配置）
+   * 3. 原地替换 GLB 文件（保持 asset.id 不变）
+   * 4. 更新 metadata.importSettings
+   */
+  async reimport(
+    projectId: number,
+    glbAsset: Asset,
+    newSettings: FBXImportSettings,
+    onProgress: (progress: ImportProgress) => void
+  ): Promise<Asset> {
+    const metadata = glbAsset.metadata as Record<string, unknown> | undefined;
+    const sourceFbxAssetId = metadata?.sourceFbxAssetId as number | undefined;
+
+    if (!sourceFbxAssetId) {
+      throw new Error('该资产没有关联的源 FBX 文件，无法重新导入');
+    }
+
+    // Step 1: 下载原始 FBX
+    onProgress({ step: '下载源 FBX...', percent: 5 });
+    const downloadUrl = assetsApi.getAssetDownloadUrl(sourceFbxAssetId);
+    const fbxResponse = await fetch(downloadUrl, { credentials: 'include' });
+    if (!fbxResponse.ok) {
+      throw new Error(`源 FBX 下载失败（HTTP ${fbxResponse.status}）`);
+    }
+    const fbxBuffer = await fbxResponse.arrayBuffer();
+
+    // Step 2: Worker 重新转换（进度 5%~65%）
+    const glbBuffer = await this.convertInWorker(
+      fbxBuffer,
+      newSettings,
+      (workerPercent) => {
+        onProgress({
+          step: workerPercent < 50 ? '解析 FBX...' : '转换 GLB...',
+          percent: Math.round(5 + workerPercent * 0.6),
+        });
+      }
+    );
+
+    // Step 3: 原地替换 GLB 文件（asset.id 不变）
+    onProgress({ step: '上传新模型...', percent: 70 });
+    const ext = newSettings.saveFormat === 'gltf' ? '.gltf' : '.glb';
+    const glbName = glbAsset.name.replace(/\.(glb|gltf)$/i, ext) || glbAsset.name;
+    const glbMime =
+      newSettings.saveFormat === 'gltf' ? 'model/gltf+json' : 'model/gltf-binary';
+    const newGlbFile = new File([glbBuffer], glbName, { type: glbMime });
+
+    await assetsApi.replaceAssetFile(
+      glbAsset.id,
+      newGlbFile,
+      (e) => {
+        const pct = e.progress != null ? e.progress : e.loaded / (e.total || 1);
+        onProgress({
+          step: '上传新模型...',
+          percent: Math.round(70 + pct * 20),
+        });
+      }
+    );
+
+    // Step 4: 更新元数据（保留 sourceFbxAssetId，更新 importSettings）
+    onProgress({ step: '保存配置...', percent: 95 });
+    const updatedAsset = await assetsApi.updateAsset(glbAsset.id, {
+      metadata: {
+        ...(metadata as Record<string, unknown>),
+        importSettings: newSettings,
+        format: newSettings.saveFormat,
+      },
+    });
+
+    onProgress({ step: '重新导入完成', percent: 100 });
+    return updatedAsset;
   }
 
   /**

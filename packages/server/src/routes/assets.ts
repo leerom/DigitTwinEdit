@@ -230,6 +230,62 @@ router.delete('/assets/:id', async (req: Request, res: Response, next) => {
   }
 });
 
+// PUT /api/assets/:id/file - 替换资产文件（用于重新导入，保持 asset.id 不变）
+router.put(
+  '/assets/:id/file',
+  uploadSingle,
+  async (req: Request, res: Response, next) => {
+    try {
+      const userId = req.session.userId!;
+      const assetId = parseInt(req.params.id, 10);
+
+      if (isNaN(assetId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Bad Request',
+          message: 'Invalid asset ID',
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          error: 'Bad Request',
+          message: 'No file uploaded',
+        });
+      }
+
+      const asset = await AssetModel.findById(assetId);
+      if (!asset) {
+        return res.status(404).json({
+          success: false,
+          error: 'Not Found',
+          message: 'Asset not found',
+        });
+      }
+
+      const isOwner = await ProjectModel.isOwner(asset.project_id, userId);
+      if (!isOwner) {
+        return res.status(403).json({
+          success: false,
+          error: 'Forbidden',
+          message: 'You do not have permission to replace this asset',
+        });
+      }
+
+      const updatedAsset = await assetService.replaceAssetFile(assetId, req.file);
+
+      res.json({
+        success: true,
+        asset: updatedAsset,
+        message: 'Asset file replaced successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 // PUT /api/assets/:id - 更新资产元数据
 router.put('/assets/:id', async (req: Request, res: Response, next) => {
   try {
