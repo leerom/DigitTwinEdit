@@ -70,3 +70,47 @@ describe('assetStore - update operations', () => {
     expect(state.error).toBe('Failed to update');
   });
 });
+
+describe('assetStore - asset selection', () => {
+  beforeEach(() => {
+    useAssetStore.setState({
+      assets: [
+        {
+          id: 1,
+          name: 'model.glb',
+          type: 'model' as const,
+          project_id: 1,
+          file_path: '/uploads/model.glb',
+          file_size: 1024,
+          mime_type: 'model/gltf-binary',
+          created_at: '',
+          updated_at: '',
+        },
+      ],
+      selectedAssetId: null,
+    });
+    vi.clearAllMocks();
+  });
+
+  it('selectAsset sets selectedAssetId', () => {
+    useAssetStore.getState().selectAsset(1);
+    expect(useAssetStore.getState().selectedAssetId).toBe(1);
+  });
+
+  it('selectAsset(null) clears selection', () => {
+    useAssetStore.setState({ selectedAssetId: 1 });
+    useAssetStore.getState().selectAsset(null);
+    expect(useAssetStore.getState().selectedAssetId).toBeNull();
+  });
+
+  it('clearAssets also clears selectedAssetId', () => {
+    useAssetStore.setState({ selectedAssetId: 1 });
+    useAssetStore.getState().clearAssets();
+    expect(useAssetStore.getState().selectedAssetId).toBeNull();
+  });
+
+  it('initial selectedAssetId is null', () => {
+    useAssetStore.setState({ assets: [], selectedAssetId: null });
+    expect(useAssetStore.getState().selectedAssetId).toBeNull();
+  });
+});

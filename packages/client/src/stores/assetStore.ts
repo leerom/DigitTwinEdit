@@ -9,6 +9,7 @@ interface AssetState {
   uploadProgress: Record<string, UploadProgress>;
   error: string | null;
   stats: AssetStats | null;
+  selectedAssetId: number | null;
 
   // 操作
   loadAssets: (projectId: number, type?: string) => Promise<void>;
@@ -19,6 +20,7 @@ interface AssetState {
   loadStats: (projectId: number) => Promise<void>;
   clearAssets: () => void;
   clearError: () => void;
+  selectAsset: (id: number | null) => void;
 }
 
 export const useAssetStore = create<AssetState>((set, get) => ({
@@ -28,6 +30,7 @@ export const useAssetStore = create<AssetState>((set, get) => ({
   uploadProgress: {},
   error: null,
   stats: null,
+  selectedAssetId: null,
 
   // 加载资产列表
   loadAssets: async (projectId: number, type?: string) => {
@@ -139,11 +142,16 @@ export const useAssetStore = create<AssetState>((set, get) => ({
 
   // 清空资产列表
   clearAssets: () => {
-    set({ assets: [], uploadProgress: {}, error: null, stats: null });
+    set({ assets: [], uploadProgress: {}, error: null, stats: null, selectedAssetId: null });
   },
 
   // 清除错误
   clearError: () => {
     set({ error: null });
+  },
+
+  // 选中资产（用于 Inspector 显示导入配置）
+  selectAsset: (id: number | null) => {
+    set({ selectedAssetId: id });
   },
 }));
