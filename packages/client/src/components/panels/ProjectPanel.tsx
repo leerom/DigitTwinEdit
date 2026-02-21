@@ -11,6 +11,10 @@ import { ContextMenu, type ContextMenuItem } from '../common/ContextMenu.js';
 import { Dialog } from '../common/Dialog.js';
 import { InputDialog } from '../common/InputDialog.js';
 import { useNewSceneFlow } from '../../hooks/useNewSceneFlow.js';
+import { useFBXImport } from '../../hooks/useFBXImport.js';
+import { FBXImportDialog } from '../../features/fbx/FBXImportDialog.js';
+import { ProgressDialog } from '../../features/scene/components/ProgressDialog.js';
+import { fbxImporter } from '../../features/fbx/FBXImporter.js';
 import type { AssetType } from '@digittwinedit/shared';
 
 type FolderType = 'scenes' | 'models' | 'materials' | 'textures';
@@ -46,6 +50,9 @@ export const ProjectPanel: React.FC = () => {
     handleCreateScene,
     handleCancelCreate,
   } = useNewSceneFlow();
+
+  // FBX 导入 Hook（Models 文件夹专用）
+  const fbx = useFBXImport();
 
   const [blankContextMenu, setBlankContextMenu] = useState<{ x: number; y: number } | null>(null);
 
@@ -175,19 +182,6 @@ export const ProjectPanel: React.FC = () => {
   const handleAssetDragStart = (e: React.DragEvent, assetId: number) => {
     e.dataTransfer.setData('assetId', assetId.toString());
     e.dataTransfer.effectAllowed = 'copy';
-  };
-
-  const getAcceptTypes = () => {
-    switch (selectedFolder) {
-      case 'models':
-        // FBX 文件需要通过「添加 > 模型 > 导入 FBX」菜单导入（含转换流程），
-        // 此处仅接受已转换的格式，避免用户误上传原始 FBX。
-        return '.glb,.gltf,.obj';
-      case 'textures':
-        return '.png,.jpg,.jpeg,.webp';
-      default:
-        return '*';
-    }
   };
 
   const blankAreaMenuItems: ContextMenuItem[] = [
@@ -336,7 +330,18 @@ export const ProjectPanel: React.FC = () => {
                   {selectedFolder === 'scenes' ? `${scenes.length} 个场景` : `${displayAssets.length} 个资产`}
                 </div>
 
-                {selectedFolder !== 'materials' && selectedFolder !== 'scenes' && (
+                {selectedFolder === 'models' && (
+                  <button
+                    onClick={fbx.trigger}
+                    className="flex items-center space-x-1 px-3 py-1 bg-primary hover:bg-primary-hover text-white text-xs rounded transition-colors"
+                    disabled={!currentProject}
+                  >
+                    <span className="material-symbols-outlined text-sm">upload</span>
+                    <span>导入 FBX</span>
+                  </button>
+                )}
+
+                {selectedFolder === 'textures' && (
                   <button
                     onClick={handleUploadClick}
                     className="flex items-center space-x-1 px-3 py-1 bg-primary hover:bg-primary-hover text-white text-xs rounded transition-colors"
@@ -347,12 +352,21 @@ export const ProjectPanel: React.FC = () => {
                   </button>
                 )}
 
+                {/* 纹理上传 input */}
                 <input
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  accept={getAcceptTypes()}
+                  accept=".png,.jpg,.jpeg,.webp"
                   onChange={handleFileUpload}
+                  className="hidden"
+                />
+                {/* FBX 导入 input */}
+                <input
+                  ref={fbx.inputRef}
+                  type="file"
+                  accept=".fbx"
+                  onChange={fbx.handleFileSelected}
                   className="hidden"
                 />
               </div>
@@ -406,7 +420,15 @@ export const ProjectPanel: React.FC = () => {
                       <div className="flex flex-col items-center space-y-2">
                         <span className="material-symbols-outlined text-4xl">folder_open</span>
                         <span className="text-xs">暂无资产</span>
-                        {selectedFolder !== 'materials' && (
+                        {selectedFolder === 'models' && (
+                          <button
+                            onClick={fbx.trigger}
+                            className="text-primary hover:underline text-xs"
+                          >
+                            点击导入
+                          </button>
+                        )}
+                        {selectedFolder === 'textures' && (
                           <button
                             onClick={handleUploadClick}
                             className="text-primary hover:underline text-xs"
@@ -508,6 +530,27 @@ export const ProjectPanel: React.FC = () => {
         onConfirm={handleCreateScene}
         onCancel={handleCancelCreate}
         confirmText="创建"
+      />
+
+      {/* FBX 导入配置对话框 */}
+      {fbx.fbxFile && (
+        <FBXImportDialog
+          isOpen={fbx.showDialog}
+          fileName={fbx.fbxFile.name}
+          fileSize={fbx.fbxFile.size}
+          onConfirm={fbx.handleConfirm}
+          onCancel={fbx.handleCancel}
+        />
+      )}
+
+      {/* FBX 导入进度对话框 */}
+      <ProgressDialog
+        isOpen={fbx.isImporting}
+        title="导入 FBX 模型"
+        percentage={fbx.importProgress.percent}
+        currentTask={fbx.importProgress.step}
+        canCancel={fbx.importProgress.percent < 65}
+        onCancel={() => fbxImporter.abort()}
       />
     </div>
   );

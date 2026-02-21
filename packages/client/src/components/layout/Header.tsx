@@ -15,9 +15,7 @@ import { UserMenu } from '../UserMenu';
 import { FBXImportDialog } from '../../features/fbx/FBXImportDialog';
 import { fbxImporter } from '../../features/fbx/FBXImporter';
 import { ProgressDialog } from '../../features/scene/components/ProgressDialog';
-import { useProjectStore } from '../../stores/projectStore';
-import { useAssetStore } from '../../stores/assetStore';
-import type { FBXImportSettings } from '../../features/fbx/types';
+import { useFBXImport } from '../../hooks/useFBXImport';
 
 export const Header: React.FC = () => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -43,15 +41,8 @@ export const Header: React.FC = () => {
   const select = useEditorStore((state) => state.select);
   const setActiveTool = useEditorStore((state) => state.setActiveTool);
 
-  // FBX 导入相关状态
-  const [fbxFile, setFbxFile] = useState<File | null>(null);
-  const [showFBXImportDialog, setShowFBXImportDialog] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
-  const [importProgress, setImportProgress] = useState({ step: '', percent: 0 });
-  const fbxInputRef = useRef<HTMLInputElement>(null);
-
-  const { currentProject } = useProjectStore();
-  const { loadAssets } = useAssetStore();
+  // FBX 导入 Hook
+  const fbx = useFBXImport();
 
   const handleImportClick = () => {
     // 触发文件选择
@@ -95,59 +86,6 @@ export const Header: React.FC = () => {
     addObject(newObject);
     select([newObject.id], false);
     setActiveTool('translate');
-  };
-
-  const handleImportFBXClick = () => {
-    if (!currentProject) {
-      alert('请先选择或创建一个项目');
-      return;
-    }
-    fbxInputRef.current?.click();
-  };
-
-  const handleFBXFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    // 校验文件（给用户即时反馈）
-    try {
-      fbxImporter.validateFile(file);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : '文件校验失败');
-      e.target.value = '';
-      return;
-    }
-    setFbxFile(file);
-    setShowFBXImportDialog(true);
-    e.target.value = '';
-  };
-
-  const handleFBXImportConfirm = async (settings: FBXImportSettings) => {
-    if (!fbxFile || !currentProject) return;
-    setShowFBXImportDialog(false);
-    setIsImporting(true);
-    try {
-      await fbxImporter.import(
-        fbxFile,
-        settings,
-        currentProject.id,
-        (progress) => setImportProgress(progress)
-      );
-      // 刷新 Models 资产列表
-      await loadAssets(currentProject.id, 'model');
-    } catch (err) {
-      // 用户主动取消，不显示错误弹窗
-      if (err instanceof Error && err.message === 'FBX_IMPORT_ABORTED') return;
-      alert(err instanceof Error ? err.message : '导入失败，请重试');
-    } finally {
-      setIsImporting(false);
-      setFbxFile(null);
-      setImportProgress({ step: '', percent: 0 });
-    }
-  };
-
-  const handleFBXImportCancel = () => {
-    setShowFBXImportDialog(false);
-    setFbxFile(null);
   };
 
   const sceneMenuItems: DropdownMenuItem[] = [
@@ -271,7 +209,7 @@ export const Header: React.FC = () => {
       children: [
         {
           label: '导入 FBX',
-          onClick: handleImportFBXClick,
+          onClick: fbx.trigger,
           icon: <Upload className="w-3 h-3" />,
         },
       ],
@@ -345,31 +283,31 @@ export const Header: React.FC = () => {
 
       {/* FBX 文件选择 input */}
       <input
-        ref={fbxInputRef}
+        ref={fbx.inputRef}
         type="file"
         accept=".fbx"
-        onChange={handleFBXFileSelected}
+        onChange={fbx.handleFileSelected}
         className="hidden"
       />
 
       {/* FBX 导入配置对话框 */}
-      {fbxFile && (
+      {fbx.fbxFile && (
         <FBXImportDialog
-          isOpen={showFBXImportDialog}
-          fileName={fbxFile.name}
-          fileSize={fbxFile.size}
-          onConfirm={handleFBXImportConfirm}
-          onCancel={handleFBXImportCancel}
+          isOpen={fbx.showDialog}
+          fileName={fbx.fbxFile.name}
+          fileSize={fbx.fbxFile.size}
+          onConfirm={fbx.handleConfirm}
+          onCancel={fbx.handleCancel}
         />
       )}
 
       {/* FBX 导入进度对话框 */}
       <ProgressDialog
-        isOpen={isImporting}
+        isOpen={fbx.isImporting}
         title="导入 FBX 模型"
-        percentage={importProgress.percent}
-        currentTask={importProgress.step}
-        canCancel={importProgress.percent < 65}
+        percentage={fbx.importProgress.percent}
+        currentTask={fbx.importProgress.step}
+        canCancel={fbx.importProgress.percent < 65}
         onCancel={() => fbxImporter.abort()}
       />
 
