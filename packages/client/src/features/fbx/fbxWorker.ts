@@ -4,6 +4,11 @@
  * 运行在独立线程中，不阻塞编辑器 UI。
  * 通过 postMessage 接收 FBX buffer 和设置，返回进度和 GLB buffer。
  */
+
+// Web Worker 环境没有 window 对象，Three.js / fflate 内部会引用 window。
+// 将 self（Worker 全局作用域）赋给 window，避免 "window is not defined" 错误。
+(globalThis as any).window = globalThis;
+
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
