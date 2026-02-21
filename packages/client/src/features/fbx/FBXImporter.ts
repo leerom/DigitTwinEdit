@@ -9,6 +9,31 @@ const MAX_FILE_SIZE = 500 * 1024 * 1024;
 const WORKER_TIMEOUT_MS = 60_000;
 
 /**
+ * 为新文件生成不与已有名称冲突的唯一名称。
+ *
+ * 规则：若 `name` 已在 `existingNames` 中，则在扩展名前插入 ` (n)` 后缀，
+ * n 从 1 开始递增直到找到空闲名称。
+ *
+ * 示例：
+ *   "building.fbx" → "building (1).fbx" → "building (2).fbx" …
+ */
+export function generateUniqueName(name: string, existingNames: Set<string>): string {
+  if (!existingNames.has(name)) return name;
+
+  const dotIdx = name.lastIndexOf('.');
+  const base = dotIdx >= 0 ? name.slice(0, dotIdx) : name;
+  const ext  = dotIdx >= 0 ? name.slice(dotIdx)    : '';
+
+  let counter = 1;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const candidate = `${base} (${counter})${ext}`;
+    if (!existingNames.has(candidate)) return candidate;
+    counter++;
+  }
+}
+
+/**
  * FBX 导入协调器
  *
  * 负责：
@@ -63,16 +88,24 @@ export class FBXImporter {
    * @param settings - 导入配置（来自 FBXImportDialog）
    * @param projectId - 上传到哪个项目
    * @param onProgress - 进度回调，用于更新 UI
+   * @param existingAssetNames - 当前项目已有的资产名称（用于自动去重重命名）
    * @returns { fbxAssetId, glbAssetId } 两个资产的 ID
    */
   async import(
     file: File,
     settings: FBXImportSettings,
     projectId: number,
-    onProgress: (progress: ImportProgress) => void
+    onProgress: (progress: ImportProgress) => void,
+    existingAssetNames: string[] = []
   ): Promise<{ fbxAssetId: number; glbAssetId: number }> {
     // 校验文件
     this.validateFile(file);
+
+    // 生成不冲突的 FBX 名称，并从中派生同编号的 GLB 名称
+    const existingNamesSet = new Set(existingAssetNames);
+    const uniqueFbxName = generateUniqueName(file.name, existingNamesSet);
+    const glbExt = settings.saveFormat === 'gltf' ? '.gltf' : '.glb';
+    const uniqueGlbName = uniqueFbxName.replace(/\.fbx$/i, glbExt);
 
     // Step 1: 读取为 ArrayBuffer
     onProgress({ step: '读取文件...', percent: 5 });
@@ -93,7 +126,7 @@ export class FBXImporter {
 
     // Step 3: 上传原始 FBX（存档用，不在面板显示）
     onProgress({ step: '上传原始文件...', percent: 70 });
-    const fbxFile = new File([fbxBuffer], file.name, {
+    const fbxFile = new File([fbxBuffer], uniqueFbxName, {
       type: 'application/octet-stream',
     });
     const fbxAsset = await assetsApi.uploadAsset(projectId, fbxFile, 'model');
@@ -108,11 +141,9 @@ export class FBXImporter {
 
     // Step 4: 上传 GLB（这是面板里显示的那个）
     onProgress({ step: '上传模型文件...', percent: 85 });
-    const ext = settings.saveFormat === 'gltf' ? '.gltf' : '.glb';
-    const glbName = file.name.replace(/\.fbx$/i, ext);
     const glbMime =
       settings.saveFormat === 'gltf' ? 'model/gltf+json' : 'model/gltf-binary';
-    const glbFile = new File([glbBuffer], glbName, { type: glbMime });
+    const glbFile = new File([glbBuffer], uniqueGlbName, { type: glbMime });
     const glbAsset = await assetsApi.uploadAsset(projectId, glbFile, 'model');
     // 写入 GLB 元数据（关联到原始 FBX + 保存导入配置）
     await assetsApi.updateAsset(glbAsset.id, {

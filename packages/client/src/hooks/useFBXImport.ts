@@ -27,7 +27,7 @@ export function useFBXImport() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { currentProject } = useProjectStore();
-  const { loadAssets } = useAssetStore();
+  const { loadAssets, assets } = useAssetStore();
 
   /** 触发文件选择（先检查是否已有项目） */
   const trigger = () => {
@@ -64,7 +64,8 @@ export function useFBXImport() {
         fbxFile,
         settings,
         currentProject.id,
-        (progress) => setImportProgress(progress)
+        (progress) => setImportProgress(progress),
+        assets.map((a) => a.name)
       );
       await loadAssets(currentProject.id, 'model');
     } catch (err) {
