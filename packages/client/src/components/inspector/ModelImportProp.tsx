@@ -4,7 +4,6 @@ import type { FBXImportSettings } from '../../features/fbx/types';
 import { DEFAULT_FBX_IMPORT_SETTINGS } from '../../features/fbx/types';
 import { fbxImporter } from '../../features/fbx/FBXImporter';
 import { useAssetStore } from '../../stores/assetStore';
-
 interface ModelImportPropProps {
   asset: Asset;
   projectId: number;
@@ -66,6 +65,10 @@ const ModelImportPropContent: React.FC<ContentProps> = ({
   const [isReimporting, setIsReimporting] = useState(false);
   const [reimportProgress, setReimportProgress] = useState('');
   const loadAssets = useAssetStore((state) => state.loadAssets);
+  const assets = useAssetStore((state) => state.assets);
+
+  // 检查源 FBX 是否仍存在（避免用户重新导入时遭遇 404）
+  const sourceFbxExists = assets.some((a) => a.id === sourceFbxAssetId);
 
   // 当服务端数据更新后（重新导入完成），同步本地设置以清除 dirty 状态
   React.useEffect(() => {
@@ -241,9 +244,15 @@ const ModelImportPropContent: React.FC<ContentProps> = ({
 
         {/* 重新导入按钮 */}
         <div className="pt-2">
+          {!sourceFbxExists && (
+            <div className="flex items-center gap-1.5 px-2 py-1.5 mb-2 bg-red-500/10 border border-red-500/30 rounded text-[10px] text-red-400">
+              <span className="material-symbols-outlined text-xs">warning</span>
+              <span>源 FBX 已删除，无法重新导入</span>
+            </div>
+          )}
           <button
             onClick={handleReimport}
-            disabled={!isDirty || isReimporting}
+            disabled={!isDirty || isReimporting || !sourceFbxExists}
             className="w-full py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
           >
             {isReimporting ? (

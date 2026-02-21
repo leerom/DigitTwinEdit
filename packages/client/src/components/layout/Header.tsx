@@ -135,6 +135,8 @@ export const Header: React.FC = () => {
       // 刷新 Models 资产列表
       await loadAssets(currentProject.id, 'model');
     } catch (err) {
+      // 用户主动取消，不显示错误弹窗
+      if (err instanceof Error && err.message === 'FBX_IMPORT_ABORTED') return;
       alert(err instanceof Error ? err.message : '导入失败，请重试');
     } finally {
       setIsImporting(false);
@@ -355,6 +357,7 @@ export const Header: React.FC = () => {
         <FBXImportDialog
           isOpen={showFBXImportDialog}
           fileName={fbxFile.name}
+          fileSize={fbxFile.size}
           onConfirm={handleFBXImportConfirm}
           onCancel={handleFBXImportCancel}
         />
@@ -366,6 +369,8 @@ export const Header: React.FC = () => {
         title="导入 FBX 模型"
         percentage={importProgress.percent}
         currentTask={importProgress.step}
+        canCancel={importProgress.percent < 65}
+        onCancel={() => fbxImporter.abort()}
       />
 
       {/* Confirm Dialog for Import */}

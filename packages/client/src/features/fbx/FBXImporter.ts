@@ -18,6 +18,27 @@ const WORKER_TIMEOUT_MS = 60_000;
  * 4. 通过 updateAsset 写入元数据（导入配置、FBX↔GLB 关联）
  */
 export class FBXImporter {
+  /** 当前正在运行的 Worker（转换阶段持有引用，用于 abort） */
+  private _currentWorker: Worker | null = null;
+  /** 当前 convertInWorker Promise 的 reject 函数（abort 时调用） */
+  private _rejectCurrentConversion: ((error: Error) => void) | null = null;
+
+  /**
+   * 中止当前正在进行的导入操作
+   * 仅在 Worker 转换阶段（percent 0–65%）立即生效；
+   * 上传阶段无法中止，但调用方会收到 'FBX_IMPORT_ABORTED' 错误。
+   */
+  abort(): void {
+    if (this._currentWorker) {
+      this._currentWorker.terminate();
+      this._currentWorker = null;
+    }
+    if (this._rejectCurrentConversion) {
+      this._rejectCurrentConversion(new Error('FBX_IMPORT_ABORTED'));
+      this._rejectCurrentConversion = null;
+    }
+  }
+
   /**
    * 校验 FBX 文件合法性
    * 抛出 Error 表示校验失败（错误信息直接显示给用户）
@@ -193,14 +214,20 @@ export class FBXImporter {
     onProgress: (percent: number) => void
   ): Promise<ArrayBuffer> {
     return new Promise((resolve, reject) => {
+      // 保存 reject 引用，供 abort() 使用
+      this._rejectCurrentConversion = reject;
+
       // 使用 Vite 的 ES Module Worker 语法
       const worker = new Worker(
         new URL('./fbxWorker.ts', import.meta.url),
         { type: 'module' }
       );
+      this._currentWorker = worker;
 
       // 超时保护
       const timeout = setTimeout(() => {
+        this._currentWorker = null;
+        this._rejectCurrentConversion = null;
         worker.terminate();
         reject(new Error('导入超时，请尝试优化文件后重新导入'));
       }, WORKER_TIMEOUT_MS);
@@ -211,10 +238,14 @@ export class FBXImporter {
           onProgress(msg.percent as number);
         } else if (msg.type === 'done') {
           clearTimeout(timeout);
+          this._currentWorker = null;
+          this._rejectCurrentConversion = null;
           worker.terminate();
           resolve(msg.glbBuffer as ArrayBuffer);
         } else if (msg.type === 'error') {
           clearTimeout(timeout);
+          this._currentWorker = null;
+          this._rejectCurrentConversion = null;
           worker.terminate();
           reject(new Error(msg.message as string));
         }
@@ -222,6 +253,8 @@ export class FBXImporter {
 
       worker.onerror = (e: ErrorEvent) => {
         clearTimeout(timeout);
+        this._currentWorker = null;
+        this._rejectCurrentConversion = null;
         worker.terminate();
         reject(new Error(e.message || '文件解析失败，请检查文件完整性'));
       };

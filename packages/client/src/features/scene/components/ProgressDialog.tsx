@@ -4,11 +4,16 @@ import { Dialog, DialogProps } from '../../../components/common/Dialog';
 export interface ProgressDialogProps extends Omit<DialogProps, 'children'> {
   percentage: number;
   currentTask?: string;
+  /** 显示取消按钮（建议仅在 Worker 转换阶段启用，percent < 65） */
+  canCancel?: boolean;
+  onCancel?: () => void;
 }
 
 export const ProgressDialog: React.FC<ProgressDialogProps> = ({
   percentage,
   currentTask,
+  canCancel,
+  onCancel,
   ...dialogProps
 }) => {
   return (
@@ -30,6 +35,18 @@ export const ProgressDialog: React.FC<ProgressDialogProps> = ({
 
         {currentTask && (
           <p className="text-xs text-text-primary">{currentTask}</p>
+        )}
+
+        {canCancel && onCancel && (
+          <div className="flex justify-end pt-1">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-3 py-1.5 text-xs text-slate-400 hover:text-white border border-slate-600 hover:border-slate-400 rounded transition-colors"
+            >
+              取消
+            </button>
+          </div>
         )}
       </div>
     </Dialog>

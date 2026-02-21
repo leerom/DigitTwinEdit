@@ -7,6 +7,8 @@ interface FBXImportDialogProps {
   isOpen: boolean;
   /** 选择的 FBX 文件名（用于显示） */
   fileName: string;
+  /** 文件大小（字节），> 100MB 时显示警告 */
+  fileSize?: number;
   onConfirm: (settings: FBXImportSettings) => void;
   onCancel: () => void;
 }
@@ -14,6 +16,7 @@ interface FBXImportDialogProps {
 export const FBXImportDialog: React.FC<FBXImportDialogProps> = ({
   isOpen,
   fileName,
+  fileSize,
   onConfirm,
   onCancel,
 }) => {
@@ -28,6 +31,9 @@ export const FBXImportDialog: React.FC<FBXImportDialogProps> = ({
   ) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
+
+  const isLargeFile = (fileSize ?? 0) > 100 * 1024 * 1024;
+  const fileSizeMB = fileSize ? Math.round(fileSize / 1024 / 1024) : 0;
 
   const handleConfirm = () => {
     onConfirm(settings);
@@ -55,6 +61,14 @@ export const FBXImportDialog: React.FC<FBXImportDialogProps> = ({
           <span className="material-symbols-outlined text-sm text-primary">deployed_code</span>
           <span className="text-white truncate" title={fileName}>{fileName}</span>
         </div>
+
+        {/* 大文件警告 */}
+        {isLargeFile && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-amber-500/10 border border-amber-500/30 rounded text-xs text-amber-400">
+            <span className="material-symbols-outlined text-sm">warning</span>
+            <span>文件较大（{fileSizeMB}MB），导入可能需要较长时间</span>
+          </div>
+        )}
 
         {/* 场景（Scene）设置 */}
         <section>
