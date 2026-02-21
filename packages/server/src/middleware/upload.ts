@@ -7,7 +7,7 @@ const storage = multer.memoryStorage();
 export const upload = multer({
   storage,
   limits: {
-    fileSize: 100 * 1024 * 1024 // 100MB限制
+    fileSize: 500 * 1024 * 1024 // 500MB限制（支持大型FBX文件）
   },
   fileFilter: (req, file, cb) => {
     const allowedMimeTypes = [
