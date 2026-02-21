@@ -212,6 +212,11 @@ export const ProjectPanel: React.FC = () => {
     },
   ];
 
+  // 过滤掉原始 FBX 文件，只显示转换后的 GLB 资产
+  const displayAssets = assets.filter(
+    (a) => !(a.metadata as Record<string, unknown> | undefined)?.isSourceFbx
+  );
+
   return (
     <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
       {/* Panel Header with Tabs */}
@@ -323,7 +328,7 @@ export const ProjectPanel: React.FC = () => {
               {/* Toolbar */}
               <div className="flex items-center justify-between p-2 border-b border-border-dark">
                 <div className="text-xs text-slate-400">
-                  {selectedFolder === 'scenes' ? `${scenes.length} 个场景` : `${assets.length} 个资产`}
+                  {selectedFolder === 'scenes' ? `${scenes.length} 个场景` : `${displayAssets.length} 个资产`}
                 </div>
 
                 {selectedFolder !== 'materials' && selectedFolder !== 'scenes' && (
@@ -391,7 +396,7 @@ export const ProjectPanel: React.FC = () => {
                         <span className="text-xs">加载中...</span>
                       </div>
                     </div>
-                  ) : assets.length === 0 ? (
+                  ) : displayAssets.length === 0 ? (
                     <div className="flex items-center justify-center h-full text-slate-500">
                       <div className="flex flex-col items-center space-y-2">
                         <span className="material-symbols-outlined text-4xl">folder_open</span>
@@ -408,7 +413,7 @@ export const ProjectPanel: React.FC = () => {
                     </div>
                   ) : (
                     <div className="grid grid-cols-10 gap-4 content-start">
-                      {assets.map((asset) => (
+                      {displayAssets.map((asset) => (
                         <AssetCard
                           key={asset.id}
                           asset={asset}
