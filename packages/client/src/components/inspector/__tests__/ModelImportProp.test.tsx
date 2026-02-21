@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ModelImportProp } from '../ModelImportProp';
 import type { Asset } from '@digittwinedit/shared';
 import { DEFAULT_FBX_IMPORT_SETTINGS } from '../../../features/fbx/types';
+import { useAssetStore } from '../../../stores/assetStore';
 
 // GLB 资产（通过 FBX 导入，有 sourceFbxAssetId）
 const mockGlbAsset: Asset = {
@@ -25,6 +26,20 @@ const mockGlbAsset: Asset = {
   },
 };
 
+// 对应的源 FBX 资产（id=42）
+const mockFbxSourceAsset: Asset = {
+  id: 42,
+  project_id: 1,
+  name: 'building.fbx',
+  type: 'model',
+  file_path: '/uploads/building.fbx',
+  file_size: 5000000,
+  mime_type: 'application/octet-stream',
+  created_at: '',
+  updated_at: '',
+  metadata: { isSourceFbx: true },
+};
+
 // GLB 资产（直接上传，无 sourceFbxAssetId）
 const mockDirectGlbAsset: Asset = {
   id: 11,
@@ -42,6 +57,12 @@ const mockDirectGlbAsset: Asset = {
 describe('ModelImportProp', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // 预置 assetStore：包含源 FBX，使 sourceFbxExists = true
+    useAssetStore.setState({ assets: [mockFbxSourceAsset], selectedAssetId: null });
+  });
+
+  afterEach(() => {
+    useAssetStore.setState({ assets: [], selectedAssetId: null });
   });
 
   it('renders import settings section title', () => {
@@ -75,6 +96,15 @@ describe('ModelImportProp', () => {
     const scaleInput = screen.getByRole('spinbutton');
     fireEvent.change(scaleInput, { target: { value: '3' } });
     expect(screen.getByRole('button', { name: '重新导入' })).not.toBeDisabled();
+  });
+
+  it('shows warning and disables button when source FBX is deleted', () => {
+    // 清空 assets，模拟源 FBX 被删除
+    useAssetStore.setState({ assets: [], selectedAssetId: null });
+    render(<ModelImportProp asset={mockGlbAsset} projectId={1} onReimportComplete={vi.fn()} />);
+    expect(screen.getByText('源 FBX 已删除，无法重新导入')).toBeInTheDocument();
+    // 按钮因 sourceFbxExists=false 而禁用
+    expect(screen.getByRole('button', { name: '重新导入' })).toBeDisabled();
   });
 
   it('returns null when asset has no sourceFbxAssetId', () => {
