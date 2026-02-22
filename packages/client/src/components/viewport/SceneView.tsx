@@ -66,7 +66,7 @@ export const SceneView: React.FC = () => {
       const ndcY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
       const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera({ x: ndcX, y: ndcY }, camera as THREE.PerspectiveCamera);
+      raycaster.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera);
 
       const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
       const target = new THREE.Vector3();
@@ -109,9 +109,9 @@ export const SceneView: React.FC = () => {
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       >
         <color attach="background" args={['#1e1e1e']} />
+        <ThreeContextCapture />
 
         <Suspense fallback={null}>
-          <ThreeContextCapture />
           <SceneConfigApplier />
           <Environment preset="city" />
 
