@@ -12,6 +12,10 @@ import { ViewportOverlay } from '@/components/viewport/ViewportOverlay';
 import { CameraSystem } from '@/features/editor/navigation/CameraSystem';
 import { KeyboardShortcutManager } from '@/features/editor/shortcuts/KeyboardShortcutManager';
 import { ActiveToolGizmo } from '@/features/editor/tools/ActiveToolGizmo'; // This will be created in next task, but good to add import if we stub it or wait
+import * as THREE from 'three';
+import { clsx } from 'clsx';
+import { threeContextRef, ThreeContextCapture } from '@/features/viewport/threeContext';
+import { useAssetDrop } from '@/hooks/useAssetDrop';
 
 // SceneConfigApplier component to use hooks inside Canvas
 const SceneConfigApplier: React.FC = () => {
@@ -52,13 +56,43 @@ export const SceneView: React.FC = () => {
   // Dynamic cursor style based on active tool
   const cursorStyle = activeTool === 'hand' ? 'grab' : 'default';
 
+  const getSceneDropPosition = useCallback(
+    (e: React.DragEvent<HTMLElement>): [number, number, number] => {
+      const camera = threeContextRef.camera;
+      if (!camera) return [0, 0, 0];
+
+      const rect = e.currentTarget.getBoundingClientRect();
+      const ndcX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      const ndcY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera({ x: ndcX, y: ndcY }, camera as THREE.PerspectiveCamera);
+
+      const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+      const target = new THREE.Vector3();
+      const hit = raycaster.ray.intersectPlane(groundPlane, target);
+
+      if (!hit) return [0, 0, 0];
+      return [target.x, 0, target.z];
+    },
+    []
+  );
+
+  const { isDraggingOver, onDragOver, onDragLeave, onDrop } = useAssetDrop(getSceneDropPosition);
+
   return (
     <div
-      className="w-full h-full relative bg-black"
+      className={clsx(
+        'w-full h-full relative bg-black',
+        isDraggingOver && 'ring-2 ring-inset ring-blue-400'
+      )}
       style={{ position: 'relative', cursor: cursorStyle }}
       onContextMenu={handleContextMenu}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
     >
       {/* 3D Canvas */}
       <Canvas
@@ -77,6 +111,7 @@ export const SceneView: React.FC = () => {
         <color attach="background" args={['#1e1e1e']} />
 
         <Suspense fallback={null}>
+          <ThreeContextCapture />
           <SceneConfigApplier />
           <Environment preset="city" />
 
