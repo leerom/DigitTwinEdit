@@ -36,7 +36,7 @@ interface SceneState {
   updateMeshMaterialSpec: (id: string, spec: import('@/types').MaterialSpec) => void;
   restoreObject: (obj: SceneObject) => void;
   loadScene: (scene: Scene) => void;
-  addAssetToScene: (asset: import('@digittwinedit/shared').Asset) => void;
+  addAssetToScene: (asset: import('@digittwinedit/shared').Asset, position?: [number, number, number]) => void;
 
   // Dirty state actions
   markDirty: () => void;
@@ -308,7 +308,7 @@ export const useSceneStore = create<SceneState>()(
           state.isDirty = false;
         }),
 
-      addAssetToScene: (asset) =>
+      addAssetToScene: (asset, position) =>
         set((state) => {
           // 只支持模型资产
           if (asset.type !== 'model') {
@@ -327,7 +327,7 @@ export const useSceneStore = create<SceneState>()(
             visible: true,
             locked: false,
             transform: {
-              position: [0, 0, 0],
+              position: position ?? [0, 0, 0],
               rotation: [0, 0, 0],
               scale: [1, 1, 1],
             },
