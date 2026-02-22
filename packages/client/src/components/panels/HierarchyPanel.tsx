@@ -4,7 +4,7 @@ import { useEditorStore } from '../../stores/editorStore';
 import { useProjectStore } from '../../stores/projectStore';
 import { ObjectType } from '../../types';
 import { clsx } from 'clsx';
-import { useAssetDrop } from '../../hooks/useAssetDrop';
+import { useAssetDrop } from '@/hooks/useAssetDrop';
 
 interface HierarchyItemProps {
   id: string;
