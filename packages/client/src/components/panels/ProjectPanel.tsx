@@ -180,7 +180,9 @@ export const ProjectPanel: React.FC = () => {
   };
 
   const handleAssetDragStart = (e: React.DragEvent, assetId: number) => {
+    const asset = assets.find((a) => a.id === assetId);
     e.dataTransfer.setData('assetId', assetId.toString());
+    e.dataTransfer.setData('assetType', asset?.type ?? '');
     e.dataTransfer.effectAllowed = 'copy';
   };
 
