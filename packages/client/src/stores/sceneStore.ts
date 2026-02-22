@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { Scene, SceneObject, TransformComponent, ObjectType, MaterialSpec } from '@/types';
+import { Scene, SceneObject, TransformComponent, ObjectType, MaterialSpec, Vector3 } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface ImportProgress {
@@ -36,7 +36,7 @@ interface SceneState {
   updateMeshMaterialSpec: (id: string, spec: import('@/types').MaterialSpec) => void;
   restoreObject: (obj: SceneObject) => void;
   loadScene: (scene: Scene) => void;
-  addAssetToScene: (asset: import('@digittwinedit/shared').Asset, position?: [number, number, number]) => void;
+  addAssetToScene: (asset: import('@digittwinedit/shared').Asset, position?: Vector3) => void;
 
   // Dirty state actions
   markDirty: () => void;

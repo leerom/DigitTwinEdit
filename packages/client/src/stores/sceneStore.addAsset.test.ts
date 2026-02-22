@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { act } from '@testing-library/react';
 import { useSceneStore } from './sceneStore';
+import { ObjectType } from '@/types';
 
 const mockAsset = {
   id: 1,
@@ -19,12 +20,14 @@ describe('sceneStore - addAssetToScene', () => {
       useSceneStore.setState({
         scene: {
           id: 'test-scene',
+          name: 'Test Scene',
+          version: '1.0.0',
           root: 'root',
           objects: {
             root: {
               id: 'root',
               name: 'Root',
-              type: 'group' as const,
+              type: ObjectType.GROUP,
               parentId: null,
               children: [],
               visible: true,
@@ -36,6 +39,12 @@ describe('sceneStore - addAssetToScene', () => {
               },
               components: {},
             },
+          },
+          assets: {},
+          settings: {
+            environment: 'default',
+            gridVisible: true,
+            backgroundColor: '#1a1a1a',
           },
           createdAt: '',
           updatedAt: '',
@@ -61,6 +70,7 @@ describe('sceneStore - addAssetToScene', () => {
     });
     const state = useSceneStore.getState();
     const ids = state.scene.objects['root'].children;
+    expect(ids).toHaveLength(1);
     const obj = state.scene.objects[ids[0]];
     expect(obj.transform.position).toEqual([3, 0, -5]);
   });
