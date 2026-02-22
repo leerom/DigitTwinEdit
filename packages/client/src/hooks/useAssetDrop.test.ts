@@ -78,6 +78,7 @@ describe('useAssetDrop', () => {
       act(() => result.current.onDragOver(evt));
 
       expect(prevent).toHaveBeenCalled();
+      expect(evt.dataTransfer.dropEffect).toBe('copy');
       expect(result.current.isDraggingOver).toBe(true);
     });
 
@@ -100,8 +101,34 @@ describe('useAssetDrop', () => {
       act(() => result.current.onDragOver(makeDragEvent({ types: ['assetid'] })));
       expect(result.current.isDraggingOver).toBe(true);
 
-      act(() => result.current.onDragLeave());
+      // relatedTarget 在 container 之外 → 应清除高亮
+      const container = document.createElement('div');
+      const outsideEl = document.createElement('div');
+      const leaveEvt = {
+        currentTarget: container,
+        relatedTarget: outsideEl,
+      } as unknown as React.DragEvent<HTMLElement>;
+
+      act(() => result.current.onDragLeave(leaveEvt));
       expect(result.current.isDraggingOver).toBe(false);
+    });
+
+    it('拖拽到子元素时不清除 isDraggingOver', () => {
+      const { result } = renderHook(() => useAssetDrop());
+      act(() => result.current.onDragOver(makeDragEvent({ types: ['assetid'] })));
+
+      // simulate dragleave where relatedTarget is inside the container
+      const container = document.createElement('div');
+      const child = document.createElement('div');
+      container.appendChild(child);
+
+      const leaveEvt = {
+        currentTarget: container,
+        relatedTarget: child,
+      } as unknown as React.DragEvent<HTMLElement>;
+
+      act(() => result.current.onDragLeave(leaveEvt));
+      expect(result.current.isDraggingOver).toBe(true); // should stay true
     });
   });
 

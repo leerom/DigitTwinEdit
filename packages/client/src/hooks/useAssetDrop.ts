@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useAssetStore } from '@/stores/assetStore';
 import { useSceneStore } from '@/stores/sceneStore';
+import type { Vector3 } from '@/types';
 
-type GetDropPosition = (e: React.DragEvent<HTMLElement>) => [number, number, number];
+type GetDropPosition = (e: React.DragEvent<HTMLElement>) => Vector3;
 
 /**
  * 共享的资产拖放 Hook。
@@ -26,7 +27,8 @@ export function useAssetDrop(getDropPosition?: GetDropPosition) {
     }
   }, []);
 
-  const onDragLeave = useCallback(() => {
+  const onDragLeave = useCallback((e: React.DragEvent<HTMLElement>) => {
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
     setIsDraggingOver(false);
   }, []);
 
@@ -35,7 +37,10 @@ export function useAssetDrop(getDropPosition?: GetDropPosition) {
       e.preventDefault();
       setIsDraggingOver(false);
 
-      const assetId = parseInt(e.dataTransfer.getData('assetId'), 10);
+      const raw = e.dataTransfer.getData('assetId');
+      if (!raw) return;
+      const assetId = parseInt(raw, 10);
+      if (isNaN(assetId)) return;
       const asset = assets.find((a) => a.id === assetId);
       if (!asset || asset.type !== 'model') return;
 
