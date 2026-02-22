@@ -4,6 +4,7 @@ import { useEditorStore } from '../../stores/editorStore';
 import { useProjectStore } from '../../stores/projectStore';
 import { ObjectType } from '../../types';
 import { clsx } from 'clsx';
+import { useAssetDrop } from '../../hooks/useAssetDrop';
 
 interface HierarchyItemProps {
   id: string;
@@ -103,8 +104,19 @@ export const HierarchyPanel: React.FC = () => {
   const rootId = useSceneStore((state) => state.scene.root);
   const rootObject = useSceneStore((state) => state.scene.objects[rootId]);
 
+  // 不传 getDropPosition → 模型放置在原点 [0,0,0]
+  const { isDraggingOver, onDragOver, onDragLeave, onDrop } = useAssetDrop();
+
   return (
-    <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
+    <div
+      className={clsx(
+        'flex flex-col h-full w-full bg-panel-dark flex-shrink-0',
+        isDraggingOver && 'ring-2 ring-inset ring-blue-400'
+      )}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+    >
       {/* Panel Header */}
       <div className="panel-title">
         <div className="flex items-center space-x-2">
