@@ -333,6 +333,7 @@ export const useSceneStore = create<SceneState>()(
             },
             components: {
               model: {
+                assetId: asset.id,
                 path: asset.file_path,
               },
             },

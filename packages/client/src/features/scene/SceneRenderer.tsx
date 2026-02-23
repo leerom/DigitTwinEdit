@@ -1,13 +1,22 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef } from 'react';
 import { useSceneStore } from '@/stores/sceneStore';
 import { useEditorStore } from '@/stores/editorStore';
 import { MaterialSpec, ObjectType } from '@/types';
 import { ThreeEvent } from '@react-three/fiber';
-import { useHelper } from '@react-three/drei';
+import { useHelper, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
+import { assetsApi } from '@/api/assets';
 import { createThreeMaterial } from '@/features/materials/materialFactory';
 
 const DEFAULT_BOX_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
+
+// 加载并渲染 GLB/GLTF 模型资产
+const ModelMesh: React.FC<{ assetId: number }> = React.memo(({ assetId }) => {
+  const url = assetsApi.getAssetDownloadUrl(assetId);
+  const { scene: gltfScene } = useGLTF(url);
+  const clonedScene = useMemo(() => gltfScene.clone(true), [gltfScene]);
+  return <primitive object={clonedScene} />;
+});
 
 export const resolveWireframeOverride = (renderMode: string, materialSpec: MaterialSpec | null) => {
   if (renderMode === 'wireframe') return true;
@@ -138,6 +147,12 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
               </lineSegments>
            )}
         </mesh>
+      )}
+
+      {object?.type === ObjectType.MESH && object.components?.model?.assetId && (
+        <Suspense fallback={null}>
+          <ModelMesh assetId={object.components.model.assetId} />
+        </Suspense>
       )}
 
       {object?.type === ObjectType.CAMERA && (
