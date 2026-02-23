@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useMemo, useRef } from 'react';
 import { useSceneStore } from '@/stores/sceneStore';
 import { useEditorStore } from '@/stores/editorStore';
+import { useAssetStore } from '@/stores/assetStore';
 import { MaterialSpec, ObjectType } from '@/types';
 import { ThreeEvent } from '@react-three/fiber';
 import { useHelper, useGLTF } from '@react-three/drei';
@@ -46,6 +47,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const selectedIds = useEditorStore((state) => state.selectedIds);
   const select = useEditorStore((state) => state.select);
   const renderMode = useEditorStore((state) => state.renderMode);
+  const assets = useAssetStore((state) => state.assets);
 
   // Hooks 必须每次渲染保持一致调用次数，这里不能在 hooks 之间提前 return
   const isSelected = selectedIds.includes(id);
@@ -95,6 +97,23 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     if (object?.type !== ObjectType.MESH) return null;
     return object.components?.mesh?.material ?? null;
   }, [object?.type, object?.components?.mesh?.material]);
+
+  // 解析模型的 assetId：优先使用 components.model.assetId，
+  // 兜底按 file_path 在资产列表中查找（兼容旧版场景仅存 path 而无 assetId 的情况）
+  const resolvedAssetId = useMemo<number | null>(() => {
+    const modelComp = object?.components?.model;
+    if (!modelComp) return null;
+    if (modelComp.assetId) return modelComp.assetId;
+    if (modelComp.path) {
+      const normalizedPath = (modelComp.path as string).replace(/\\/g, '/');
+      const found = assets.find((a) => {
+        const assetFilePath = a.file_path.replace(/\\/g, '/');
+        return assetFilePath === normalizedPath || assetFilePath.endsWith('/' + normalizedPath) || normalizedPath.endsWith('/' + assetFilePath);
+      });
+      return found?.id ?? null;
+    }
+    return null;
+  }, [object?.components?.model, assets]);
 
   const materialRef = useRef<THREE.Material | null>(null);
   const lastTypeRef = useRef<MaterialSpec['type'] | null>(null);
@@ -166,10 +185,10 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
         </mesh>
       )}
 
-      {object?.type === ObjectType.MESH && object.components?.model?.assetId && (
+      {object?.type === ObjectType.MESH && resolvedAssetId !== null && (
         <ModelErrorBoundary>
           <Suspense fallback={null}>
-            <ModelMesh assetId={object.components.model.assetId} />
+            <ModelMesh assetId={resolvedAssetId} />
           </Suspense>
         </ModelErrorBoundary>
       )}

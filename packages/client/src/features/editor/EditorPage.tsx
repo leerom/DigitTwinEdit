@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProjectStore } from '../../stores/projectStore';
 import { useSceneStore } from '../../stores/sceneStore';
+import { useAssetStore } from '../../stores/assetStore';
 import { MainLayout } from '../../components/layout/MainLayout';
 import { Header } from '../../components/layout/Header';
 import { HierarchyPanel } from '../../components/panels/HierarchyPanel';
@@ -15,16 +16,20 @@ export function EditorPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject, loadProject, loadActiveScene, isLoading: projectLoading } = useProjectStore();
   const { importProgress } = useSceneStore();
+  const { loadAssets } = useAssetStore();
 
-  // 加载项目和场景
+  // 加载项目、场景和资产列表
   useEffect(() => {
     if (projectId) {
       const id = parseInt(projectId, 10);
       loadProject(id)
-        .then(() => loadActiveScene(id))
+        .then(() => Promise.all([
+          loadActiveScene(id),
+          loadAssets(id),
+        ]))
         .catch(console.error);
     }
-  }, [projectId, loadProject, loadActiveScene]);
+  }, [projectId, loadProject, loadActiveScene, loadAssets]);
 
   // 自动保存
   useAutoSave();
