@@ -51,9 +51,10 @@ const ModelMesh: React.FC<{ assetId: number; materialSpec: MaterialSpec | null }
   }, [gltfScene]);
 
   // 当 materialSpec 变化时，将属性应用到所有子网格的材质
+  // 即使 materialSpec 为 null，也应用 roughness/metalness 默认值（0），
+  // 保证 Inspector 显示值与实际渲染一致；颜色不覆盖（保留 GLTF 原始纹理）
   useEffect(() => {
-    if (!materialSpec?.props) return;
-    const props = materialSpec.props as Record<string, unknown>;
+    const props = (materialSpec?.props ?? {}) as Record<string, unknown>;
 
     clonedScene.traverse((child) => {
       const mesh = child as THREE.Mesh;
@@ -69,6 +70,9 @@ const ModelMesh: React.FC<{ assetId: number; materialSpec: MaterialSpec | null }
             m[key] = value;
           }
         }
+        // 应用 Inspector 显示的默认值（未被 materialSpec 明确覆盖的属性）
+        if (!('roughness' in props) && 'roughness' in m) m.roughness = 0;
+        if (!('metalness' in props) && 'metalness' in m) m.metalness = 0;
         m.needsUpdate = true;
       });
     });
