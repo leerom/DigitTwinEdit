@@ -27,12 +27,66 @@ class ModelErrorBoundary extends React.Component<
 
 // 加载并渲染 GLB/GLTF 模型资产
 // 通过 extendLoader 设置 withCredentials，解决跨端口 cookie 鉴权问题
-const ModelMesh: React.FC<{ assetId: number }> = React.memo(({ assetId }) => {
+// materialSpec：Inspector 中设置的材质覆盖（颜色、粗糙度等），应用到所有子网格
+const ModelMesh: React.FC<{ assetId: number; materialSpec: MaterialSpec | null }> = React.memo(({ assetId, materialSpec }) => {
   const url = assetsApi.getAssetDownloadUrl(assetId);
   const { scene: gltfScene } = useGLTF(url, true, true, (loader) => {
     loader.setWithCredentials(true);
   });
-  const clonedScene = useMemo(() => gltfScene.clone(true), [gltfScene]);
+
+  // 克隆场景，同时克隆每个网格的材质以免修改共享实例
+  const clonedScene = useMemo(() => {
+    const clone = gltfScene.clone(true);
+    clone.traverse((child) => {
+      const mesh = child as THREE.Mesh;
+      if (mesh.isMesh) {
+        if (Array.isArray(mesh.material)) {
+          mesh.material = mesh.material.map((m: THREE.Material) => m.clone());
+        } else if (mesh.material) {
+          mesh.material = (mesh.material as THREE.Material).clone();
+        }
+      }
+    });
+    return clone;
+  }, [gltfScene]);
+
+  // 当 materialSpec 变化时，将属性应用到所有子网格的材质
+  useEffect(() => {
+    if (!materialSpec?.props) return;
+    const props = materialSpec.props as Record<string, unknown>;
+
+    clonedScene.traverse((child) => {
+      const mesh = child as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      mats.forEach((mat) => {
+        if (!mat) return;
+        const m = mat as any;
+        for (const [key, value] of Object.entries(props)) {
+          if (key === 'color' && typeof value === 'string' && m.color?.set) {
+            m.color.set(value);
+          } else if (key !== 'color' && typeof value === 'number' && key in m) {
+            m[key] = value;
+          }
+        }
+        m.needsUpdate = true;
+      });
+    });
+  }, [clonedScene, materialSpec]);
+
+  // 卸载时释放克隆的材质
+  useEffect(() => {
+    return () => {
+      clonedScene.traverse((child) => {
+        const mesh = child as THREE.Mesh;
+        if (mesh.isMesh) {
+          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          mats.forEach((m: THREE.Material) => m?.dispose());
+        }
+      });
+    };
+  }, [clonedScene]);
+
   return <primitive object={clonedScene} />;
 });
 
@@ -174,7 +228,8 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       scale={scale}
       onClick={handleClick}
     >
-      {object?.type === ObjectType.MESH && geometry && materialRef.current && (
+      {/* 基础几何体网格：模型对象（有 model 组件）不渲染 Box 占位，避免叠加 */}
+      {object?.type === ObjectType.MESH && !object.components?.model && geometry && materialRef.current && (
         <mesh castShadow receiveShadow geometry={geometry} material={materialRef.current}>
            {showEdges && (
               <lineSegments>
@@ -188,7 +243,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       {object?.type === ObjectType.MESH && resolvedAssetId !== null && (
         <ModelErrorBoundary>
           <Suspense fallback={null}>
-            <ModelMesh assetId={resolvedAssetId} />
+            <ModelMesh assetId={resolvedAssetId} materialSpec={materialSpec} />
           </Suspense>
         </ModelErrorBoundary>
       )}

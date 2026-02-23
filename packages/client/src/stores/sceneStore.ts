@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { Scene, SceneObject, TransformComponent, ObjectType, MaterialSpec, Vector3 } from '@/types';
+import { Scene, SceneObject, TransformComponent, ObjectType, MaterialSpec, MeshComponent, Vector3 } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface ImportProgress {
@@ -278,10 +278,13 @@ export const useSceneStore = create<SceneState>()(
       updateMeshMaterialSpec: (id, spec) =>
         set((state) => {
           const obj = state.scene.objects[id];
-          const mesh = obj?.components?.mesh;
-          if (!mesh) return;
+          if (!obj) return;
 
-          mesh.material = spec;
+          // 对模型对象（components.model）自动初始化 mesh 组件，以便存储材质覆盖
+          if (!obj.components) obj.components = {};
+          if (!obj.components.mesh) obj.components.mesh = {} as MeshComponent;
+
+          obj.components.mesh.material = spec;
           state.scene.updatedAt = new Date().toISOString();
           state.isDirty = true;
         }),
