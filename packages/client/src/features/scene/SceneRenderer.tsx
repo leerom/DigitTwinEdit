@@ -10,10 +10,27 @@ import { createThreeMaterial } from '@/features/materials/materialFactory';
 
 const DEFAULT_BOX_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
 
+// 加载失败时静默降级，防止崩溃整个场景树
+class ModelErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error: Error) { console.error('[ModelMesh] 模型加载失败:', error); }
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
+
 // 加载并渲染 GLB/GLTF 模型资产
+// 通过 extendLoader 设置 withCredentials，解决跨端口 cookie 鉴权问题
 const ModelMesh: React.FC<{ assetId: number }> = React.memo(({ assetId }) => {
   const url = assetsApi.getAssetDownloadUrl(assetId);
-  const { scene: gltfScene } = useGLTF(url);
+  const { scene: gltfScene } = useGLTF(url, true, true, (loader) => {
+    loader.setWithCredentials(true);
+  });
   const clonedScene = useMemo(() => gltfScene.clone(true), [gltfScene]);
   return <primitive object={clonedScene} />;
 });
@@ -150,9 +167,11 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       )}
 
       {object?.type === ObjectType.MESH && object.components?.model?.assetId && (
-        <Suspense fallback={null}>
-          <ModelMesh assetId={object.components.model.assetId} />
-        </Suspense>
+        <ModelErrorBoundary>
+          <Suspense fallback={null}>
+            <ModelMesh assetId={object.components.model.assetId} />
+          </Suspense>
+        </ModelErrorBoundary>
       )}
 
       {object?.type === ObjectType.CAMERA && (
