@@ -5,27 +5,72 @@ import { useProjectStore } from '../../stores/projectStore';
 import { ObjectType } from '../../types';
 import { clsx } from 'clsx';
 import { useAssetDrop } from '@/hooks/useAssetDrop';
+import { useHistoryStore } from '@/stores/historyStore';
+import { DeleteObjectsCommand } from '@/features/editor/commands/DeleteObjectsCommand';
+import { v4 as uuidv4 } from 'uuid';
 
 interface HierarchyItemProps {
   id: string;
   depth: number;
+  onContextMenu: (id: string, x: number, y: number) => void;
 }
 
-const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth }) => {
+const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth, onContextMenu }) => {
   const object = useSceneStore((state) => state.scene.objects[id]);
   const isSelected = useEditorStore((state) => state.selectedIds.includes(id));
   const select = useEditorStore((state) => state.select);
+  const renamingId = useEditorStore((state) => state.renamingId);
+  const setRenamingId = useEditorStore((state) => state.setRenamingId);
+  const updateObject = useSceneStore((state) => state.updateObject);
 
   const [expanded, setExpanded] = React.useState(true);
+  const [renameValue, setRenameValue] = React.useState('');
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const isRenaming = renamingId === id;
+
+  // 进入重命名模式时，初始化输入值并自动聚焦选中全部
+  React.useEffect(() => {
+    if (isRenaming && object) {
+      setRenameValue(object.name);
+      setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 0);
+    }
+  }, [isRenaming]);
 
   if (!object) return null;
   const hasChildren = object.children.length > 0;
 
   const handleSelect = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Single selection only as per requirement
-    // const isMulti = e.ctrlKey || e.metaKey;
+    if (!isRenaming) {
+      select([id], false);
+    }
+  };
+
+  const handleContextMenuEvent = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     select([id], false);
+    onContextMenu(id, e.clientX, e.clientY);
+  };
+
+  const handleRenameCommit = () => {
+    const trimmed = renameValue.trim();
+    if (trimmed && trimmed !== object.name) {
+      updateObject(id, { name: trimmed });
+    }
+    setRenamingId(null);
+  };
+
+  const handleRenameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleRenameCommit();
+    } else if (e.key === 'Escape') {
+      setRenamingId(null);
+    }
   };
 
   const toggleExpand = (e: React.MouseEvent) => {
@@ -33,7 +78,6 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth }) =
     setExpanded(!expanded);
   };
 
-  // Get icon based on object type
   const getIcon = () => {
     switch (object.type) {
       case ObjectType.CAMERA:
@@ -58,6 +102,7 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth }) =
         )}
         style={{ paddingLeft: `${depth * 16 + 12}px` }}
         onClick={handleSelect}
+        onContextMenu={handleContextMenuEvent}
       >
         {/* Expand/Collapse Button */}
         {hasChildren ? (
@@ -83,14 +128,26 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth }) =
           <span className="material-symbols-outlined text-xs text-yellow-500 mr-1" title="此对象已锁定">lock</span>
         )}
 
-        {/* Name */}
-        <span className={clsx("truncate flex-1", object.locked && "text-slate-400")}>
-          {object.name}
-        </span>
+        {/* 名称：重命名状态显示输入框，否则显示文字 */}
+        {isRenaming ? (
+          <input
+            ref={inputRef}
+            className="flex-1 bg-gray-800 text-white text-xs px-1 py-0 border border-blue-400 rounded outline-none min-w-0"
+            value={renameValue}
+            onChange={(e) => setRenameValue(e.target.value)}
+            onBlur={handleRenameCommit}
+            onKeyDown={handleRenameKeyDown}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ) : (
+          <span className={clsx("truncate flex-1", object.locked && "text-slate-400")}>
+            {object.name}
+          </span>
+        )}
       </div>
 
       {expanded && object.children.map((childId) => (
-        <HierarchyItem key={childId} id={childId} depth={depth + 1} />
+        <HierarchyItem key={childId} id={childId} depth={depth + 1} onContextMenu={onContextMenu} />
       ))}
     </div>
   );
@@ -104,8 +161,66 @@ export const HierarchyPanel: React.FC = () => {
   const rootId = useSceneStore((state) => state.scene.root);
   const rootObject = useSceneStore((state) => state.scene.objects[rootId]);
 
-  // 不传 getDropPosition → 模型放置在原点 [0,0,0]
+  const setRenamingId = useEditorStore((state) => state.setRenamingId);
+  const select = useEditorStore((state) => state.select);
+  const executeCommand = useHistoryStore((state) => state.execute);
+
+  const [contextMenu, setContextMenu] = React.useState<{ id: string; x: number; y: number } | null>(null);
+
   const { isDraggingOver, onDragOver, onDragLeave, onDrop } = useAssetDrop();
+
+  const handleContextMenu = React.useCallback((id: string, x: number, y: number) => {
+    setContextMenu({ id, x, y });
+  }, []);
+
+  const closeMenu = () => setContextMenu(null);
+
+  const handleRename = () => {
+    if (contextMenu) {
+      setRenamingId(contextMenu.id);
+    }
+    closeMenu();
+  };
+
+  const handleDuplicate = () => {
+    if (!contextMenu) return;
+    const { id } = contextMenu;
+    closeMenu();
+
+    // 递归深拷贝对象子树，生成新 ID
+    const duplicateSubtree = (sourceId: string, newParentId: string, isRoot: boolean): string => {
+      const source = useSceneStore.getState().scene.objects[sourceId];
+      if (!source) return '';
+      const newId = uuidv4();
+      useSceneStore.getState().addObject(
+        {
+          ...source,
+          id: newId,
+          name: isRoot ? `${source.name} (复制)` : source.name,
+          children: [],
+          parentId: newParentId,
+        },
+        newParentId
+      );
+      source.children.forEach((childId) => duplicateSubtree(childId, newId, false));
+      return newId;
+    };
+
+    const obj = useSceneStore.getState().scene.objects[id];
+    if (!obj || !obj.parentId) return;
+    const newId = duplicateSubtree(id, obj.parentId, true);
+    if (newId) {
+      select([newId], false);
+    }
+  };
+
+  const handleDelete = () => {
+    if (!contextMenu) return;
+    const { id } = contextMenu;
+    closeMenu();
+    // 使用命令模式，支持撤销
+    executeCommand(new DeleteObjectsCommand([id]));
+  };
 
   return (
     <div
@@ -138,10 +253,46 @@ export const HierarchyPanel: React.FC = () => {
         {/* Scene Objects */}
         <div className="pl-4">
           {rootObject && rootObject.children.map((childId) => (
-            <HierarchyItem key={childId} id={childId} depth={0} />
+            <HierarchyItem key={childId} id={childId} depth={0} onContextMenu={handleContextMenu} />
           ))}
         </div>
       </div>
+
+      {/* 右键菜单 */}
+      {contextMenu && (
+        <>
+          {/* 透明遮罩：点击菜单外区域关闭 */}
+          <div className="fixed inset-0 z-40" onMouseDown={closeMenu} />
+          <div
+            className="fixed z-50 bg-[#1e1e2e] border border-gray-700 rounded shadow-xl py-1 min-w-[120px] select-none"
+            style={{ top: contextMenu.y, left: contextMenu.x }}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <button
+              className="w-full text-left px-3 py-1.5 text-xs text-gray-200 hover:bg-blue-600 hover:text-white transition-colors flex items-center gap-2"
+              onClick={handleRename}
+            >
+              <span className="material-symbols-outlined text-xs">edit</span>
+              重命名
+            </button>
+            <button
+              className="w-full text-left px-3 py-1.5 text-xs text-gray-200 hover:bg-blue-600 hover:text-white transition-colors flex items-center gap-2"
+              onClick={handleDuplicate}
+            >
+              <span className="material-symbols-outlined text-xs">content_copy</span>
+              复制
+            </button>
+            <div className="my-1 border-t border-gray-700" />
+            <button
+              className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-red-600 hover:text-white transition-colors flex items-center gap-2"
+              onClick={handleDelete}
+            >
+              <span className="material-symbols-outlined text-xs">delete</span>
+              删除
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
