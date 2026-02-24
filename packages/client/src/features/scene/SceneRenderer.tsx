@@ -28,8 +28,15 @@ class ModelErrorBoundary extends React.Component<
 // 加载并渲染 GLB/GLTF 模型资产
 // 通过 extendLoader 设置 withCredentials，解决跨端口 cookie 鉴权问题
 // materialSpec：Inspector 中设置的材质覆盖（颜色、粗糙度等），应用到所有子网格
-const ModelMesh: React.FC<{ assetId: number; materialSpec: MaterialSpec | null }> = React.memo(({ assetId, materialSpec }) => {
-  const url = assetsApi.getAssetDownloadUrl(assetId);
+// assetUpdatedAt：资产的 updated_at 时间戳，作为 URL cache-buster，
+//   确保重新导入后 useGLTF 能识别 URL 变化并重新加载新 GLB
+const ModelMesh: React.FC<{ assetId: number; assetUpdatedAt: string | undefined; materialSpec: MaterialSpec | null }> = React.memo(({ assetId, assetUpdatedAt, materialSpec }) => {
+  const baseUrl = assetsApi.getAssetDownloadUrl(assetId);
+  // 将 updated_at 时间戳附加到 URL 作为版本标记；
+  // useGLTF 按 URL 缓存，URL 变化即触发重新加载，消除重新导入后的缓存问题
+  const url = assetUpdatedAt
+    ? `${baseUrl}?v=${new Date(assetUpdatedAt).getTime()}`
+    : baseUrl;
   const { scene: gltfScene } = useGLTF(url, true, true, (loader) => {
     loader.setWithCredentials(true);
   });
@@ -173,6 +180,13 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     return null;
   }, [object?.components?.model, assets]);
 
+  // 获取资产的 updated_at 时间戳，作为 ModelMesh URL 的 cache-buster；
+  // 重新导入后 updated_at 变化，确保 useGLTF 重新加载新 GLB 而非使用缓存
+  const assetUpdatedAt = useMemo<string | undefined>(() => {
+    if (resolvedAssetId === null) return undefined;
+    return assets.find((a) => a.id === resolvedAssetId)?.updated_at;
+  }, [resolvedAssetId, assets]);
+
   const materialRef = useRef<THREE.Material | null>(null);
   const lastTypeRef = useRef<MaterialSpec['type'] | null>(null);
 
@@ -247,7 +261,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       {object?.type === ObjectType.MESH && resolvedAssetId !== null && (
         <ModelErrorBoundary>
           <Suspense fallback={null}>
-            <ModelMesh assetId={resolvedAssetId} materialSpec={materialSpec} />
+            <ModelMesh assetId={resolvedAssetId} assetUpdatedAt={assetUpdatedAt} materialSpec={materialSpec} />
           </Suspense>
         </ModelErrorBoundary>
       )}

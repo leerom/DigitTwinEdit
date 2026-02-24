@@ -111,8 +111,18 @@ export class FBXImporter {
     onProgress({ step: '读取文件...', percent: 5 });
     const fbxBuffer = await file.arrayBuffer();
 
+    // 在 convertInWorker 调用之前创建 FBX File 对象。
+    // 原因：convertInWorker 内部通过 Transferable 将 fbxBuffer 转移给 Worker，
+    // 转移后主线程的 fbxBuffer 变为 detached（byteLength=0）。
+    // new File([fbxBuffer]) 会在此刻将数据复制到 Blob 内部存储，
+    // 因此即使 fbxBuffer 随后被 detach，fbxFile 仍持有完整的 FBX 字节。
+    const fbxFile = new File([fbxBuffer], uniqueFbxName, {
+      type: 'application/octet-stream',
+    });
+
     // Step 2: Worker 转换 FBX → GLB
     // Worker 内部进度 0-100 映射到总进度 5% ~ 65%
+    // 注意：此调用会将 fbxBuffer 转移给 Worker（fbxBuffer 在此之后为 detached）
     const glbBuffer = await this.convertInWorker(
       fbxBuffer,
       settings,
@@ -125,10 +135,8 @@ export class FBXImporter {
     );
 
     // Step 3: 上传原始 FBX（存档用，不在面板显示）
+    // fbxFile 已在 Step 2 之前创建，包含完整的 FBX 数据
     onProgress({ step: '上传原始文件...', percent: 70 });
-    const fbxFile = new File([fbxBuffer], uniqueFbxName, {
-      type: 'application/octet-stream',
-    });
     const fbxAsset = await assetsApi.uploadAsset(projectId, fbxFile, 'model');
     // 写入 FBX 标记元数据（isSourceFbx=true 让面板过滤掉它）
     await assetsApi.updateAsset(fbxAsset.id, {
@@ -188,6 +196,11 @@ export class FBXImporter {
       throw new Error(`源 FBX 下载失败（HTTP ${fbxResponse.status}）`);
     }
     const fbxBuffer = await fbxResponse.arrayBuffer();
+
+    // 检测空文件：可能是之前版本的 Bug 导致上传了 0 字节的 FBX（ArrayBuffer 被 transfer 后 detach）
+    if (fbxBuffer.byteLength === 0) {
+      throw new Error('源 FBX 文件为空，无法重新导入。请删除此模型并通过「导入 FBX」重新导入。');
+    }
 
     // Step 2: Worker 重新转换（进度 5%~65%）
     const glbBuffer = await this.convertInWorker(
