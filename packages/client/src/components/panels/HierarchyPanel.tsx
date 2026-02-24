@@ -187,11 +187,18 @@ export const HierarchyPanel: React.FC = () => {
     const { id } = contextMenu;
     closeMenu();
 
+    // 复制时顶层对象在 X/Z 方向各偏移 0.5 个单位，使副本与源对象在场景中错开
+    const DUPLICATE_OFFSET = 0.5;
+
     // 递归深拷贝对象子树，生成新 ID
     const duplicateSubtree = (sourceId: string, newParentId: string, isRoot: boolean): string => {
       const source = useSceneStore.getState().scene.objects[sourceId];
       if (!source) return '';
       const newId = uuidv4();
+      const srcPos = source.transform?.position ?? [0, 0, 0];
+      const position: [number, number, number] = isRoot
+        ? [srcPos[0] + DUPLICATE_OFFSET, srcPos[1], srcPos[2] + DUPLICATE_OFFSET]
+        : srcPos;
       useSceneStore.getState().addObject(
         {
           ...source,
@@ -199,6 +206,7 @@ export const HierarchyPanel: React.FC = () => {
           name: isRoot ? `${source.name} (复制)` : source.name,
           children: [],
           parentId: newParentId,
+          transform: { ...source.transform, position },
         },
         newParentId
       );
