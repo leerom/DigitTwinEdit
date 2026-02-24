@@ -112,6 +112,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const selectedIds = useEditorStore((state) => state.selectedIds);
   const select = useEditorStore((state) => state.select);
   const renderMode = useEditorStore((state) => state.renderMode);
+  const activeTool = useEditorStore((state) => state.activeTool);
   const assets = useAssetStore((state) => state.assets);
 
   // Hooks 必须每次渲染保持一致调用次数，这里不能在 hooks 之间提前 return
@@ -120,10 +121,13 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
 
   const lightRef = useRef<THREE.DirectionalLight>(null!);
   const cameraRef = useRef<THREE.Camera>(null!);
+  const groupRef = useRef<THREE.Group>(null!);
 
   // Safe access to object properties for hooks
   useHelper(isSelected && object?.type === ObjectType.LIGHT ? lightRef : null, THREE.DirectionalLightHelper, 1, 'yellow');
   useHelper(isSelected && object?.type === ObjectType.CAMERA ? cameraRef : null, THREE.CameraHelper);
+  // 抓手工具模式下，为选中的 MESH 对象显示金色包围盒描边
+  useHelper(isSelected && activeTool === 'hand' && object?.type === ObjectType.MESH ? groupRef : null, THREE.BoxHelper, '#FFD700');
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
@@ -240,6 +244,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
 
   return (
     <group
+      ref={groupRef}
       name={id} // Add name prop to allow finding object by ID
       position={position}
       rotation={rotation}
