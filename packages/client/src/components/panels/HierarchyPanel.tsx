@@ -5,8 +5,6 @@ import { useProjectStore } from '../../stores/projectStore';
 import { ObjectType } from '../../types';
 import { clsx } from 'clsx';
 import { useAssetDrop } from '@/hooks/useAssetDrop';
-import { useHistoryStore } from '@/stores/historyStore';
-import { DeleteObjectsCommand } from '@/features/editor/commands/DeleteObjectsCommand';
 import { v4 as uuidv4 } from 'uuid';
 
 interface HierarchyItemProps {
@@ -163,7 +161,7 @@ export const HierarchyPanel: React.FC = () => {
 
   const setRenamingId = useEditorStore((state) => state.setRenamingId);
   const select = useEditorStore((state) => state.select);
-  const executeCommand = useHistoryStore((state) => state.execute);
+  const setDeleteConfirmation = useEditorStore((state) => state.setDeleteConfirmation);
 
   const [contextMenu, setContextMenu] = React.useState<{ id: string; x: number; y: number } | null>(null);
 
@@ -224,10 +222,10 @@ export const HierarchyPanel: React.FC = () => {
 
   const handleDelete = () => {
     if (!contextMenu) return;
-    const { id } = contextMenu;
+    // 右键点击时已 select 过目标对象（handleContextMenuEvent 中），
+    // 直接触发全局删除确认弹窗，与 Delete 键行为一致
     closeMenu();
-    // 使用命令模式，支持撤销
-    executeCommand(new DeleteObjectsCommand([id]));
+    setDeleteConfirmation(true);
   };
 
   return (
