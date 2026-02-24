@@ -48,6 +48,21 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import type { WorkerInput, WorkerOutput, NormalsModeOption } from './types';
 
+// ── 纹理加载完成计数器 ──────────────────────────────────────────────────
+// 追踪所有异步纹理加载（含缓存命中的异步路径）。
+// 每发起一次加载，计数 +1；成功/失败均 -1；
+// 减到 0 时通知所有通过 waitForTextureLoads() 等待的调用者。
+let _pendingTextureLoads = 0;
+const _textureLoadResolvers: Array<() => void> = [];
+
+function _onTextureLoadSettled(): void {
+  _pendingTextureLoads = Math.max(0, _pendingTextureLoads - 1);
+  if (_pendingTextureLoads === 0 && _textureLoadResolvers.length > 0) {
+    const resolvers = _textureLoadResolvers.splice(0);
+    resolvers.forEach((r) => r());
+  }
+}
+
 // ── Worker 纹理加载补丁 ──────────────────────────────────────────────────
 // THREE.ImageLoader 原始实现依赖 document.createElementNS 创建 <img>，
 // 在 Worker 中不可用。将其替换为 fetch + createImageBitmap：
@@ -68,14 +83,17 @@ if (IS_WORKER) {
     // 优先返回缓存
     const cached = THREE.Cache.get(resolvedUrl);
     if (cached !== undefined) {
+      _pendingTextureLoads++;
       this.manager.itemStart(resolvedUrl);
       setTimeout(() => {
         onLoad?.(cached);
         this.manager.itemEnd(resolvedUrl);
+        _onTextureLoadSettled();
       }, 0);
       return cached;
     }
 
+    _pendingTextureLoads++;
     this.manager.itemStart(resolvedUrl);
     fetch(resolvedUrl)
       .then((r) => r.blob())
@@ -84,12 +102,14 @@ if (IS_WORKER) {
         THREE.Cache.add(resolvedUrl, bitmap);
         onLoad?.(bitmap);
         this.manager.itemEnd(resolvedUrl);
+        _onTextureLoadSettled();
       })
       .catch((err) => {
         // 纹理加载失败时静默跳过，不影响模型几何体的导出
         console.warn('[FBXWorker] 纹理加载失败（已跳过）:', resolvedUrl, err);
         onError?.(err);
         this.manager.itemError(resolvedUrl);
+        _onTextureLoadSettled();
       });
 
     return {} as any;
@@ -105,6 +125,15 @@ self.onmessage = async (e: MessageEvent<WorkerInput>) => {
     const loader = new FBXLoader();
     // parse() 接受 ArrayBuffer 和资源路径（空字符串表示无外部资源）
     const group: THREE.Group = loader.parse(fbxBuffer, '');
+
+    // ImageLoader 补丁使用 fetch 异步加载纹理，parse() 返回时加载未必完成。
+    // 等待 DefaultLoadingManager 中所有 itemStart/itemEnd 配对完毕，
+    // 确保 texture.image 已是 ImageBitmap 再交给 GLTFExporter。
+    await waitForTextureLoads();
+
+    // 清理仍无效的纹理（如 TGA/DDS 等 createImageBitmap 不支持的格式加载失败后
+    // texture.image 仍为 undefined），避免 GLTFExporter 抛 "No valid image data"。
+    sanitizeTextures(group);
 
     // === Step 2: 应用缩放 ===
     postProgress(40);
@@ -187,4 +216,70 @@ function applyCalculatedNormals(
       child.geometry.computeVertexNormals();
     }
   });
+}
+
+/**
+ * 等待所有异步纹理加载完成（或失败）后 resolve。
+ *
+ * FBXLoader.parse() 同步触发 ImageLoader.load()，但纹理内容通过 fetch 异步加载。
+ * 若在纹理就绪之前调用 GLTFExporter，texture.image 仍为 undefined，
+ * 导出器会抛 "No valid image data found" 错误。
+ *
+ * 通过 _pendingTextureLoads 计数器追踪所有待完成的加载，
+ * 计数归零时 resolve，供 onmessage 在导出前 await。
+ */
+function waitForTextureLoads(): Promise<void> {
+  if (_pendingTextureLoads === 0) return Promise.resolve();
+  return new Promise<void>((resolve) => {
+    _textureLoadResolvers.push(resolve);
+  });
+}
+
+/**
+ * 清理场景中所有 image 无效的纹理 slot。
+ *
+ * 某些格式（TGA、DDS 等）不被 createImageBitmap 支持，加载失败后
+ * texture.image 仍为 stub 对象而非可用的 ImageBitmap，
+ * GLTFExporter 遇到这类纹理时会抛 "No valid image data" 异常。
+ * 将无效 slot 置为 null 并 dispose，确保导出器安全跳过。
+ */
+function sanitizeTextures(root: THREE.Object3D): void {
+  root.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return;
+    const mats = Array.isArray(child.material) ? child.material : [child.material];
+    mats.forEach((mat) => {
+      if (!mat) return;
+      const m = mat as Record<string, any>;
+      const slots = [
+        'map', 'normalMap', 'roughnessMap', 'metalnessMap',
+        'aoMap', 'emissiveMap', 'alphaMap', 'displacementMap',
+        'bumpMap', 'lightMap', 'envMap', 'specularMap',
+      ];
+      for (const slot of slots) {
+        const tex: THREE.Texture | null | undefined = m[slot];
+        if (tex instanceof THREE.Texture && !isValidTextureImage(tex.image)) {
+          m[slot] = null;
+          tex.dispose();
+        }
+      }
+      m.needsUpdate = true;
+    });
+  });
+}
+
+/**
+ * 判断纹理的 image 字段是否为 GLTFExporter 能处理的有效格式。
+ * 有效类型：ImageBitmap、已加载的 HTMLImageElement、
+ *           HTMLCanvasElement、OffscreenCanvas、ImageData。
+ */
+function isValidTextureImage(image: unknown): boolean {
+  if (!image) return false;
+  if (typeof ImageBitmap !== 'undefined' && image instanceof ImageBitmap) return true;
+  if (typeof HTMLImageElement !== 'undefined' && image instanceof HTMLImageElement) {
+    return (image as HTMLImageElement).naturalWidth > 0;
+  }
+  if (typeof HTMLCanvasElement !== 'undefined' && image instanceof HTMLCanvasElement) return true;
+  if (typeof OffscreenCanvas !== 'undefined' && image instanceof OffscreenCanvas) return true;
+  if (typeof ImageData !== 'undefined' && image instanceof ImageData) return true;
+  return false;
 }

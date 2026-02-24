@@ -176,7 +176,7 @@ export class FBXImporter {
    * 4. 更新 metadata.importSettings
    */
   async reimport(
-    projectId: number,
+    _projectId: number,
     glbAsset: Asset,
     newSettings: FBXImportSettings,
     onProgress: (progress: ImportProgress) => void
