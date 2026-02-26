@@ -69,6 +69,40 @@ const Vector3Row = ({
   </div>
 );
 
+// 0-1 数值输入（用于粗糙度/金属感），提交时限定范围
+const MatPropInput = ({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (val: number) => void;
+}) => {
+  const [local, setLocal] = useState(String(Math.round(value * 1000) / 1000));
+
+  useEffect(() => {
+    setLocal(String(Math.round(value * 1000) / 1000));
+  }, [value]);
+
+  const commit = () => {
+    const n = parseFloat(local);
+    if (!isNaN(n)) onChange(Math.max(0, Math.min(1, n)));
+    else setLocal(String(Math.round(value * 1000) / 1000));
+  };
+
+  return (
+    <input
+      type="text"
+      className="w-16 px-1 py-1 bg-[#0c0e14] border-none rounded-sm text-[10px] font-mono text-right text-[#cccccc] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]/50"
+      value={local}
+      onChange={(e) => setLocal(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') { e.currentTarget.blur(); commit(); }
+      }}
+    />
+  );
+};
+
 const RAD_TO_DEG = 180 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180;
 
@@ -78,6 +112,9 @@ interface NodeInfo {
   scale: [number, number, number];
   materialName: string;
   materialType: string;
+  materialColor: string;
+  materialRoughness: number;
+  materialMetalness: number;
 }
 
 export const SubNodeInspector: React.FC = () => {
@@ -94,7 +131,7 @@ export const SubNodeInspector: React.FC = () => {
 
   const [nodeInfo, setNodeInfo] = useState<NodeInfo | null>(null);
 
-  // 从 GLTF 加载节点的初始 transform 信息
+  // 从 GLTF 加载节点的初始 transform 和材质信息
   useEffect(() => {
     if (!asset || !activeSubNodePath) {
       setNodeInfo(null);
@@ -125,6 +162,28 @@ export const SubNodeInspector: React.FC = () => {
         ];
         const sc: [number, number, number] = [node.scale.x, node.scale.y, node.scale.z];
 
+        // 提取材质信息
+        let materialName = '—';
+        let materialType = 'MeshStandardMaterial';
+        let materialColor = '#ffffff';
+        let materialRoughness = 1;
+        let materialMetalness = 0;
+
+        const meshNode = node as THREE.Mesh;
+        if (meshNode.isMesh && meshNode.material) {
+          const mat = Array.isArray(meshNode.material) ? meshNode.material[0] : meshNode.material;
+          if (mat) {
+            materialName = (mat as any).name || '(unnamed)';
+            materialType = mat.type;
+            const stdMat = mat as THREE.MeshStandardMaterial;
+            if (stdMat.color) {
+              materialColor = '#' + stdMat.color.getHexString();
+            }
+            if (typeof stdMat.roughness === 'number') materialRoughness = stdMat.roughness;
+            if (typeof stdMat.metalness === 'number') materialMetalness = stdMat.metalness;
+          }
+        }
+
         // 叠加 nodeOverrides（如果存在）
         const overrides = modelComp?.nodeOverrides?.[activeSubNodePath];
         if (overrides?.transform) {
@@ -145,19 +204,19 @@ export const SubNodeInspector: React.FC = () => {
           }
         }
 
-        // 提取材质信息
-        let materialName = '—';
-        let materialType = '—';
-        const meshNode = node as THREE.Mesh;
-        if (meshNode.isMesh && meshNode.material) {
-          const mat = Array.isArray(meshNode.material) ? meshNode.material[0] : meshNode.material;
-          if (mat) {
-            materialName = (mat as any).name || '(unnamed)';
-            materialType = mat.type;
-          }
+        // 叠加材质覆盖
+        if (overrides?.material?.props) {
+          const mp = overrides.material.props;
+          if (typeof mp.color === 'string') materialColor = mp.color;
+          if (typeof mp.roughness === 'number') materialRoughness = mp.roughness;
+          if (typeof mp.metalness === 'number') materialMetalness = mp.metalness;
         }
 
-        setNodeInfo({ position: pos, rotation: rot, scale: sc, materialName, materialType });
+        setNodeInfo({
+          position: pos, rotation: rot, scale: sc,
+          materialName, materialType,
+          materialColor, materialRoughness, materialMetalness,
+        });
       },
       undefined,
       (err) => {
@@ -204,6 +263,47 @@ export const SubNodeInspector: React.FC = () => {
     [activeId, activeSubNodePath, objects, updateComponent]
   );
 
+  const handleMaterialChange = useCallback(
+    (prop: 'color' | 'roughness' | 'metalness', value: string | number) => {
+      if (!activeId || !activeSubNodePath) return;
+
+      const existing = (objects[activeId]?.components as any)?.model ?? {};
+      const existingOverrides = existing.nodeOverrides ?? {};
+      const existingNodeOverride = existingOverrides[activeSubNodePath] ?? {};
+      const existingMatOverride = existingNodeOverride.material ?? {};
+      const existingProps = existingMatOverride.props ?? {};
+
+      const matType = existingMatOverride.type ?? 'MeshStandardMaterial';
+
+      updateComponent(activeId, 'model', {
+        ...existing,
+        nodeOverrides: {
+          ...existingOverrides,
+          [activeSubNodePath]: {
+            ...existingNodeOverride,
+            material: {
+              type: matType,
+              props: {
+                ...existingProps,
+                [prop]: value,
+              },
+            },
+          },
+        },
+      });
+
+      // 同步更新本地显示状态
+      setNodeInfo((prev) => {
+        if (!prev) return prev;
+        if (prop === 'color') return { ...prev, materialColor: value as string };
+        if (prop === 'roughness') return { ...prev, materialRoughness: value as number };
+        if (prop === 'metalness') return { ...prev, materialMetalness: value as number };
+        return prev;
+      });
+    },
+    [activeId, activeSubNodePath, objects, updateComponent]
+  );
+
   if (!nodeInfo || !activeSubNodePath) return null;
 
   // 从路径末段提取节点名
@@ -244,17 +344,47 @@ export const SubNodeInspector: React.FC = () => {
         </div>
       </div>
 
-      {/* 材质信息（只读） */}
+      {/* 材质 */}
       <div>
-        <h3 className="text-[11px] font-bold text-slate-300 mb-2">材质 (只读)</h3>
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] text-slate-500">名称</span>
-            <span className="text-[10px] text-slate-300 font-mono truncate max-w-[140px]">{nodeInfo.materialName}</span>
-          </div>
+        <h3 className="text-[11px] font-bold text-slate-300 mb-2">材质 (Material)</h3>
+        <div className="space-y-2">
+          {/* 类型（只读） */}
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-slate-500">类型</span>
-            <span className="text-[10px] text-slate-300 font-mono">{nodeInfo.materialType}</span>
+            <span className="text-[10px] text-slate-300 font-mono truncate max-w-[140px]">{nodeInfo.materialType}</span>
+          </div>
+
+          {/* 颜色 */}
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-slate-500">颜色</span>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="color"
+                aria-label="颜色"
+                value={nodeInfo.materialColor}
+                onChange={(e) => handleMaterialChange('color', e.target.value)}
+                className="w-7 h-5 rounded cursor-pointer border border-white/10 bg-transparent p-0"
+              />
+              <span className="text-[10px] font-mono text-slate-400">{nodeInfo.materialColor}</span>
+            </div>
+          </div>
+
+          {/* 粗糙度 */}
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-slate-500">粗糙度</span>
+            <MatPropInput
+              value={nodeInfo.materialRoughness}
+              onChange={(v) => handleMaterialChange('roughness', v)}
+            />
+          </div>
+
+          {/* 金属感 */}
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-slate-500">金属感</span>
+            <MatPropInput
+              value={nodeInfo.materialMetalness}
+              onChange={(v) => handleMaterialChange('metalness', v)}
+            />
           </div>
         </div>
       </div>
