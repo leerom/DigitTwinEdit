@@ -21,8 +21,10 @@ export function buildNodeTree(
     const isMesh = (child as THREE.Mesh).isMesh;
     const isGroup = child instanceof THREE.Group || child.type === 'Group';
     const isScene = child.type === 'Scene';
+    // GLTF 容器节点常为 Object3D 基类（type === 'Object3D'），须显式保留
+    const isObject3D = child.type === 'Object3D';
 
-    if (!isMesh && !isGroup && !isScene) continue;
+    if (!isMesh && !isGroup && !isScene && !isObject3D) continue;
 
     const path = parentPath ? `${parentPath}/${child.name}` : child.name;
     const nodeType: ModelNode['type'] = isMesh ? 'Mesh' : 'Group';

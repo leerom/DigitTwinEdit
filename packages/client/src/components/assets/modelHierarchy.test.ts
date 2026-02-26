@@ -17,7 +17,7 @@ describe('buildNodeTree', () => {
     expect(tree[0].path).toBe('Body');
   });
 
-  it('跳过非 Mesh/Group 节点', () => {
+  it('跳过非 Mesh/Group/Object3D 节点（灯光等）', () => {
     const root = new THREE.Group();
     root.name = 'Root';
     const light = new THREE.DirectionalLight();
@@ -26,6 +26,25 @@ describe('buildNodeTree', () => {
 
     const tree = buildNodeTree(root);
     expect(tree).toHaveLength(0);
+  });
+
+  it('保留 GLTF 常见的 Object3D 容器节点及其子网格', () => {
+    // 模拟 GLTF 加载后的典型结构：Scene > Object3D > Mesh
+    const root = new THREE.Object3D();
+    root.name = 'Scene';
+    const container = new THREE.Object3D();
+    container.name = 'RootNode';
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshBasicMaterial());
+    mesh.name = 'Body';
+    container.add(mesh);
+    root.add(container);
+
+    const tree = buildNodeTree(root);
+    expect(tree).toHaveLength(1);
+    expect(tree[0].name).toBe('RootNode');
+    expect(tree[0].children).toHaveLength(1);
+    expect(tree[0].children[0].name).toBe('Body');
+    expect(tree[0].children[0].path).toBe('RootNode/Body');
   });
 
   it('生成正确的嵌套路径', () => {
