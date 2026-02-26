@@ -67,9 +67,15 @@ function PreviewScene({ url, nodePath }: PreviewSceneProps) {
   const { camera, invalidate } = useThree();
   const controls = useThree((state) => state.controls);
 
-  // 克隆场景并独立材质（与 SceneRenderer 中的 ModelMesh 保持一致）
-  const clonedScene = useMemo(() => {
-    const cloned = gltfScene.clone(true);
+  // 根据 nodePath 决定显示哪个对象：整个模型或指定子节点。
+  // 每次都从 gltfScene 原始数据重新克隆，避免 <primitive> 将节点从父树中移除
+  // 导致后续 findNodeByPath 失效（Three.js add() 会把节点从原父级摘除）。
+  const displayObject = useMemo(() => {
+    const source = nodePath
+      ? (findNodeByPath(gltfScene, nodePath) ?? gltfScene)
+      : gltfScene;
+    const cloned = source.clone(true);
+    // 独立克隆材质，避免修改 useGLTF 缓存中的共享材质实例
     cloned.traverse((child) => {
       const mesh = child as THREE.Mesh;
       if (mesh.isMesh) {
@@ -81,14 +87,7 @@ function PreviewScene({ url, nodePath }: PreviewSceneProps) {
       }
     });
     return cloned;
-  }, [gltfScene]);
-
-  // 根据 nodePath 决定显示哪个节点（null = 整体）
-  const displayObject = useMemo(() => {
-    if (!nodePath) return clonedScene;
-    const found = findNodeByPath(clonedScene, nodePath);
-    return found ?? clonedScene;
-  }, [clonedScene, nodePath]);
+  }, [gltfScene, nodePath]);
 
   // 自动调整相机到包围球，确保模型完整入帧
   useEffect(() => {
@@ -105,9 +104,9 @@ function PreviewScene({ url, nodePath }: PreviewSceneProps) {
     // 用包围球半径计算安全距离，1.6x 留出呼吸空间
     const dist = (radius / Math.tan(fovRad / 2)) * 1.6;
 
-    // 斜上方 35° 视角，具有立体感
-    const elevAngle = Math.PI / 5.5; // ~33°
-    const azimAngle = Math.PI / 4;   // 45°
+    // 斜上方 ~33° 视角，具有立体感
+    const elevAngle = Math.PI / 5.5;
+    const azimAngle = Math.PI / 4;
     camera.position.set(
       center.x + dist * Math.cos(elevAngle) * Math.sin(azimAngle),
       center.y + dist * Math.sin(elevAngle),
@@ -126,10 +125,10 @@ function PreviewScene({ url, nodePath }: PreviewSceneProps) {
     invalidate();
   }, [displayObject, camera, controls, invalidate]);
 
-  // 卸载时释放克隆材质
+  // displayObject 变化或卸载时释放克隆材质
   useEffect(() => {
     return () => {
-      clonedScene.traverse((child) => {
+      displayObject.traverse((child) => {
         const mesh = child as THREE.Mesh;
         if (mesh.isMesh) {
           const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
@@ -137,7 +136,7 @@ function PreviewScene({ url, nodePath }: PreviewSceneProps) {
         }
       });
     };
-  }, [clonedScene]);
+  }, [displayObject]);
 
   return <primitive object={displayObject} />;
 }
