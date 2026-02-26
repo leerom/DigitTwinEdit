@@ -1,4 +1,4 @@
-﻿# CLAUDE.md
+# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -21,7 +21,7 @@ digittwinedit/
 **前端（client）**:
 - 框架: Vite + React + TypeScript (ESM)
 - 3D 渲染: @react-three/fiber + Three.js
-- 状态管理: Zustand
+- 状态管理: Zustand（sceneStore 使用 immer 中间件）
 - 路由: React Router DOM v6
 - HTTP 客户端: Axios + React Query
 - 测试: Vitest（单元/组件）+ Playwright（E2E）
@@ -47,79 +47,43 @@ pnpm install
 
 ### 本地开发
 
-#### 仅启动前端（默认）
 ```bash
-pnpm dev
-# 或
-pnpm --filter client dev
-```
-访问: http://localhost:5173
-
-#### 仅启动后端
-```bash
-pnpm dev:server
-# 或
-pnpm --filter server dev
-```
-服务端口: http://localhost:3001
-
-#### 同时启动前端 + 后端
-```bash
-pnpm dev:all
+pnpm dev             # 仅启动前端（http://localhost:5173）
+pnpm dev:server      # 仅启动后端（http://localhost:3001）
+pnpm dev:all         # 并行启动前端 + 后端
 ```
 
 ### 生产构建
 
 ```bash
-pnpm build
-```
-构建顺序: shared → server → client
-
-### 预览构建产物
-
-```bash
-pnpm preview
+pnpm build           # 构建顺序: shared → server → client
+pnpm preview         # 预览构建产物
 ```
 
 ### 运行测试
 
-#### 前端单元测试（Vitest）
 ```bash
-pnpm test
-# 或
-pnpm --filter client test
-```
+# 前端单元测试（Vitest）
+pnpm test                                         # 所有包
+pnpm --filter client test                         # 仅前端
+pnpm --filter client test -- --run src/stores/sceneStore.test.ts  # 单个文件
+pnpm --filter client test -- --run -t "描述文字"  # 匹配测试名称
+pnpm test:ui                                      # Vitest UI 模式
+pnpm coverage                                     # 覆盖率报告
 
-- UI 模式：
-```bash
-pnpm test:ui
-```
-
-- 覆盖率：
-```bash
-pnpm coverage
-```
-
-#### 后端测试（Jest）
-```bash
+# 后端测试（Jest）
 pnpm --filter server test
-```
+pnpm --filter server test:watch
+pnpm --filter server test:coverage
 
-#### E2E 测试（Playwright）
-```bash
+# E2E 测试（Playwright）
 pnpm --filter client test:e2e
-# 或
-npx playwright test
-```
-
-UI 模式：
-```bash
-npx playwright test --ui
+npx playwright test --ui                          # UI 模式
 ```
 
 > **测试配置**:
-> - Vitest 配置: `packages/client/vite.config.ts:14`（使用 jsdom）
-> - Playwright 配置: `packages/client/playwright.config.ts:4`
+> - Vitest 配置: `packages/client/vite.config.ts:14`（使用 jsdom，排除 `tests/e2e/**`）
+> - Playwright 配置: `packages/client/playwright.config.ts`
 > - E2E 测试目录: `packages/client/tests/e2e`
 
 ---
@@ -128,27 +92,12 @@ npx playwright test --ui
 
 ### PostgreSQL 准备
 
-1. **安装 PostgreSQL**（版本 ≥ 13）
-
-2. **创建数据库**
 ```bash
 createdb digittwinedit
-```
-
-3. **运行初始化脚本**
-```bash
 psql digittwinedit < packages/server/migrations/001_initial.sql
 ```
 
-4. **配置环境变量**
-
-复制 `.env.example` 并根据实际配置修改：
-```bash
-cd packages/server
-cp .env.example .env
-```
-
-编辑 `packages/server/.env`:
+环境变量（`packages/server/.env`）：
 ```env
 DATABASE_URL=postgresql://username:password@localhost:5432/digittwinedit
 SESSION_SECRET=your-random-secret-key
@@ -160,326 +109,172 @@ UPLOADS_DIR=./uploads
 
 ### 数据库表结构
 
-主要表:
 - **users**: 用户表（username, password_hash, email）
 - **projects**: 项目表（name, description, owner_id, thumbnail）
 - **scenes**: 场景表（project_id, name, data[JSONB], is_active）
 - **session**: Session 存储表（sid, sess, expire）
-
----
-
-## 完整启动流程（含后端）
-
-### 1️⃣ 首次设置
-
-```bash
-# 1. 安装依赖
-pnpm install
-
-# 2. 配置数据库（参考上面"数据库配置"章节）
-createdb digittwinedit
-psql digittwinedit < packages/server/migrations/001_initial.sql
-
-# 3. 配置后端环境变量
-cd packages/server
-cp .env.example .env
-# 编辑 .env 文件配置数据库连接
-```
-
-### 2️⃣ 启动服务
-
-#### 开发模式（推荐）
-在项目根目录打开两个终端：
-
-**终端 1 - 启动后端:**
-```bash
-pnpm dev:server
-```
-✅ 后端运行在: http://localhost:3001
-
-**终端 2 - 启动前端:**
-```bash
-pnpm dev
-```
-✅ 前端运行在: http://localhost:5173
-
-#### 或者使用并行启动（单终端）
-```bash
-pnpm dev:all
-```
-
-### 3️⃣ 访问应用
-
-打开浏览器访问: http://localhost:5173
-
-- 首次访问会自动跳转到 `/login` 登录页
-- 可以注册新用户或使用测试账户登录
-- 登录成功后进入三维编辑器界面
+- 迁移脚本: `packages/server/migrations/`
 
 ---
 
 ## API 端点
 
-后端服务提供以下 REST API（基础路径: `/api`）:
+基础路径: `/api`
 
-### 认证相关
 ```
-POST   /api/auth/register     # 用户注册
-POST   /api/auth/login        # 用户登录
-POST   /api/auth/logout       # 登出
-GET    /api/auth/me           # 获取当前用户信息
-```
-
-### 项目管理
-```
-GET    /api/projects          # 获取当前用户的项目列表
-POST   /api/projects          # 创建新项目
-GET    /api/projects/:id      # 获取项目详情
-PUT    /api/projects/:id      # 更新项目信息
-DELETE /api/projects/:id      # 删除项目
-```
-
-### 场景管理
-```
-GET    /api/projects/:projectId/scenes              # 获取项目的所有场景
-POST   /api/projects/:projectId/scenes              # 创建新场景
-GET    /api/projects/:projectId/scenes/:id          # 获取场景详情
-PUT    /api/projects/:projectId/scenes/:id          # 更新场景数据（自动保存）
-DELETE /api/projects/:projectId/scenes/:id          # 删除场景
-PUT    /api/projects/:projectId/scenes/:id/activate # 设置为活动场景
-```
-
-### 资产管理
-```
-GET    /api/assets            # 获取资产列表
-POST   /api/assets/upload     # 上传资产文件
-DELETE /api/assets/:id         # 删除资产
-```
-
-### 材质管理
-```
-GET    /api/materials         # 获取材质列表
-POST   /api/materials         # 创建材质
-PUT    /api/materials/:id     # 更新材质
-DELETE /api/materials/:id     # 删除材质
+POST/GET/PUT/DELETE  /api/auth/{register|login|logout|me}
+GET/POST/PUT/DELETE  /api/projects/:id
+GET/POST/PUT/DELETE  /api/projects/:projectId/scenes/:id
+PUT                  /api/projects/:projectId/scenes/:id/activate
+GET/POST/DELETE      /api/assets/:id
+GET/POST/PUT/DELETE  /api/materials/:id
 ```
 
 ---
 
-
-## 代码结构与运行时架构（高层视图）
+## 代码结构与运行时架构
 
 ### 包结构说明
 
-#### packages/client/ (前端)
-- **入口文件**: `packages/client/src/main.tsx` → 渲染 `App`
-- **路径别名**: `@/*` → `packages/client/src/*`
-- **路由结构**:
-  - `/login` - 登录页面（`src/features/auth/LoginPage.tsx`）
-  - `/editor/:projectId` - 编辑器页面（受保护路由）
-  - `/` - 重定向到登录页
-
-#### packages/server/ (后端)
-- **入口文件**: `packages/server/src/app.ts`
-- **目录结构**:
-  - `config/` - 数据库配置
-  - `middleware/` - Express 中间件（认证、错误处理、文件上传）
-  - `routes/` - API 路由定义
-  - `services/` - 业务逻辑层
-  - `models/` - 数据模型
-  - `utils/` - 工具函数
-
-#### packages/shared/ (共享)
-- **类型定义**: 前后端共享的 TypeScript 类型
-- **工具函数**: 通用工具函数
+- **入口文件**: `packages/client/src/main.tsx` → `App.tsx`
+- **路径别名**: `@/*` → `packages/client/src/*`（`tsconfig.json:24` + `vite.config.ts:9`）
+- **路由**: `/login`（LoginPage）、`/editor/:projectId`（EditorPage，受保护）、`/`（重定向）
 
 ---
 
 ### 前端应用架构
 
-#### 应用入口与整体布局
+#### 整体布局
 
-- React 入口：`packages/client/src/main.tsx` → 渲染 `App`
-- 路由配置：`packages/client/src/App.tsx`
-  - 登录页（`LoginPage`）
-  - 编辑器页（`EditorPage` - 受保护路由）
 - 组合式编辑器布局：`packages/client/src/features/editor/EditorPage.tsx`
-  - `MainLayout` 管理整体区域（顶部/左侧层级/中间 SceneView/右侧 Inspector/底部 Project）：`packages/client/src/components/layout/MainLayout.tsx:13`
+- `MainLayout` 管理整体区域（顶部/左侧层级/中间 SceneView/右侧 Inspector/底部 Project）：`packages/client/src/components/layout/MainLayout.tsx:13`
 
 #### Scene View（3D 视口）
 
-- 视口组件：`packages/client/src/components/viewport/SceneView.tsx:23`
-  - 基于 `@react-three/fiber` 的 `<Canvas>`；场景内容由 `SceneRenderer` 提供：`packages/client/src/features/scene/SceneRenderer.tsx`
-  - 叠加层 UI：`ViewportOverlay`（右上角渲染模式/工具栏等）：`packages/client/src/components/viewport/ViewportOverlay.tsx`
-  - 右下角视图 Gizmo：`ViewGizmo`：`packages/client/src/components/viewport/ViewGizmo.tsx`
-  - 相机系统（轨道/Fly 等导航）：`CameraSystem`：`packages/client/src/features/editor/navigation/CameraSystem.tsx`
-  - 工具 Gizmo 入口：`ActiveToolGizmo`：`packages/client/src/features/editor/tools/ActiveToolGizmo.tsx`
+- 视口入口：`packages/client/src/components/viewport/SceneView.tsx:23`
+  - 基于 `@react-three/fiber` 的 `<Canvas>`；场景内容：`packages/client/src/features/scene/SceneRenderer.tsx`
+  - 叠加层 UI（渲染模式/工具栏）：`packages/client/src/components/viewport/ViewportOverlay.tsx`
+  - 相机系统（轨道/Fly 导航）：`packages/client/src/features/editor/navigation/CameraSystem.tsx`
+  - 工具 Gizmo：`packages/client/src/features/editor/tools/ActiveToolGizmo.tsx`
+  - 视图 Gizmo：`packages/client/src/components/viewport/ViewGizmo.tsx`
+
+#### SceneRenderer 渲染架构
+
+`SceneRenderer.tsx` 中 `ObjectRenderer` 组件负责每个场景对象的渲染，区分两类 Mesh：
+
+- **基础几何体**（box/sphere/plane 等）：`object.components.mesh.geometry` 存储类型，通过 `materialRef.current`（`THREE.Material`）渲染，wireframe 由 `resolveWireframeOverride(renderMode, materialSpec)` 驱动
+- **GLTF/GLB 模型**：`object.components.model.assetId` 存储资产 ID，通过 `ModelMesh` 组件 + `useGLTF` 加载，cloneScene 后材质独立管理；renderMode 变化时通过 `useEffect` 遍历所有子网格材质设置 wireframe
+
+`RenderMode = 'shaded' | 'wireframe' | 'hybrid'` 存储在 `editorStore.renderMode`，`hybrid` 模式额外渲染 `<lineSegments>` 边线。
 
 #### 状态管理（Zustand）
 
-本项目核心状态集中在四个 store：
+| Store | 位置 | 核心职责 |
+|-------|------|---------|
+| `useSceneStore` | `stores/sceneStore.ts` | 场景数据模型（对象树、isDirty、导入进度）；**使用 immer 中间件**，actions 内可直接 mutate state |
+| `useEditorStore` | `stores/editorStore.ts:63` | 交互状态（activeTool、selectedIds、renderMode、navigationMode） |
+| `useHistoryStore` | `stores/historyStore.ts` | 命令模式撤销/重做；`execute(cmd)` 入栈，支持 `cmd.merge()` 合并连续操作 |
+| `useProjectStore` | `stores/projectStore.ts` | 项目/场景列表、currentScene、autoSaveScene() |
+| `useAuthStore` | `stores/authStore.ts` | 认证状态（user、isAuthenticated、login/logout/checkAuth） |
+| `useAssetStore` | `stores/assetStore.ts` | 资产列表缓存，供 Inspector 和 SceneRenderer 查找 assetId/updated_at |
+| `useLayoutStore` | `stores/layoutStore.ts` | 面板可见性/尺寸（sidebarLeft/Right/bottomPanel）；仅支持 dark 主题 |
 
-- `useAuthStore`：认证状态
-  - `packages/client/src/stores/authStore.ts`
-  - 关键字段：`user`、`isAuthenticated`、`login()`、`logout()`、`checkAuth()`
+#### 场景数据模型（SceneObject）
 
-- `useProjectStore`：项目与场景管理
-  - `packages/client/src/stores/projectStore.ts`
-  - 关键字段：`currentProject`、`projects`、`currentScene`、`scenes`、`autoSaveScene()`
+```typescript
+// packages/client/src/types/index.ts
+interface SceneObject {
+  id: string; name: string; type: ObjectType;  // GROUP/MESH/LIGHT/CAMERA/TWIN
+  parentId: string | null; children: string[];
+  visible: boolean; locked: boolean;
+  transform: { position, rotation, scale }; // Vector3 = [number,number,number]
+  components?: {
+    mesh?: {
+      geometry?: 'box'|'sphere'|'plane'|'cylinder'|'torus'|'capsule'; // 基础几何体
+      model?: { assetId: number; path?: string };  // GLTF/GLB 模型
+      material?: MaterialSpec;  // Inspector 材质覆盖
+    };
+    light?: { color, intensity, type };
+    camera?: { fov, near, far, orthographic };
+    twin?: { externalId, dataSource, status };
+  };
+}
+```
 
-- `useSceneStore`：场景数据模型 + 导入/dirty 状态
-  - `packages/client/src/stores/sceneStore.ts:125`
-  - 保存 `scene.objects`（树形层级）、`isDirty`、导入进度等
-
-- `useEditorStore`：编辑器交互状态（工具/导航/选中/视图模式）
-  - `packages/client/src/stores/editorStore.ts:63`
-  - 关键字段：`activeTool`、`selectedIds`、`navigationMode`、`viewMode`
-
-- `useHistoryStore`：撤销/重做（命令模式）
-  - `packages/client/src/stores/historyStore.ts:15`
-  - `execute(cmd)` 会调用 `cmd.execute()` 并入栈；支持 `merge()` 以合并连续操作（如拖拽更新）
-
-#### 认证与路由守卫
-
-- 受保护路由组件：`packages/client/src/components/ProtectedRoute.tsx`
-  - 检查认证状态，未认证时重定向到登录页
-- 自动保存机制：`packages/client/src/features/scene/hooks/useAutoSave.ts`
-  - 监听场景变化，1秒防抖后调用 API 保存
-
+`Scene.objects` 是以 id 为 key 的扁平字典，通过 `parentId/children` 维护树形层级，根节点固定为 `'root'`。
 
 #### 命令系统（Undo/Redo）
 
-- 命令接口：`packages/client/src/features/editor/commands/Command.ts`
-- 示例命令：`packages/client/src/features/editor/commands/DeleteObjectsCommand.ts`
+实现 `Command` 接口（`features/editor/commands/Command.ts`）：
+```typescript
+interface Command {
+  name: string;
+  execute: () => void;
+  undo: () => void;
+  merge?: (next: Command) => boolean;  // 用于合并连续操作（如拖拽）
+}
+```
+调用 `useHistoryStore.getState().execute(cmd)` 执行并入栈。
 
-#### 交互系统（选择/拖拽/投放）
+#### 键盘快捷键系统
 
-- 框选：`packages/client/src/features/interaction/BoxSelector.tsx`
-- 选中状态同步与逻辑：`packages/client/src/features/interaction/SelectionManager.tsx`
-- 拖放：`packages/client/src/features/interaction/DropManager.ts`
+- 注册表：`packages/client/src/features/editor/shortcuts/shortcutRegistry.ts`
+- 快捷键格式：`'Ctrl+KeyZ'`、`'Delete'`、`'KeyW'` 等，值为 `{ action, params, priority, requiresSelection? }`
+- 内置快捷键：Q/W/E/R/Y（工具切换）、F（聚焦对象）、F2（重命名）、Delete（删除确认）、Ctrl+D（复制）、Ctrl+Z/Y（撤销/重做）
+- 执行器：`packages/client/src/features/editor/shortcuts/executeShortcut.ts`
 
-#### 场景导入/导出 与资源加载
+#### FBX 导入管线
 
-- 场景管理与保存：`packages/client/src/features/scene/services/SceneManager.ts:12`（保存为 JSON 并下载）
-- 场景加载/格式转换：
-  - `packages/client/src/features/scene/services/SceneLoader.ts`
-  - `packages/client/src/features/scene/services/SceneFormatConverter.ts`
-- 模型加载：`packages/client/src/features/scene/services/ModelLoader.ts`
-- 资产加载：`packages/client/src/features/assets/AssetLoader.ts`
+位置：`packages/client/src/features/fbx/`
 
-#### Inspector（属性面板）
+流程：FBXImportDialog（UI）→ FBXImporter（协调器）→ fbxWorker（Web Worker，FBX→GLB 转换）→ assetsApi.upload（上传 FBX+GLB）→ sceneStore.addAssetToScene（加入场景）
 
-- Inspector 面板：`packages/client/src/components/panels/InspectorPanel.tsx`
-- 常见属性组件：
-  - Transform：`packages/client/src/components/inspector/TransformProp.tsx`
-  - Light：`packages/client/src/components/inspector/specific/LightProp.tsx`
-  - Camera：`packages/client/src/components/inspector/specific/CameraProp.tsx`
-  - Twin 数据：`packages/client/src/components/inspector/TwinDataProp.tsx`
+- Worker 超时：60 秒；文件大小限制：500MB
+- 导入配置：`FBXImportSettings`（scale/convertUnits/normals/saveFormat/embedTextures）
+- 进度通过 `sceneStore.importProgress` 广播，`ImportProgress.percentage` 0–100
+
+#### 材质系统
+
+- `MaterialSpec.type`：`MeshStandardMaterial`（默认）| `MeshBasicMaterial` | `MeshLambertMaterial` | `MeshPhongMaterial` | `MeshPhysicalMaterial`
+- 工厂函数：`packages/client/src/features/materials/materialFactory.ts` → `createThreeMaterial(spec)`
+- Inspector 修改材质通过 `UpdateMaterialPropsCommand` / `ChangeMaterialTypeCommand` 走命令系统
+
+#### 自动保存机制
+
+`packages/client/src/features/scene/hooks/useAutoSave.ts` 监听 `sceneStore.isDirty`，1秒防抖后调用 API 保存到服务器。
 
 ---
 
 ### 后端应用架构
 
-#### 认证系统
-- Session 存储：PostgreSQL（connect-pg-simple）
-- 密码加密：bcryptjs（10轮 salt）
-- 认证中间件：`packages/server/src/middleware/auth.ts`
-  - `requireAuth` - 验证用户登录状态
-  - 自动注入 `req.user`
-
-#### 数据模型层
-- User 模型：`packages/server/src/models/User.ts`
-- Project 模型：`packages/server/src/models/Project.ts`
-- Scene 模型：`packages/server/src/models/Scene.ts`
-- Asset 模型：`packages/server/src/models/Asset.ts`
-
-#### 服务层（业务逻辑）
-- `authService.ts` - 用户注册、登录验证
-- `projectService.ts` - 项目 CRUD 操作
-- `sceneService.ts` - 场景管理、自动保存
-- `assetService.ts` - 文件上传、资产管理
-- `materialService.ts` - 材质管理
-
-#### 数据迁移
-- 迁移脚本目录：`packages/server/migrations/`
-- `001_initial.sql` - 创建基础表结构
-- `002_create_assets_table.sql` - 资产表
+- 入口：`packages/server/src/app.ts`
+- 认证中间件：`middleware/auth.ts` → `requireAuth`（自动注入 `req.user`）
+- 分层：`routes/` → `services/`（业务逻辑）→ `models/`（DB 查询）
 
 ---
 
-## 需求文档位置（实现功能时的对照来源）
+## 需求与规划文档
 
-原始需求在 `rawRequirements/`（见 `rawRequirements/README.md`）：
-- `rawRequirements/SceneView功能需求.md`
-- `rawRequirements/三维场景编辑器功能需求.md`
-- `rawRequirements/场景编辑器(Scene View)操作指南.md`
-- `rawRequirements/UI_Sample/code.html`
-
-实施计划文档：
-- `docs/plans/2026-01-31-backend-auth-system.md` - 后端认证系统实施计划
+- 原始需求：`rawRequirements/`（SceneView功能需求.md、三维场景编辑器功能需求.md 等）
+- 实施计划 & 变更记录：`docs/plans/`（按日期命名）
 
 ---
 
 ## 已知环境/配置备注
 
-- **TS 路径别名**: `@/*` → `packages/client/src/*`
-  - 配置位置：`packages/client/tsconfig.json:24`
-  - Vite 同步别名：`packages/client/vite.config.ts:9`
-- **Vitest 排除 e2e**: `packages/client/vite.config.ts:19`（`tests/e2e/**`）
-- **环境变量**:
-  - 前端：`packages/client/.env.development` - API 地址配置
-  - 后端：`packages/server/.env` - 数据库连接、Session 密钥
+- **TS 路径别名** `@/*` 仅在 `packages/client` 生效；IDE 可能报路径未解析错误，不影响 Vite 运行时
+- **环境变量**：前端 `packages/client/.env.development`（API 地址），后端 `packages/server/.env`（DB/Session）
+- **后端** 使用 `tsx watch`（开发）/ `node dist/app.js`（生产）
 
 ---
 
 ## 快速故障排查
 
-### 前端无法启动
-```bash
-# 检查依赖是否安装
-pnpm install
-
-# 检查端口占用
-netstat -ano | findstr :5173  # Windows
-lsof -i :5173                 # Mac/Linux
-```
-
-### 后端无法启动
-```bash
-# 检查数据库连接
-psql -d digittwinedit -c "SELECT 1"
-
-# 检查环境变量
-cat packages/server/.env
-
-# 查看后端日志
-pnpm --filter server dev
-```
-
 ### 登录失败
-1. 检查后端是否运行（http://localhost:3001/health 应返回 `{"status":"ok"}`）
-2. 检查浏览器控制台是否有 CORS 错误
-3. 检查 PostgreSQL 是否运行
-4. 检查 session 表是否存在：`psql digittwinedit -c "\dt session"`
+1. 确认后端运行：`GET http://localhost:3001/health` → `{"status":"ok"}`
+2. 检查浏览器控制台 CORS 错误
+3. 检查 session 表：`psql digittwinedit -c "\dt session"`
 
 ### 场景保存失败
-1. 检查用户是否已登录（`/api/auth/me` 返回用户信息）
-2. 检查项目是否属于当前用户
-3. 检查场景数据大小（建议 < 10MB）
-
----
-
-## 相关文档链接
-
-- [原始需求文档索引](./rawRequirements/README.md)
-- [后端认证系统实施计划](./docs/plans/2026-01-31-backend-auth-system.md)
-
----
-
-## 开发注意事项
-
-1. **数据库优先**：启动前端前务必确保 PostgreSQL 已运行并初始化
-2. **Session 管理**：生产环境务必修改 `SESSION_SECRET` 为随机密钥
-3. **CORS 配置**：前后端跨域访问已配置，确保环境变量正确
-4. **自动保存**：场景变更会在 1 秒后自动保存到服务器
-5. **Monorepo 构建**：使用 `pnpm build` 会按依赖顺序构建所有包
+1. 确认用户已登录（`/api/auth/me` 有返回）
+2. 场景数据建议 < 10MB
