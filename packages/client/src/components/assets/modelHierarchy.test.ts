@@ -76,4 +76,35 @@ describe('findNodeByPath', () => {
     const root = new THREE.Group();
     expect(findNodeByPath(root, 'Missing')).toBeNull();
   });
+
+  it('透传空名称中间层节点，找到其子节点', () => {
+    // 模拟 GLTF 常见结构：gltf.scene → '' (unnamed) → Cube006
+    // buildNodeTree 对 '' 节点的子节点直接以其自身名称为路径（跳过空名父层）
+    const root = new THREE.Group();
+    const unnamed = new THREE.Object3D();
+    unnamed.name = '';  // 空名节点
+    const cube = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshBasicMaterial());
+    cube.name = 'Cube006';
+    unnamed.add(cube);
+    root.add(unnamed);
+
+    // 路径 'Cube006' 应能穿透空名父节点找到 cube
+    const found = findNodeByPath(root, 'Cube006');
+    expect(found).toBe(cube);
+  });
+
+  it('深层空名节点透传', () => {
+    const root = new THREE.Group();
+    const unnamed = new THREE.Object3D();
+    unnamed.name = '';
+    const group = new THREE.Group();
+    group.name = 'Body';
+    const wheel = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshBasicMaterial());
+    wheel.name = 'Wheel';
+    group.add(wheel);
+    unnamed.add(group);
+    root.add(unnamed);
+
+    expect(findNodeByPath(root, 'Body/Wheel')).toBe(wheel);
+  });
 });

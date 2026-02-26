@@ -44,19 +44,34 @@ export function buildNodeTree(
 /**
  * 按路径从 Object3D 树中找到目标节点。
  * 路径格式："Root/Body/Wheel_L"
+ *
+ * 注意：buildNodeTree 对 name='' 的中间层节点（falsy parentPath）会跳过其在路径中
+ * 的层级，导致其子节点路径直接用自身名称。这里同步处理：搜索时对 name='' 的节点
+ * 做透传，继续在其 children 中搜索，与路径构建策略保持一致。
  */
 export function findNodeByPath(
   root: THREE.Object3D,
   path: string
 ): THREE.Object3D | null {
-  const parts = path.split('/');
-  let current: THREE.Object3D = root;
+  const parts = path.split('/').filter((p) => p !== '');
+  if (parts.length === 0) return root;
 
-  for (const part of parts) {
-    const found = current.children.find((c) => c.name === part);
-    if (!found) return null;
-    current = found;
+  function search(node: THREE.Object3D, remaining: string[]): THREE.Object3D | null {
+    if (remaining.length === 0) return node;
+    const [target, ...rest] = remaining;
+
+    for (const child of node.children) {
+      if (child.name === target) {
+        return search(child, rest);
+      }
+      // name='' 的节点在路径构建时被"透明化"，搜索时同样跳过向其子树继续查找
+      if (!child.name) {
+        const found = search(child, remaining);
+        if (found) return found;
+      }
+    }
+    return null;
   }
 
-  return current;
+  return search(root, parts);
 }
