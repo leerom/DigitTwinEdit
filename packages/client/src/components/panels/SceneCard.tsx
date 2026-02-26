@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { clsx } from 'clsx';
-import type { Scene } from '@digittwinedit/shared';
 import { ContextMenu, type ContextMenuItem } from '../common/ContextMenu';
 
 interface SceneCardProps {
-  scene: Scene;
+  scene: { name: string; is_active: boolean };
   selected?: boolean;
   onSelect?: () => void;
   onNew?: () => void;

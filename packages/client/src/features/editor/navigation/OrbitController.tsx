@@ -1,10 +1,9 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, type ElementRef } from 'react';
 import { OrbitControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
-import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
 export const OrbitController: React.FC<{ enabled: boolean }> = ({ enabled }) => {
-  const ref = useRef<OrbitControlsImpl>(null);
+  const ref = useRef<ElementRef<typeof OrbitControls>>(null);
   const { camera } = useThree();
 
   useEffect(() => {
