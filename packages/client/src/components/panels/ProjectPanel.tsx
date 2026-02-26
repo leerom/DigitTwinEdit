@@ -5,6 +5,7 @@ import { useProjectStore } from '../../stores/projectStore.js';
 import { useSceneStore } from '../../stores/sceneStore.js';
 import { useEditorStore } from '../../stores/editorStore.js';
 import { AssetCard } from '../assets/AssetCard.js';
+import { ModelHierarchyExpander } from '../assets/ModelHierarchyExpander.js';
 import { SceneCard } from './SceneCard.js';
 import { UploadProgressList } from '../assets/UploadProgress.js';
 import { ContextMenu, type ContextMenuItem } from '../common/ContextMenu.js';
@@ -443,19 +444,26 @@ export const ProjectPanel: React.FC = () => {
                   ) : (
                     <div className="grid grid-cols-10 gap-4 content-start">
                       {displayAssets.map((asset) => (
-                        <AssetCard
-                          key={asset.id}
-                          asset={asset}
-                          selected={selectedAssetId === asset.id}
-                          onSelect={() => {
-                            selectAsset(asset.id);
-                            clearSelection();
-                          }}
-                          onOpen={() => handleAssetOpen(asset.id)}
-                          onRename={(name) => handleAssetRename(asset.id, name)}
-                          onDelete={() => handleDeleteAsset(asset.id)}
-                          onDragStart={(e) => handleAssetDragStart(e, asset.id)}
-                        />
+                        <div key={asset.id} className="relative">
+                          <AssetCard
+                            asset={asset}
+                            selected={selectedAssetId === asset.id}
+                            onSelect={() => {
+                              selectAsset(asset.id);
+                              clearSelection();
+                            }}
+                            onOpen={() => handleAssetOpen(asset.id)}
+                            onRename={(name) => handleAssetRename(asset.id, name)}
+                            onDelete={() => handleDeleteAsset(asset.id)}
+                            onDragStart={(e) => handleAssetDragStart(e, asset.id)}
+                          />
+                          {/* 仅 model 类型显示层级展开按钮 */}
+                          {asset.type === 'model' && selectedFolder === 'models' && (
+                            <div className="absolute top-0 right-0 z-10">
+                              <ModelHierarchyExpander asset={asset} />
+                            </div>
+                          )}
+                        </div>
                       ))}
                     </div>
                   )
