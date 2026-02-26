@@ -19,6 +19,8 @@ interface EditorState {
   // Selection
   selectedIds: string[];
   activeId: string | null;
+  activeSubNodePath: string | null;
+  setActiveSubNodePath: (path: string | null) => void;
 
   // View
   camera: CameraState;
@@ -69,6 +71,7 @@ export const useEditorStore = create<EditorState>()(
       activeGizmo: null,
       selectedIds: [],
       activeId: null,
+      activeSubNodePath: null,
       camera: {
         position: [10, 10, 10],
         target: [0, 0, 0],
@@ -109,6 +112,8 @@ export const useEditorStore = create<EditorState>()(
 
       setDeleteConfirmation: (visible) => set({ showDeleteConfirmation: visible }),
 
+      setActiveSubNodePath: (path) => set({ activeSubNodePath: path }),
+
       select: (ids, append = false) =>
         set((state) => {
           const newSelection = append
@@ -117,7 +122,8 @@ export const useEditorStore = create<EditorState>()(
 
           return {
             selectedIds: newSelection,
-            activeId: newSelection.length > 0 ? newSelection[newSelection.length - 1] : null
+            activeId: newSelection.length > 0 ? newSelection[newSelection.length - 1] : null,
+            activeSubNodePath: null,  // 切换对象时清除子节点选中
           };
         }),
 
@@ -131,7 +137,7 @@ export const useEditorStore = create<EditorState>()(
         }),
 
       clearSelection: () =>
-        set({ selectedIds: [], activeId: null }),
+        set({ selectedIds: [], activeId: null, activeSubNodePath: null }),
 
       setCamera: (cameraUpdate) =>
         set((state) => ({

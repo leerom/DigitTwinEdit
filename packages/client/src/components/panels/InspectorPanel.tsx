@@ -10,12 +10,13 @@ import { CameraProp } from '../inspector/specific/CameraProp';
 import { LightProp } from '../inspector/specific/LightProp';
 import { ModelImportProp } from '../inspector/ModelImportProp';
 import { ModelPreview } from '../inspector/ModelPreview';
+import { SubNodeInspector } from '../inspector/SubNodeInspector';
 
 export const InspectorPanel: React.FC = () => {
   const activeId = useEditorStore((state) => state.activeId);
   const selectedIds = useEditorStore((state) => state.selectedIds);
+  const activeSubNodePath = useEditorStore((state) => state.activeSubNodePath);
   const objects = useSceneStore((state) => state.scene.objects);
-  const updateComponent = useSceneStore((state) => state.updateComponent);
   const updateObject = useSceneStore((state) => state.updateObject);
   const selectedAssetId = useAssetStore((state) => state.selectedAssetId);
   const selectedNodePath = useAssetStore((state) => state.selectedNodePath);
@@ -94,6 +95,12 @@ export const InspectorPanel: React.FC = () => {
   // Check if selected object is main camera
   const isMainCamera = !!(activeId && objects[activeId]?.type === ObjectType.CAMERA && objects[activeId]?.name === 'Main Camera');
 
+  // 子节点选中状态：活跃对象是 MESH 且有 model + activeSubNodePath
+  const hasSubNodeSelected = !isMultiSelect
+    && !!activeSubNodePath
+    && object.type === ObjectType.MESH
+    && !!((object.components as any)?.model?.assetId);
+
   return (
     <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
       {/* Panel Header */}
@@ -132,15 +139,19 @@ export const InspectorPanel: React.FC = () => {
 
         {/* Components */}
         <div className="p-4 space-y-6">
-          {/* Transform Component */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[11px] font-bold text-slate-300">几何变换 (Transform)</h3>
+          {/* Transform Component / SubNodeInspector */}
+          {hasSubNodeSelected ? (
+            <SubNodeInspector />
+          ) : (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-[11px] font-bold text-slate-300">几何变换 (Transform)</h3>
+              </div>
+              <div className="space-y-4">
+                <TransformProp objectIds={selectedIds} scaleReadOnly={isMainCamera} />
+              </div>
             </div>
-            <div className="space-y-4">
-              <TransformProp objectIds={selectedIds} scaleReadOnly={isMainCamera} />
-            </div>
-          </div>
+          )}
 
           {/* Camera Component */}
           {isAllCameras && (

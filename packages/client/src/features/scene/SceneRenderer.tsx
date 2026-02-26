@@ -8,6 +8,7 @@ import { useHelper, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { assetsApi } from '@/api/assets';
 import { createThreeMaterial } from '@/features/materials/materialFactory';
+import { findNodeByPath } from '@/components/assets/modelHierarchy';
 
 const DEFAULT_BOX_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
 
@@ -30,7 +31,14 @@ class ModelErrorBoundary extends React.Component<
 // materialSpec：Inspector 中设置的材质覆盖（颜色、粗糙度等），应用到所有子网格
 // assetUpdatedAt：资产的 updated_at 时间戳，作为 URL cache-buster，
 //   确保重新导入后 useGLTF 能识别 URL 变化并重新加载新 GLB
-const ModelMesh: React.FC<{ assetId: number; assetUpdatedAt: string | undefined; materialSpec: MaterialSpec | null; renderMode: string }> = React.memo(({ assetId, assetUpdatedAt, materialSpec, renderMode }) => {
+const ModelMesh: React.FC<{
+  assetId: number;
+  assetUpdatedAt: string | undefined;
+  materialSpec: MaterialSpec | null;
+  renderMode: string;
+  activeSubNodePath: string | null;
+  nodeOverrides: Record<string, any> | null;
+}> = React.memo(({ assetId, assetUpdatedAt, materialSpec, renderMode, activeSubNodePath, nodeOverrides }) => {
   const baseUrl = assetsApi.getAssetDownloadUrl(assetId);
   // 将 updated_at 时间戳附加到 URL 作为版本标记；
   // useGLTF 按 URL 缓存，URL 变化即触发重新加载，消除重新导入后的缓存问题
@@ -42,6 +50,7 @@ const ModelMesh: React.FC<{ assetId: number; assetUpdatedAt: string | undefined;
   });
 
   // 克隆场景，同时克隆每个网格的材质以免修改共享实例
+  // 并应用 nodeOverrides 中的 transform/material 覆盖
   const clonedScene = useMemo(() => {
     const clone = gltfScene.clone(true);
     clone.traverse((child) => {
@@ -54,8 +63,29 @@ const ModelMesh: React.FC<{ assetId: number; assetUpdatedAt: string | undefined;
         }
       }
     });
+
+    // 应用 nodeOverrides
+    if (nodeOverrides) {
+      for (const [path, override] of Object.entries(nodeOverrides)) {
+        const node = findNodeByPath(clone, path);
+        if (!node) continue;
+        if (override.transform?.position) node.position.fromArray(override.transform.position);
+        if (override.transform?.rotation)
+          node.rotation.fromArray([...override.transform.rotation, 'XYZ'] as [number, number, number, THREE.EulerOrder]);
+        if (override.transform?.scale) node.scale.fromArray(override.transform.scale);
+        if (override.material) {
+          node.traverse((child) => {
+            const m = child as THREE.Mesh;
+            if (m.isMesh) {
+              m.material = createThreeMaterial(override.material);
+            }
+          });
+        }
+      }
+    }
+
     return clone;
-  }, [gltfScene]);
+  }, [gltfScene, nodeOverrides]);
 
   // 当 materialSpec 变化时，将属性应用到所有子网格的材质
   // 即使 materialSpec 为 null，也应用 roughness/metalness 默认值（0），
@@ -112,7 +142,29 @@ const ModelMesh: React.FC<{ assetId: number; assetUpdatedAt: string | undefined;
     };
   }, [clonedScene]);
 
-  return <primitive object={clonedScene} />;
+  // 计算当前选中子节点的包围盒，用于高亮显示
+  const highlightData = useMemo(() => {
+    if (!activeSubNodePath) return null;
+    const node = findNodeByPath(clonedScene, activeSubNodePath);
+    if (!node) return null;
+    const box = new THREE.Box3().setFromObject(node);
+    if (box.isEmpty()) return null;
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    return { center, size };
+  }, [clonedScene, activeSubNodePath]);
+
+  return (
+    <>
+      <primitive object={clonedScene} />
+      {highlightData && (
+        <mesh position={highlightData.center.toArray()}>
+          <boxGeometry args={[highlightData.size.x, highlightData.size.y, highlightData.size.z]} />
+          <meshBasicMaterial wireframe color="#3b82f6" transparent opacity={0.8} />
+        </mesh>
+      )}
+    </>
+  );
 });
 
 export const resolveWireframeOverride = (renderMode: string, materialSpec: MaterialSpec | null) => {
@@ -124,9 +176,11 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const object = useSceneStore((state) => state.scene.objects[id]);
 
   const selectedIds = useEditorStore((state) => state.selectedIds);
+  const activeId = useEditorStore((state) => state.activeId);
   const select = useEditorStore((state) => state.select);
   const renderMode = useEditorStore((state) => state.renderMode);
   const activeTool = useEditorStore((state) => state.activeTool);
+  const activeSubNodePath = useEditorStore((state) => state.activeSubNodePath);
   const assets = useAssetStore((state) => state.assets);
 
   // Hooks 必须每次渲染保持一致调用次数，这里不能在 hooks 之间提前 return
@@ -205,6 +259,11 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     return assets.find((a) => a.id === resolvedAssetId)?.updated_at;
   }, [resolvedAssetId, assets]);
 
+  // 子节点属性覆盖（存储在 components.model.nodeOverrides）
+  const nodeOverrides = useMemo<Record<string, any> | null>(() => {
+    return (object?.components?.model as any)?.nodeOverrides ?? null;
+  }, [object?.components?.model]);
+
   const materialRef = useRef<THREE.Material | null>(null);
   const lastTypeRef = useRef<MaterialSpec['type'] | null>(null);
 
@@ -280,7 +339,14 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       {object?.type === ObjectType.MESH && resolvedAssetId !== null && (
         <ModelErrorBoundary>
           <Suspense fallback={null}>
-            <ModelMesh assetId={resolvedAssetId} assetUpdatedAt={assetUpdatedAt} materialSpec={materialSpec} renderMode={renderMode} />
+            <ModelMesh
+              assetId={resolvedAssetId}
+              assetUpdatedAt={assetUpdatedAt}
+              materialSpec={materialSpec}
+              renderMode={renderMode}
+              activeSubNodePath={activeId === id ? activeSubNodePath : null}
+              nodeOverrides={nodeOverrides}
+            />
           </Suspense>
         </ModelErrorBoundary>
       )}

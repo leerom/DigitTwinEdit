@@ -6,6 +6,7 @@ import { ObjectType } from '../../types';
 import { clsx } from 'clsx';
 import { useAssetDrop } from '@/hooks/useAssetDrop';
 import { v4 as uuidv4 } from 'uuid';
+import { GltfNodeTree } from './GltfNodeTree';
 
 interface HierarchyItemProps {
   id: string;
@@ -40,6 +41,12 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth, onC
 
   if (!object) return null;
   const hasChildren = object.children.length > 0;
+  const modelAssetId: number | null =
+    object.type === ObjectType.MESH
+      ? ((object.components as any)?.model?.assetId ?? null)
+      : null;
+  const hasModel = modelAssetId !== null;
+  const isExpandable = hasChildren || hasModel;
 
   const handleSelect = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -103,7 +110,7 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth, onC
         onContextMenu={handleContextMenuEvent}
       >
         {/* Expand/Collapse Button */}
-        {hasChildren ? (
+        {isExpandable ? (
           <button
             className="w-4 h-4 flex items-center justify-center text-slate-500 hover:text-white transition-colors mr-1"
             onClick={toggleExpand}
@@ -147,6 +154,9 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth, onC
       {expanded && object.children.map((childId) => (
         <HierarchyItem key={childId} id={childId} depth={depth + 1} onContextMenu={onContextMenu} />
       ))}
+      {expanded && hasModel && (
+        <GltfNodeTree sceneObjectId={id} assetId={modelAssetId!} depth={depth + 1} />
+      )}
     </div>
   );
 });
