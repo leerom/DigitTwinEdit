@@ -10,6 +10,7 @@ interface AssetState {
   error: string | null;
   stats: AssetStats | null;
   selectedAssetId: number | null;
+  selectedNodePath: string | null;  // 子节点路径，null = 选中整个模型
 
   // 操作
   loadAssets: (projectId: number, type?: string) => Promise<void>;
@@ -21,6 +22,7 @@ interface AssetState {
   clearAssets: () => void;
   clearError: () => void;
   selectAsset: (id: number | null) => void;
+  selectNode: (path: string | null) => void;
 }
 
 export const useAssetStore = create<AssetState>((set, get) => ({
@@ -31,6 +33,7 @@ export const useAssetStore = create<AssetState>((set, get) => ({
   error: null,
   stats: null,
   selectedAssetId: null,
+  selectedNodePath: null,
 
   // 加载资产列表
   loadAssets: async (projectId: number, type?: string) => {
@@ -152,6 +155,11 @@ export const useAssetStore = create<AssetState>((set, get) => ({
 
   // 选中资产（用于 Inspector 显示导入配置）
   selectAsset: (id: number | null) => {
-    set({ selectedAssetId: id });
+    set({ selectedAssetId: id, selectedNodePath: null });
+  },
+
+  // 选中子节点（用于层级展开后的子节点预览）
+  selectNode: (path: string | null) => {
+    set({ selectedNodePath: path });
   },
 }));
