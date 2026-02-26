@@ -9,6 +9,7 @@ import { TwinDataProp } from '../inspector/TwinDataProp';
 import { CameraProp } from '../inspector/specific/CameraProp';
 import { LightProp } from '../inspector/specific/LightProp';
 import { ModelImportProp } from '../inspector/ModelImportProp';
+import { ModelPreview } from '../inspector/ModelPreview';
 
 export const InspectorPanel: React.FC = () => {
   const activeId = useEditorStore((state) => state.activeId);
@@ -17,6 +18,7 @@ export const InspectorPanel: React.FC = () => {
   const updateComponent = useSceneStore((state) => state.updateComponent);
   const updateObject = useSceneStore((state) => state.updateObject);
   const selectedAssetId = useAssetStore((state) => state.selectedAssetId);
+  const selectedNodePath = useAssetStore((state) => state.selectedNodePath);
   const assets = useAssetStore((state) => state.assets);
 
   if (!activeId) {
@@ -52,6 +54,13 @@ export const InspectorPanel: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* 模型 3D 预览（仅 model 类型） */}
+            {selectedAsset.type === 'model' && (
+              <div className="px-4 pt-3">
+                <ModelPreview asset={selectedAsset} nodePath={selectedNodePath} />
+              </div>
+            )}
 
             {/* 资产属性内容 */}
             <div className="p-4">
