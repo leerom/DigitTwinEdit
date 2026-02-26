@@ -15,7 +15,7 @@ export const ModelPreview: React.FC<ModelPreviewProps> = ({ asset, nodePath }) =
   const url = `${assetsApi.getAssetDownloadUrl(asset.id)}?v=${new Date(asset.updated_at).getTime()}`;
 
   return (
-    <div className="w-full border-b border-border-dark pb-3 mb-3">
+    <div className="w-full">
       <div className="flex items-center justify-between mb-1 px-1">
         <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
           预览

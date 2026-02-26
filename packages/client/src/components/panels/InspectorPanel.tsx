@@ -39,38 +39,41 @@ export const InspectorPanel: React.FC = () => {
 
         {selectedAsset ? (
           /* 资产检视模式 */
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
-            {/* 资产头部 */}
-            <div className="p-4 border-b border-border-dark bg-header-dark/50">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-slate-800 rounded flex items-center justify-center border border-white/5">
-                  <span className="material-symbols-outlined text-primary text-base">deployed_code</span>
+          <>
+            {/* 可滚动内容区：资产头部 + 属性 */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              {/* 资产头部 */}
+              <div className="p-4 border-b border-border-dark bg-header-dark/50">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-slate-800 rounded flex items-center justify-center border border-white/5">
+                    <span className="material-symbols-outlined text-primary text-base">deployed_code</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-white font-medium truncate">{selectedAsset.name}</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">
+                      {selectedAsset.type} · {(selectedAsset.file_size / 1024).toFixed(0)} KB
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-white font-medium truncate">{selectedAsset.name}</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">
-                    {selectedAsset.type} · {(selectedAsset.file_size / 1024).toFixed(0)} KB
-                  </p>
-                </div>
+              </div>
+
+              {/* 资产属性内容 */}
+              <div className="p-4">
+                <ModelImportProp
+                  asset={selectedAsset}
+                  projectId={selectedAsset.project_id}
+                  onReimportComplete={() => {}}
+                />
               </div>
             </div>
 
-            {/* 模型 3D 预览（仅 model 类型） */}
+            {/* 模型 3D 预览，固定在 Inspector 底部 */}
             {selectedAsset.type === 'model' && (
-              <div className="px-4 pt-3">
+              <div className="shrink-0 border-t border-border-dark px-4 py-3">
                 <ModelPreview asset={selectedAsset} nodePath={selectedNodePath} />
               </div>
             )}
-
-            {/* 资产属性内容 */}
-            <div className="p-4">
-              <ModelImportProp
-                asset={selectedAsset}
-                projectId={selectedAsset.project_id}
-                onReimportComplete={() => {}}
-              />
-            </div>
-          </div>
+          </>
         ) : (
           /* 无选中状态 */
           <div className="flex flex-col flex-1 items-center justify-center text-slate-500 text-sm italic">
