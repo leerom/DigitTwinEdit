@@ -84,6 +84,9 @@ const ModelMesh: React.FC<{
       }
     }
 
+    // 确保世界矩阵在应用 overrides 后更新，保证包围盒计算正确
+    clone.updateWorldMatrix(true, true);
+
     return clone;
   }, [gltfScene, nodeOverrides]);
 
