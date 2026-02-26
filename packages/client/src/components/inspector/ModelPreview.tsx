@@ -32,7 +32,7 @@ export const ModelPreview: React.FC<ModelPreviewProps> = ({ asset, nodePath }) =
       <div className="w-full h-[180px] rounded overflow-hidden bg-[#0c0e14] border border-border-dark">
         <Canvas
           frameloop="demand"
-          camera={{ fov: 45, near: 0.01, far: 1000 }}
+          camera={{ fov: 45, near: 0.01, far: 10000 }}
           gl={{ antialias: true }}
         >
           <ambientLight intensity={0.6} />
@@ -42,13 +42,13 @@ export const ModelPreview: React.FC<ModelPreviewProps> = ({ asset, nodePath }) =
             <PreviewScene url={url} nodePath={nodePath} />
           </Suspense>
           <OrbitControls
-            enableZoom={false}
+            enableZoom={true}
             enablePan={false}
             makeDefault
           />
         </Canvas>
       </div>
-      <p className="text-[9px] text-slate-600 text-center mt-1">左键拖拽旋转</p>
+      <p className="text-[9px] text-slate-600 text-center mt-1">左键旋转 · 滚轮缩放</p>
     </div>
   );
 };
@@ -65,6 +65,7 @@ function PreviewScene({ url, nodePath }: PreviewSceneProps) {
     loader.setWithCredentials(true);
   });
   const { camera, invalidate } = useThree();
+  const controls = useThree((state) => state.controls);
 
   // 克隆场景并独立材质（与 SceneRenderer 中的 ModelMesh 保持一致）
   const clonedScene = useMemo(() => {
@@ -89,30 +90,41 @@ function PreviewScene({ url, nodePath }: PreviewSceneProps) {
     return found ?? clonedScene;
   }, [clonedScene, nodePath]);
 
-  // 自动调整相机到包围盒
+  // 自动调整相机到包围球，确保模型完整入帧
   useEffect(() => {
     const box = new THREE.Box3().setFromObject(displayObject);
     if (box.isEmpty()) return;
 
     const center = box.getCenter(new THREE.Vector3());
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-
-    if (maxDim === 0) return;
+    const sphere = box.getBoundingSphere(new THREE.Sphere());
+    const radius = sphere.radius;
+    if (radius === 0) return;
 
     const perspCamera = camera as THREE.PerspectiveCamera;
     const fovRad = (perspCamera.fov * Math.PI) / 180;
-    const dist = (maxDim / 2) / Math.tan(fovRad / 2);
+    // 用包围球半径计算安全距离，1.6x 留出呼吸空间
+    const dist = (radius / Math.tan(fovRad / 2)) * 1.6;
 
+    // 斜上方 35° 视角，具有立体感
+    const elevAngle = Math.PI / 5.5; // ~33°
+    const azimAngle = Math.PI / 4;   // 45°
     camera.position.set(
-      center.x + maxDim * 0.3,
-      center.y + maxDim * 0.3,
-      center.z + dist * 1.6
+      center.x + dist * Math.cos(elevAngle) * Math.sin(azimAngle),
+      center.y + dist * Math.sin(elevAngle),
+      center.z + dist * Math.cos(elevAngle) * Math.cos(azimAngle),
     );
-    camera.lookAt(center);
+
+    // 同步 OrbitControls 的旋转轴心到模型中心，否则 lookAt 会被覆盖
+    if (controls && 'target' in controls) {
+      (controls as any).target.copy(center);
+      (controls as any).update();
+    } else {
+      camera.lookAt(center);
+    }
+
     camera.updateProjectionMatrix();
     invalidate();
-  }, [displayObject, camera, invalidate]);
+  }, [displayObject, camera, controls, invalidate]);
 
   // 卸载时释放克隆材质
   useEffect(() => {
