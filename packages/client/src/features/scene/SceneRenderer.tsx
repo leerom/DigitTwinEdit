@@ -30,7 +30,7 @@ class ModelErrorBoundary extends React.Component<
 // materialSpec：Inspector 中设置的材质覆盖（颜色、粗糙度等），应用到所有子网格
 // assetUpdatedAt：资产的 updated_at 时间戳，作为 URL cache-buster，
 //   确保重新导入后 useGLTF 能识别 URL 变化并重新加载新 GLB
-const ModelMesh: React.FC<{ assetId: number; assetUpdatedAt: string | undefined; materialSpec: MaterialSpec | null }> = React.memo(({ assetId, assetUpdatedAt, materialSpec }) => {
+const ModelMesh: React.FC<{ assetId: number; assetUpdatedAt: string | undefined; materialSpec: MaterialSpec | null; renderMode: string }> = React.memo(({ assetId, assetUpdatedAt, materialSpec, renderMode }) => {
   const baseUrl = assetsApi.getAssetDownloadUrl(assetId);
   // 将 updated_at 时间戳附加到 URL 作为版本标记；
   // useGLTF 按 URL 缓存，URL 变化即触发重新加载，消除重新导入后的缓存问题
@@ -84,6 +84,20 @@ const ModelMesh: React.FC<{ assetId: number; assetUpdatedAt: string | undefined;
       });
     });
   }, [clonedScene, materialSpec]);
+
+  // 当 renderMode 变化时，将 wireframe 应用到所有子网格材质
+  useEffect(() => {
+    clonedScene.traverse((child) => {
+      const mesh = child as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      mats.forEach((mat) => {
+        if (!mat) return;
+        (mat as any).wireframe = renderMode === 'wireframe';
+        mat.needsUpdate = true;
+      });
+    });
+  }, [clonedScene, renderMode]);
 
   // 卸载时释放克隆的材质
   useEffect(() => {
@@ -266,7 +280,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       {object?.type === ObjectType.MESH && resolvedAssetId !== null && (
         <ModelErrorBoundary>
           <Suspense fallback={null}>
-            <ModelMesh assetId={resolvedAssetId} assetUpdatedAt={assetUpdatedAt} materialSpec={materialSpec} />
+            <ModelMesh assetId={resolvedAssetId} assetUpdatedAt={assetUpdatedAt} materialSpec={materialSpec} renderMode={renderMode} />
           </Suspense>
         </ModelErrorBoundary>
       )}
