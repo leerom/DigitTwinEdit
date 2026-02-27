@@ -49,10 +49,25 @@ const ModelMesh: React.FC<{
     loader.setWithCredentials(true);
   });
 
-  // 克隆场景，同时克隆每个网格的材质以免修改共享实例
-  // 并应用 nodeOverrides 中的 transform/material 覆盖
+  // 克隆场景，同时克隆每个网格的材质以免修改共享实例；
+  // 依次应用：① 对象级 materialSpec（覆盖全部子网格）② 节点级 nodeOverrides 中的材质覆盖（变换覆盖由单独 useEffect 应用）
+  // 将 materialSpec 纳入 deps，确保对象级材质变化时重建克隆，避免旧值残留
+
+  // 仅包含 material 相关的稳定 key
+  // 当只有 transform 变化时，此 key 字符串内容不变，clonedScene useMemo 不重建
+  const nodeOverridesMaterialKey = useMemo(() => {
+    if (!nodeOverrides) return '';
+    const matOnly: Record<string, any> = {};
+    for (const [path, override] of Object.entries(nodeOverrides)) {
+      if (override.material) matOnly[path] = override.material;
+    }
+    return JSON.stringify(matOnly);
+  }, [nodeOverrides]);
+
   const clonedScene = useMemo(() => {
     const clone = gltfScene.clone(true);
+
+    // ① 克隆所有子网格材质，避免修改 useGLTF 共享缓存
     clone.traverse((child) => {
       const mesh = child as THREE.Mesh;
       if (mesh.isMesh) {
@@ -64,23 +79,42 @@ const ModelMesh: React.FC<{
       }
     });
 
-    // 应用 nodeOverrides
+    // ② 应用对象级 materialSpec（作用于全部子网格）
+    if (materialSpec) {
+      const props = materialSpec.props as Record<string, unknown>;
+      clone.traverse((child) => {
+        const mesh = child as THREE.Mesh;
+        if (!mesh.isMesh) return;
+        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        mats.forEach((mat) => {
+          if (!mat) return;
+          const m = mat as any;
+          for (const [key, value] of Object.entries(props)) {
+            if (key === 'color' && typeof value === 'string' && m.color?.set) {
+              m.color.set(value);
+            } else if (key !== 'color' && typeof value === 'number' && key in m) {
+              m[key] = value;
+            }
+          }
+          if (!('roughness' in props) && 'roughness' in m) m.roughness = 0;
+          if (!('metalness' in props) && 'metalness' in m) m.metalness = 0;
+          m.needsUpdate = true;
+        });
+      });
+    }
+
+    // ③ 应用节点级 nodeOverrides 中的材质覆盖（变换覆盖由单独 useEffect 应用）
     if (nodeOverrides) {
       for (const [path, override] of Object.entries(nodeOverrides)) {
+        if (!override.material) continue;
         const node = findNodeByPath(clone, path);
         if (!node) continue;
-        if (override.transform?.position) node.position.fromArray(override.transform.position);
-        if (override.transform?.rotation)
-          node.rotation.fromArray([...override.transform.rotation, 'XYZ'] as [number, number, number, THREE.EulerOrder]);
-        if (override.transform?.scale) node.scale.fromArray(override.transform.scale);
-        if (override.material) {
-          node.traverse((child) => {
-            const m = child as THREE.Mesh;
-            if (m.isMesh) {
-              m.material = createThreeMaterial(override.material);
-            }
-          });
-        }
+        node.traverse((child) => {
+          const m = child as THREE.Mesh;
+          if (m.isMesh) {
+            m.material = createThreeMaterial(override.material);
+          }
+        });
       }
     }
 
@@ -88,35 +122,26 @@ const ModelMesh: React.FC<{
     clone.updateWorldMatrix(true, true);
 
     return clone;
-  }, [gltfScene, nodeOverrides]);
+  }, [gltfScene, materialSpec, nodeOverridesMaterialKey]);
 
-  // 当 materialSpec 变化时，将属性应用到所有子网格的材质
-  // 即使 materialSpec 为 null，也应用 roughness/metalness 默认值（0），
-  // 保证 Inspector 显示值与实际渲染一致；颜色不覆盖（保留 GLTF 原始纹理）
+  // 将 nodeOverrides 中的变换覆盖命令式地应用到 clonedScene 子节点
+  // 此 effect 在以下情况触发：① nodeOverrides.transform 变化（拖拽时）② clonedScene 重建后
   useEffect(() => {
-    const props = (materialSpec?.props ?? {}) as Record<string, unknown>;
-
-    clonedScene.traverse((child) => {
-      const mesh = child as THREE.Mesh;
-      if (!mesh.isMesh) return;
-      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-      mats.forEach((mat) => {
-        if (!mat) return;
-        const m = mat as any;
-        for (const [key, value] of Object.entries(props)) {
-          if (key === 'color' && typeof value === 'string' && m.color?.set) {
-            m.color.set(value);
-          } else if (key !== 'color' && typeof value === 'number' && key in m) {
-            m[key] = value;
-          }
-        }
-        // 应用 Inspector 显示的默认值（未被 materialSpec 明确覆盖的属性）
-        if (!('roughness' in props) && 'roughness' in m) m.roughness = 0;
-        if (!('metalness' in props) && 'metalness' in m) m.metalness = 0;
-        m.needsUpdate = true;
-      });
-    });
-  }, [clonedScene, materialSpec]);
+    if (!nodeOverrides) return;
+    for (const [path, override] of Object.entries(nodeOverrides)) {
+      if (!override.transform) continue;
+      const node = findNodeByPath(clonedScene, path);
+      if (!node) continue;
+      if (override.transform.position) node.position.fromArray(override.transform.position);
+      if (override.transform.rotation) {
+        node.rotation.fromArray([
+          ...override.transform.rotation,
+          'XYZ',
+        ] as [number, number, number, THREE.EulerOrder]);
+      }
+      if (override.transform.scale) node.scale.fromArray(override.transform.scale);
+    }
+  }, [clonedScene, nodeOverrides]);
 
   // 当 renderMode 变化时，将 wireframe 应用到所有子网格材质
   useEffect(() => {
@@ -152,6 +177,16 @@ const ModelMesh: React.FC<{
     if (!node) return null;
     const box = new THREE.Box3().setFromObject(node);
     if (box.isEmpty()) return null;
+
+    // Box3.setFromObject 以世界坐标系计算包围盒。
+    // 高亮 mesh 是 clonedScene 的兄弟节点，两者都在 ObjectRenderer group 的局部坐标系内。
+    // 当 clonedScene 已挂载（有 parent）时，node.matrixWorld 包含了 parent group 的变换，
+    // 需将包围盒从世界空间变换回 parent 局部空间，否则高亮位置会偏移 group 的平移/旋转/缩放。
+    if (clonedScene.parent) {
+      const parentInvMatrix = clonedScene.parent.matrixWorld.clone().invert();
+      box.applyMatrix4(parentInvMatrix);
+    }
+
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
     return { center, size };
