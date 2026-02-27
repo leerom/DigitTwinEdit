@@ -75,3 +75,22 @@ export function findNodeByPath(
 
   return search(root, parts);
 }
+
+/**
+ * 在 parentGroup 的直接子级中搜索 GLTF 子节点。
+ * parentGroup 是 SceneObject 对应的 Three.js group（name=sceneObjectId）。
+ * GLTF clonedScene 作为 parentGroup 的某个直接子级，findNodeByPath 可从中查找路径。
+ *
+ * @param parentGroup - 顶层 SceneObject 的 Three.js group（name=sceneObjectId）
+ * @param path - 子节点路径，格式 "Root/Body/Wheel_L"
+ */
+export function findSubNodeFromGroup(
+  parentGroup: THREE.Object3D,
+  path: string
+): THREE.Object3D | null {
+  for (const child of parentGroup.children) {
+    const found = findNodeByPath(child, path);
+    if (found) return found;
+  }
+  return null;
+}

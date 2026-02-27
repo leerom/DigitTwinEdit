@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import * as THREE from 'three';
-import { buildNodeTree, findNodeByPath } from './modelHierarchy';
+import { buildNodeTree, findNodeByPath, findSubNodeFromGroup } from './modelHierarchy';
 
 describe('buildNodeTree', () => {
   it('提取 Mesh 和 Group 节点', () => {
@@ -106,5 +106,59 @@ describe('findNodeByPath', () => {
     root.add(unnamed);
 
     expect(findNodeByPath(root, 'Body/Wheel')).toBe(wheel);
+  });
+});
+
+describe('findSubNodeFromGroup', () => {
+  it('从 parentGroup 子级中找到指定路径的节点', () => {
+    // 模拟结构：parentGroup(name=uuid) > gltfScene(name='Scene') > Body
+    const parentGroup = new THREE.Group();
+    parentGroup.name = 'scene-object-uuid';
+
+    const gltfScene = new THREE.Group();
+    gltfScene.name = 'Scene'; // GLTF 场景根节点
+
+    const body = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshBasicMaterial());
+    body.name = 'Body';
+    gltfScene.add(body);
+    parentGroup.add(gltfScene);
+
+    const found = findSubNodeFromGroup(parentGroup, 'Body');
+    expect(found).toBe(body);
+  });
+
+  it('多级路径查找', () => {
+    const parentGroup = new THREE.Group();
+    parentGroup.name = 'uuid';
+
+    const gltfScene = new THREE.Group();
+    gltfScene.name = 'Scene';
+
+    const armature = new THREE.Group();
+    armature.name = 'Armature';
+
+    const wheel = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshBasicMaterial());
+    wheel.name = 'Wheel_L';
+
+    armature.add(wheel);
+    gltfScene.add(armature);
+    parentGroup.add(gltfScene);
+
+    const found = findSubNodeFromGroup(parentGroup, 'Armature/Wheel_L');
+    expect(found).toBe(wheel);
+  });
+
+  it('路径不存在时返回 null', () => {
+    const parentGroup = new THREE.Group();
+    const gltfScene = new THREE.Group();
+    gltfScene.name = 'Scene';
+    parentGroup.add(gltfScene);
+
+    expect(findSubNodeFromGroup(parentGroup, 'Missing/Node')).toBeNull();
+  });
+
+  it('parentGroup 没有子节点时返回 null', () => {
+    const parentGroup = new THREE.Group();
+    expect(findSubNodeFromGroup(parentGroup, 'Body')).toBeNull();
   });
 });
