@@ -128,6 +128,8 @@ export const SubNodeInspector: React.FC = () => {
   const modelComp = (object?.components as any)?.model;
   const assetId: number | null = modelComp?.assetId ?? null;
   const asset = assetId !== null ? assets.find((a) => a.id === assetId) : undefined;
+  // 响应式读取 nodeOverrides，供 Gizmo 拖拽实时同步使用
+  const nodeOverrides = modelComp?.nodeOverrides ?? null;
 
   const [nodeInfo, setNodeInfo] = useState<NodeInfo | null>(null);
 
@@ -228,6 +230,31 @@ export const SubNodeInspector: React.FC = () => {
       cancelled = true;
     };
   }, [assetId, asset?.updated_at, activeSubNodePath]);
+
+  // 监听 nodeOverrides 变化（来自 Gizmo 拖拽），实时同步 transform 显示值
+  // 与 GLTF 加载 effect 分离，避免拖拽时重新加载 GLTF
+  useEffect(() => {
+    if (!activeSubNodePath) return;
+    const override = nodeOverrides?.[activeSubNodePath];
+    if (!override?.transform) return;
+
+    setNodeInfo((prev) => {
+      if (!prev) return prev;
+      const t = override.transform;
+      return {
+        ...prev,
+        ...(t.position && { position: t.position as [number, number, number] }),
+        ...(t.rotation && {
+          rotation: [
+            t.rotation[0] * RAD_TO_DEG,
+            t.rotation[1] * RAD_TO_DEG,
+            t.rotation[2] * RAD_TO_DEG,
+          ] as [number, number, number],
+        }),
+        ...(t.scale && { scale: t.scale as [number, number, number] }),
+      };
+    });
+  }, [nodeOverrides, activeSubNodePath]);
 
   const handleTransformChange = useCallback(
     (type: 'position' | 'rotation' | 'scale', value: [number, number, number]) => {
