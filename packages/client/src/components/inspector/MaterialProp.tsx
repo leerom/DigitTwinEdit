@@ -34,7 +34,7 @@ export const MaterialProp: React.FC<{ objectId: string }> = ({ objectId }) => {
   const material = useSceneStore(
     (state) => state.scene.objects[objectId]?.components?.mesh?.material
   ) as MaterialSpec | undefined;
-  const currentProjectId = useProjectStore((s) => s.currentScene?.project_id ?? 0);
+  const currentProjectId = useProjectStore((s) => s.currentProject?.id ?? 0);
 
   const type = material?.type ?? 'MeshStandardMaterial';
   const props = (material?.props ?? {}) as Record<string, unknown>;

@@ -15,7 +15,7 @@ vi.mock('@/stores/historyStore', () => ({
 }));
 
 vi.mock('@/stores/projectStore', () => ({
-  useProjectStore: (selector: any) => selector({ currentScene: { project_id: 1 } }),
+  useProjectStore: (selector: any) => selector({ currentProject: { id: 1 } }),
 }));
 
 vi.mock('./TexturePicker', () => ({

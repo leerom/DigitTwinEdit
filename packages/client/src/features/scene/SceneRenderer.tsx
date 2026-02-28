@@ -7,7 +7,7 @@ import { ThreeEvent } from '@react-three/fiber';
 import { useHelper, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { assetsApi } from '@/api/assets';
-import { createThreeMaterial } from '@/features/materials/materialFactory';
+import { createThreeMaterial, isTextureRef, applyTextureProps } from '@/features/materials/materialFactory';
 import { findNodeByPath } from '@/components/assets/modelHierarchy';
 
 const DEFAULT_BOX_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
@@ -82,6 +82,13 @@ const ModelMesh: React.FC<{
     // ② 应用对象级 materialSpec（作用于全部子网格）
     if (materialSpec) {
       const props = materialSpec.props as Record<string, unknown>;
+      const texProps: Record<string, unknown> = {};
+      const scalarProps: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(props)) {
+        if (isTextureRef(v)) texProps[k] = v;
+        else scalarProps[k] = v;
+      }
+
       clone.traverse((child) => {
         const mesh = child as THREE.Mesh;
         if (!mesh.isMesh) return;
@@ -89,15 +96,13 @@ const ModelMesh: React.FC<{
         mats.forEach((mat) => {
           if (!mat) return;
           const m = mat as any;
-          for (const [key, value] of Object.entries(props)) {
-            if (key === 'color' && typeof value === 'string' && m.color?.set) {
-              m.color.set(value);
-            } else if (key !== 'color' && typeof value === 'number' && key in m) {
-              m[key] = value;
-            }
+          for (const [key, value] of Object.entries(scalarProps)) {
+            if (key === 'color' && typeof value === 'string' && m.color?.set) m.color.set(value);
+            else if (key === 'emissive' && typeof value === 'string' && m.emissive?.set) m.emissive.set(value);
+            else if (key === 'normalScale' && Array.isArray(value) && m.normalScale?.set) m.normalScale.set(value[0], value[1]);
+            else m[key] = value;
           }
-          if (!('roughness' in props) && 'roughness' in m) m.roughness = 0;
-          if (!('metalness' in props) && 'metalness' in m) m.metalness = 0;
+          if (Object.keys(texProps).length > 0) applyTextureProps(mat, texProps);
           m.needsUpdate = true;
         });
       });
@@ -330,22 +335,40 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     const mat: any = materialRef.current;
     const props = (materialSpec.props ?? {}) as Record<string, unknown>;
 
+    const texProps: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(props)) {
-      if (key === 'color' && typeof value === 'string' && mat.color?.set) {
+      if (isTextureRef(value)) {
+        texProps[key] = value;           // 贴图引用：收集起来，稍后异步加载
+      } else if (key === 'color' && typeof value === 'string' && mat.color?.set) {
         mat.color.set(value);
-        continue;
-      }
-
-      if (key === 'specular' && typeof value === 'string' && mat.specular?.set) {
+      } else if (key === 'emissive' && typeof value === 'string' && mat.emissive?.set) {
+        mat.emissive.set(value);
+      } else if (key === 'sheenColor' && typeof value === 'string' && mat.sheenColor?.set) {
+        mat.sheenColor.set(value);
+      } else if (key === 'attenuationColor' && typeof value === 'string' && mat.attenuationColor?.set) {
+        mat.attenuationColor.set(value);
+      } else if (key === 'specularColor' && typeof value === 'string' && mat.specularColor?.set) {
+        mat.specularColor.set(value);
+      } else if (key === 'specular' && typeof value === 'string' && mat.specular?.set) {
         mat.specular.set(value);
-        continue;
+      } else if (key === 'normalScale' && Array.isArray(value) && mat.normalScale?.set) {
+        mat.normalScale.set(value[0], value[1]);
+      } else if (key === 'clearcoatNormalScale' && Array.isArray(value) && mat.clearcoatNormalScale?.set) {
+        mat.clearcoatNormalScale.set(value[0], value[1]);
+      } else if (key === 'iridescenceThicknessRange' && Array.isArray(value)) {
+        mat.iridescenceThicknessRange = [...value];
+      } else {
+        mat[key] = value as any;
       }
-
-      mat[key] = value as any;
     }
 
     mat.wireframe = resolveWireframeOverride(renderMode, materialSpec);
     mat.needsUpdate = true;
+
+    // 异步加载贴图（加载完成后自动 needsUpdate）
+    if (Object.keys(texProps).length > 0) {
+      applyTextureProps(mat, texProps);
+    }
   }, [materialSpec, renderMode, selectedIds]);
 
   // 对象被删除的瞬间仍可能触发一次渲染；这里用空 group 兜底，避免访问 undefined 导致 Canvas 树崩溃
