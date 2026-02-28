@@ -15,10 +15,11 @@ interface GltfNodeItemProps {
 const GltfNodeItem: React.FC<GltfNodeItemProps> = ({ node, sceneObjectId, depth }) => {
   const [expanded, setExpanded] = useState(true);
   const activeSubNodePath = useEditorStore((s) => s.activeSubNodePath);
+  const activeId = useEditorStore((s) => s.activeId);
   const select = useEditorStore((s) => s.select);
   const setActiveSubNodePath = useEditorStore((s) => s.setActiveSubNodePath);
 
-  const isSelected = activeSubNodePath === node.path;
+  const isSelected = activeSubNodePath === node.path && activeId === sceneObjectId;
   const hasChildren = node.children.length > 0;
 
   const handleClick = (e: React.MouseEvent) => {
