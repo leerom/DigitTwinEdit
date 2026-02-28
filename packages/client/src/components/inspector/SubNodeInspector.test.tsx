@@ -197,7 +197,7 @@ describe('SubNodeInspector', () => {
 
     const roughnessLabel = screen.getByText('粗糙度');
     const roughnessRow = roughnessLabel.closest('div')!;
-    const roughnessInput = within(roughnessRow).getByRole('textbox');
+    const roughnessInput = within(roughnessRow).getByRole('spinbutton');
 
     fireEvent.change(roughnessInput, { target: { value: '0.5' } });
     fireEvent.blur(roughnessInput);
@@ -218,7 +218,7 @@ describe('SubNodeInspector', () => {
 
     const metalnessLabel = screen.getByText('金属感');
     const metalnessRow = metalnessLabel.closest('div')!;
-    const metalnessInput = within(metalnessRow).getByRole('textbox');
+    const metalnessInput = within(metalnessRow).getByRole('spinbutton');
 
     fireEvent.change(metalnessInput, { target: { value: '0.8' } });
     fireEvent.blur(metalnessInput);
@@ -276,7 +276,7 @@ describe('SubNodeInspector', () => {
 
     const roughnessLabel = screen.getByText('粗糙度');
     const roughnessRow = roughnessLabel.closest('div')!;
-    const roughnessInput = within(roughnessRow).getByRole('textbox');
+    const roughnessInput = within(roughnessRow).getByRole('spinbutton');
     fireEvent.change(roughnessInput, { target: { value: '0.3' } });
     fireEvent.blur(roughnessInput);
 

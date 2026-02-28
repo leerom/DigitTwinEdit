@@ -17,7 +17,7 @@ export interface MaterialFieldDef {
 
 export const STANDARD_FIELDS: MaterialFieldDef[] = [
   // base
-  { key: 'color',              type: 'color',   group: 'base', label: '漫反射颜色' },
+  { key: 'color',              type: 'color',   group: 'base', label: '颜色' },
   { key: 'emissive',           type: 'color',   group: 'base', label: '自发光颜色' },
   { key: 'emissiveIntensity',  type: 'number',  group: 'base', label: '自发光强度',   min: 0, step: 0.01 },
   { key: 'envMapIntensity',    type: 'number',  group: 'base', label: '环境贴图强度', min: 0, step: 0.01 },
@@ -27,7 +27,7 @@ export const STANDARD_FIELDS: MaterialFieldDef[] = [
   { key: 'fog',                type: 'boolean', group: 'base', label: '受雾效影响' },
   // pbr
   { key: 'roughness',          type: 'number',  group: 'pbr', label: '粗糙度',     min: 0, max: 1, step: 0.01 },
-  { key: 'metalness',          type: 'number',  group: 'pbr', label: '金属度',     min: 0, max: 1, step: 0.01 },
+  { key: 'metalness',          type: 'number',  group: 'pbr', label: '金属感',     min: 0, max: 1, step: 0.01 },
   { key: 'bumpScale',          type: 'number',  group: 'pbr', label: '凹凸缩放',   step: 0.01 },
   { key: 'normalScale',        type: 'vector2', group: 'pbr', label: '法线缩放',   step: 0.01 },
   { key: 'displacementScale',  type: 'number',  group: 'pbr', label: '置换缩放',   step: 0.01 },

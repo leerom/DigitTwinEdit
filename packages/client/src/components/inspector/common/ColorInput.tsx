@@ -15,6 +15,7 @@ export const ColorInput: React.FC<ColorInputProps> = ({ label, value, onChange }
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-8 h-6 bg-transparent border-0 p-0 cursor-pointer"
+        aria-label={label}
       />
       <span className="text-[10px] font-mono text-slate-400">{value}</span>
     </div>
