@@ -4,8 +4,12 @@ import * as THREE from 'three';
 import { useEditorStore } from '../../stores/editorStore.js';
 import { useSceneStore } from '../../stores/sceneStore.js';
 import { useAssetStore } from '../../stores/assetStore.js';
+import { useProjectStore } from '../../stores/projectStore.js';
 import { assetsApi } from '../../api/assets.js';
 import { findNodeByPath } from '../assets/modelHierarchy.js';
+import { getFieldsForType } from '../../features/materials/materialSchema.js';
+import type { MaterialType } from '../../types/index.js';
+import { MaterialFieldRenderer } from './MaterialFieldRenderer.js';
 
 // 与 TransformProp 中相同的 AxisInput/Vector3Input 样式组件（局部副本）
 const AxisInput = ({
@@ -69,40 +73,6 @@ const Vector3Row = ({
   </div>
 );
 
-// 0-1 数值输入（用于粗糙度/金属感），提交时限定范围
-const MatPropInput = ({
-  value,
-  onChange,
-}: {
-  value: number;
-  onChange: (val: number) => void;
-}) => {
-  const [local, setLocal] = useState(String(Math.round(value * 1000) / 1000));
-
-  useEffect(() => {
-    setLocal(String(Math.round(value * 1000) / 1000));
-  }, [value]);
-
-  const commit = () => {
-    const n = parseFloat(local);
-    if (!isNaN(n)) onChange(Math.max(0, Math.min(1, n)));
-    else setLocal(String(Math.round(value * 1000) / 1000));
-  };
-
-  return (
-    <input
-      type="text"
-      className="w-16 px-1 py-1 bg-[#0c0e14] border-none rounded-sm text-[10px] font-mono text-right text-[#cccccc] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]/50"
-      value={local}
-      onChange={(e) => setLocal(e.target.value)}
-      onBlur={commit}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') { e.currentTarget.blur(); commit(); }
-      }}
-    />
-  );
-};
-
 const RAD_TO_DEG = 180 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180;
 
@@ -112,9 +82,7 @@ interface NodeInfo {
   scale: [number, number, number];
   materialName: string;
   materialType: string;
-  materialColor: string;
-  materialRoughness: number;
-  materialMetalness: number;
+  materialProps: Record<string, unknown>;
 }
 
 export const SubNodeInspector: React.FC = () => {
@@ -123,6 +91,7 @@ export const SubNodeInspector: React.FC = () => {
   const objects = useSceneStore((s) => s.scene.objects);
   const updateComponent = useSceneStore((s) => s.updateComponent);
   const assets = useAssetStore((s) => s.assets);
+  const currentProjectId = useProjectStore((s) => s.currentProject?.id ?? 0);
 
   const object = activeId ? objects[activeId] : null;
   const modelComp = (object?.components as any)?.model;
@@ -164,12 +133,10 @@ export const SubNodeInspector: React.FC = () => {
         ];
         const sc: [number, number, number] = [node.scale.x, node.scale.y, node.scale.z];
 
-        // 提取材质信息
+        // 提取材质信息，从 GLTF 材质读取基础 props
         let materialName = '—';
         let materialType = 'MeshStandardMaterial';
-        let materialColor = '#ffffff';
-        let materialRoughness = 1;
-        let materialMetalness = 0;
+        const baseMaterialProps: Record<string, unknown> = {};
 
         const meshNode = node as THREE.Mesh;
         if (meshNode.isMesh && meshNode.material) {
@@ -178,11 +145,11 @@ export const SubNodeInspector: React.FC = () => {
             materialName = (mat as any).name || '(unnamed)';
             materialType = mat.type;
             const stdMat = mat as THREE.MeshStandardMaterial;
-            if (stdMat.color) {
-              materialColor = '#' + stdMat.color.getHexString();
-            }
-            if (typeof stdMat.roughness === 'number') materialRoughness = stdMat.roughness;
-            if (typeof stdMat.metalness === 'number') materialMetalness = stdMat.metalness;
+            if (stdMat.color) baseMaterialProps.color = '#' + stdMat.color.getHexString();
+            if (typeof stdMat.roughness === 'number') baseMaterialProps.roughness = stdMat.roughness;
+            if (typeof stdMat.metalness === 'number') baseMaterialProps.metalness = stdMat.metalness;
+            if (typeof stdMat.emissiveIntensity === 'number') baseMaterialProps.emissiveIntensity = stdMat.emissiveIntensity;
+            if (stdMat.emissive) baseMaterialProps.emissive = '#' + stdMat.emissive.getHexString();
           }
         }
 
@@ -206,18 +173,14 @@ export const SubNodeInspector: React.FC = () => {
           }
         }
 
-        // 叠加材质覆盖
-        if (overrides?.material?.props) {
-          const mp = overrides.material.props;
-          if (typeof mp.color === 'string') materialColor = mp.color;
-          if (typeof mp.roughness === 'number') materialRoughness = mp.roughness;
-          if (typeof mp.metalness === 'number') materialMetalness = mp.metalness;
-        }
+        // 叠加材质覆盖（overrides 优先级更高）
+        const overrideProps = overrides?.material?.props ?? {};
+        const mergedProps = { ...baseMaterialProps, ...overrideProps };
 
         setNodeInfo({
           position: pos, rotation: rot, scale: sc,
           materialName, materialType,
-          materialColor, materialRoughness, materialMetalness,
+          materialProps: mergedProps,
         });
       },
       undefined,
@@ -291,7 +254,7 @@ export const SubNodeInspector: React.FC = () => {
   );
 
   const handleMaterialChange = useCallback(
-    (prop: 'color' | 'roughness' | 'metalness', value: string | number) => {
+    (prop: string, value: unknown) => {
       if (!activeId || !activeSubNodePath) return;
 
       const existing = (objects[activeId]?.components as any)?.model ?? {};
@@ -299,7 +262,6 @@ export const SubNodeInspector: React.FC = () => {
       const existingNodeOverride = existingOverrides[activeSubNodePath] ?? {};
       const existingMatOverride = existingNodeOverride.material ?? {};
       const existingProps = existingMatOverride.props ?? {};
-
       const matType = existingMatOverride.type ?? 'MeshStandardMaterial';
 
       updateComponent(activeId, 'model', {
@@ -310,22 +272,16 @@ export const SubNodeInspector: React.FC = () => {
             ...existingNodeOverride,
             material: {
               type: matType,
-              props: {
-                ...existingProps,
-                [prop]: value,
-              },
+              props: { ...existingProps, [prop]: value },
             },
           },
         },
       });
 
-      // 同步更新本地显示状态
+      // 同步本地显示状态
       setNodeInfo((prev) => {
         if (!prev) return prev;
-        if (prop === 'color') return { ...prev, materialColor: value as string };
-        if (prop === 'roughness') return { ...prev, materialRoughness: value as number };
-        if (prop === 'metalness') return { ...prev, materialMetalness: value as number };
-        return prev;
+        return { ...prev, materialProps: { ...prev.materialProps, [prop]: value } };
       });
     },
     [activeId, activeSubNodePath, objects, updateComponent]
@@ -335,6 +291,11 @@ export const SubNodeInspector: React.FC = () => {
 
   // 从路径末段提取节点名
   const nodeName = activeSubNodePath.split('/').pop() ?? activeSubNodePath;
+
+  const matType = nodeInfo.materialType as MaterialType;
+  const fields = (matType === 'MeshStandardMaterial' || matType === 'MeshPhysicalMaterial')
+    ? getFieldsForType(matType)
+    : getFieldsForType('MeshStandardMaterial');
 
   return (
     <div className="flex flex-col gap-4">
@@ -374,45 +335,22 @@ export const SubNodeInspector: React.FC = () => {
       {/* 材质 */}
       <div>
         <h3 className="text-[11px] font-bold text-slate-300 mb-2">材质 (Material)</h3>
+        <div className="space-y-1 text-[10px] text-slate-500 mb-2">
+          <span>类型：{nodeInfo.materialType}</span>
+          {nodeInfo.materialName !== '—' && (
+            <span className="block">名称：{nodeInfo.materialName}</span>
+          )}
+        </div>
         <div className="space-y-2">
-          {/* 类型（只读） */}
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] text-slate-500">类型</span>
-            <span className="text-[10px] text-slate-300 font-mono truncate max-w-[140px]">{nodeInfo.materialType}</span>
-          </div>
-
-          {/* 颜色 */}
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] text-slate-500">颜色</span>
-            <div className="flex items-center gap-1.5">
-              <input
-                type="color"
-                aria-label="颜色"
-                value={nodeInfo.materialColor}
-                onChange={(e) => handleMaterialChange('color', e.target.value)}
-                className="w-7 h-5 rounded cursor-pointer border border-white/10 bg-transparent p-0"
-              />
-              <span className="text-[10px] font-mono text-slate-400">{nodeInfo.materialColor}</span>
-            </div>
-          </div>
-
-          {/* 粗糙度 */}
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] text-slate-500">粗糙度</span>
-            <MatPropInput
-              value={nodeInfo.materialRoughness}
-              onChange={(v) => handleMaterialChange('roughness', v)}
+          {fields.map((field) => (
+            <MaterialFieldRenderer
+              key={field.key}
+              field={field}
+              value={nodeInfo.materialProps[field.key]}
+              onChange={handleMaterialChange}
+              projectId={currentProjectId}
             />
-          </div>
-
-          {/* 金属感 */}
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] text-slate-500">金属感</span>
-            <MatPropInput
-              value={nodeInfo.materialMetalness}
-              onChange={(v) => handleMaterialChange('metalness', v)}
-            />
-          </div>
+          ))}
         </div>
       </div>
     </div>
