@@ -1,52 +1,45 @@
 import type { MaterialType } from '@/types';
+import { STANDARD_FIELDS, PHYSICAL_EXTRA_FIELDS } from './materialSchema';
 
-const COMMON_KEYS = [
-  'color',
-  'wireframe',
-  'transparent',
-  'opacity',
-  'alphaTest',
-  'depthTest',
-  'depthWrite',
-  'visible',
-  'side',
-] as const;
+// 从 Schema 自动推导白名单，无需手动维护
+const STANDARD_KEYS = STANDARD_FIELDS.map((f) => f.key);
+const PHYSICAL_EXTRA_KEYS = PHYSICAL_EXTRA_FIELDS.map((f) => f.key);
 
 const ALLOWED_KEYS_BY_TYPE: Record<MaterialType, readonly string[]> = {
-  MeshStandardMaterial: [...COMMON_KEYS, 'roughness', 'metalness'],
-  MeshPhysicalMaterial: [
-    ...COMMON_KEYS,
-    'roughness',
-    'metalness',
-    'clearcoat',
-    'clearcoatRoughness',
-    'ior',
-    'transmission',
-    'thickness',
-  ],
-  MeshPhongMaterial: [...COMMON_KEYS, 'shininess', 'specular'],
-  MeshLambertMaterial: [...COMMON_KEYS],
-  MeshBasicMaterial: [...COMMON_KEYS],
+  MeshStandardMaterial:  STANDARD_KEYS,
+  MeshPhysicalMaterial:  [...STANDARD_KEYS, ...PHYSICAL_EXTRA_KEYS],
+  MeshPhongMaterial:     ['color', 'wireframe', 'transparent', 'opacity', 'alphaTest',
+                          'depthTest', 'depthWrite', 'visible', 'side', 'shininess', 'specular'],
+  MeshLambertMaterial:   ['color', 'wireframe', 'transparent', 'opacity', 'alphaTest',
+                          'depthTest', 'depthWrite', 'visible', 'side'],
+  MeshBasicMaterial:     ['color', 'wireframe', 'transparent', 'opacity', 'alphaTest',
+                          'depthTest', 'depthWrite', 'visible', 'side'],
 };
 
 const DEFAULTS_BY_TYPE: Record<MaterialType, Record<string, unknown>> = {
   MeshStandardMaterial: {
     roughness: 0.5,
     metalness: 0,
+    emissiveIntensity: 1.0,
+    envMapIntensity: 1.0,
+    fog: true,
   },
   MeshPhysicalMaterial: {
     roughness: 0.5,
     metalness: 0,
+    emissiveIntensity: 1.0,
+    envMapIntensity: 1.0,
+    fog: true,
     clearcoat: 0,
     clearcoatRoughness: 0,
     ior: 1.5,
     transmission: 0,
     thickness: 0,
+    specularIntensity: 1.0,
+    sheenRoughness: 1.0,
+    iridescenceIOR: 1.3,
   },
-  MeshPhongMaterial: {
-    shininess: 30,
-    specular: '#111111',
-  },
+  MeshPhongMaterial: { shininess: 30, specular: '#111111' },
   MeshLambertMaterial: {},
   MeshBasicMaterial: {},
 };
