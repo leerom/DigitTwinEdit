@@ -1,10 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useSceneStore } from '@/stores/sceneStore';
 import { useHistoryStore } from '@/stores/historyStore';
+import { useProjectStore } from '@/stores/projectStore';
 import type { MaterialSpec, MaterialType } from '@/types';
 import { ChangeMaterialTypeCommand } from '@/features/editor/commands/ChangeMaterialTypeCommand';
 import { UpdateMaterialPropsCommand } from '@/features/editor/commands/UpdateMaterialPropsCommand';
-import { NumberInput } from './common/NumberInput';
+import {
+  getFieldsForType,
+  type FieldGroup,
+} from '@/features/materials/materialSchema';
+import { MaterialFieldRenderer } from './MaterialFieldRenderer';
 
 const MATERIAL_TYPES: readonly MaterialType[] = [
   'MeshStandardMaterial',
@@ -14,30 +19,42 @@ const MATERIAL_TYPES: readonly MaterialType[] = [
   'MeshBasicMaterial',
 ] as const;
 
-function getMaterialPropNumber(props: Record<string, unknown>, key: string, fallback: number): number {
-  const v = props[key];
-  return typeof v === 'number' ? v : fallback;
-}
+const GROUP_LABELS: Record<FieldGroup, string> = {
+  base:      '基础 (Base)',
+  pbr:       'PBR',
+  physical:  '物理高级 (Physical)',
+  maps:      '贴图 (Maps)',
+  wireframe: '线框 (Wireframe)',
+};
+
+// 默认折叠的分组
+const DEFAULT_COLLAPSED: FieldGroup[] = ['physical', 'maps', 'wireframe'];
 
 export const MaterialProp: React.FC<{ objectId: string }> = ({ objectId }) => {
-  const material = useSceneStore((state) => state.scene.objects[objectId]?.components?.mesh?.material) as MaterialSpec | undefined;
+  const material = useSceneStore(
+    (state) => state.scene.objects[objectId]?.components?.mesh?.material
+  ) as MaterialSpec | undefined;
+  const currentProjectId = useProjectStore((s) => s.currentScene?.project_id ?? 0);
 
   const type = material?.type ?? 'MeshStandardMaterial';
   const props = (material?.props ?? {}) as Record<string, unknown>;
 
-  const fields = useMemo(() => {
-    switch (type) {
-      case 'MeshPhysicalMaterial':
-        return ['roughness', 'metalness', 'clearcoat', 'clearcoatRoughness', 'ior', 'transmission', 'thickness'] as const;
-      case 'MeshPhongMaterial':
-        return ['shininess'] as const;
-      case 'MeshStandardMaterial':
-        return ['roughness', 'metalness'] as const;
-      case 'MeshLambertMaterial':
-      case 'MeshBasicMaterial':
-      default:
-        return [] as const;
+  // 折叠状态：key = group，value = 是否折叠
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {};
+    for (const g of DEFAULT_COLLAPSED) init[g] = true;
+    return init;
+  });
+
+  // 按 group 分组字段
+  const fieldsByGroup = useMemo(() => {
+    const all = getFieldsForType(type as MaterialType);
+    const map = new Map<FieldGroup, typeof all>();
+    for (const f of all) {
+      if (!map.has(f.group)) map.set(f.group, []);
+      map.get(f.group)!.push(f);
     }
+    return map;
   }, [type]);
 
   const exec = (cmd: any) => useHistoryStore.getState().execute(cmd);
@@ -46,12 +63,17 @@ export const MaterialProp: React.FC<{ objectId: string }> = ({ objectId }) => {
     exec(new ChangeMaterialTypeCommand(objectId, nextType));
   };
 
-  const handlePropChange = (key: string, value: number) => {
+  const handlePropChange = (key: string, value: unknown) => {
     exec(new UpdateMaterialPropsCommand(objectId, { [key]: value }));
+  };
+
+  const toggleGroup = (group: FieldGroup) => {
+    setCollapsed((prev) => ({ ...prev, [group]: !prev[group] }));
   };
 
   return (
     <div className="bg-[#0c0e14] border border-[#2d333f] p-3 rounded-sm space-y-3">
+      {/* 类型选择 */}
       <div className="flex items-center justify-between">
         <label className="text-[11px] text-[#999999] font-medium">类型</label>
         <select
@@ -60,59 +82,62 @@ export const MaterialProp: React.FC<{ objectId: string }> = ({ objectId }) => {
           onChange={(e) => handleTypeChange(e.target.value as MaterialType)}
         >
           {MATERIAL_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
+            <option key={t} value={t}>{t}</option>
           ))}
         </select>
       </div>
 
-      <div className="flex items-center justify-between">
-        <label className="text-[11px] text-[#999999] font-medium">Color</label>
-        <input
-          type="color"
-          value={(typeof props.color === 'string' ? props.color : '#cccccc') as string}
-          onChange={(e) => exec(new UpdateMaterialPropsCommand(objectId, { color: e.target.value }))}
-          className="w-8 h-6 bg-transparent border-0 p-0 cursor-pointer"
-        />
-      </div>
+      {/* Standard / Physical 的 Schema 字段分组 */}
+      {(type === 'MeshStandardMaterial' || type === 'MeshPhysicalMaterial') && (
+        <>
+          {[...fieldsByGroup.entries()].map(([group, fields]) => (
+            <div key={group}>
+              {/* 分组标题（可折叠） */}
+              <button
+                className="flex items-center w-full text-left gap-1 mb-1.5"
+                onClick={() => toggleGroup(group)}
+              >
+                <span className="text-[9px] text-slate-500">
+                  {collapsed[group] ? '▶' : '▼'}
+                </span>
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                  {GROUP_LABELS[group] ?? group}
+                </span>
+              </button>
 
-      {fields.map((key) => {
-        const value = getMaterialPropNumber(props, key, 0);
+              {/* 字段列表 */}
+              {!collapsed[group] && (
+                <div className="space-y-2 pl-2">
+                  {fields.map((field) => (
+                    <MaterialFieldRenderer
+                      key={field.key}
+                      field={field}
+                      value={props[field.key] ?? undefined}
+                      onChange={handlePropChange}
+                      projectId={currentProjectId}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </>
+      )}
 
-        // 基于 three.js 文档/示例设定合理的 UI 取值范围
-        const range = (() => {
-          switch (key) {
-            case 'roughness':
-            case 'metalness':
-            case 'clearcoat':
-            case 'clearcoatRoughness':
-            case 'transmission':
-              return { min: 0, max: 1, step: '0.01' };
-            case 'ior':
-              return { min: 1, max: 2.333, step: '0.001' };
-            case 'thickness':
-              return { min: 0, max: undefined, step: '0.01' };
-            case 'shininess':
-              // 你指定：0~1
-              return { min: 0, max: 1, step: '0.01' };
-            default:
-              return { min: undefined, max: undefined, step: '0.01' };
-          }
-        })();
-
-        return (
-          <NumberInput
-            key={key}
-            label={key}
-            value={value}
-            onChange={(val) => handlePropChange(key, val)}
-            step={range.step}
-            min={range.min}
-            max={range.max}
-          />
-        );
-      })}
+      {/* Phong / Lambert / Basic 仍用旧逻辑（简单字段，不值得 Schema 化） */}
+      {(type === 'MeshPhongMaterial' || type === 'MeshLambertMaterial' || type === 'MeshBasicMaterial') && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-[11px] text-[#999999] font-medium">Color</label>
+            <input
+              type="color"
+              value={(typeof props.color === 'string' ? props.color : '#cccccc')}
+              onChange={(e) => handlePropChange('color', e.target.value)}
+              className="w-8 h-6 bg-transparent border-0 p-0 cursor-pointer"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
