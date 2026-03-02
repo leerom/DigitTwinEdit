@@ -35,3 +35,14 @@ yarn-error.log*
 
 # Claude Code (local)
 .claude/settings.local.json
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Vite config build outputs
+packages/client/vite.config.d.ts
+packages/client/vite.config.js
+
+# User uploads
+packages/server/uploads/projects/
+packages/server/uploads/thumbnails/
