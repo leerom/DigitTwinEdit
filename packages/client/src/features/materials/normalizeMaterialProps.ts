@@ -8,12 +8,30 @@ const PHYSICAL_EXTRA_KEYS = PHYSICAL_EXTRA_FIELDS.map((f) => f.key);
 const ALLOWED_KEYS_BY_TYPE: Record<MaterialType, readonly string[]> = {
   MeshStandardMaterial:  STANDARD_KEYS,
   MeshPhysicalMaterial:  [...STANDARD_KEYS, ...PHYSICAL_EXTRA_KEYS],
-  MeshPhongMaterial:     ['color', 'wireframe', 'transparent', 'opacity', 'alphaTest',
-                          'depthTest', 'depthWrite', 'visible', 'side', 'shininess', 'specular'],
-  MeshLambertMaterial:   ['color', 'wireframe', 'transparent', 'opacity', 'alphaTest',
-                          'depthTest', 'depthWrite', 'visible', 'side'],
-  MeshBasicMaterial:     ['color', 'wireframe', 'transparent', 'opacity', 'alphaTest',
-                          'depthTest', 'depthWrite', 'visible', 'side'],
+  // MeshPhongMaterial 支持颜色/法线/AO/自发光等贴图，但不支持 PBR 专属贴图（roughnessMap/metalnessMap）
+  MeshPhongMaterial: [
+    'color', 'emissive', 'emissiveIntensity', 'wireframe', 'transparent', 'opacity',
+    'alphaTest', 'depthTest', 'depthWrite', 'visible', 'side', 'shininess', 'specular',
+    'flatShading', 'fog',
+    'map', 'emissiveMap', 'normalMap', 'normalScale', 'bumpMap', 'bumpScale',
+    'displacementMap', 'displacementScale', 'displacementBias',
+    'alphaMap', 'aoMap', 'aoMapIntensity', 'lightMap', 'lightMapIntensity',
+    'envMap', 'envMapIntensity', 'specularMap',
+  ],
+  // MeshLambertMaterial 支持基本贴图，不支持法线/凹凸/置换等
+  MeshLambertMaterial: [
+    'color', 'emissive', 'emissiveIntensity', 'wireframe', 'transparent', 'opacity',
+    'alphaTest', 'depthTest', 'depthWrite', 'visible', 'side', 'flatShading', 'fog',
+    'map', 'emissiveMap', 'alphaMap',
+    'aoMap', 'aoMapIntensity', 'lightMap', 'lightMapIntensity',
+    'envMap', 'envMapIntensity',
+  ],
+  MeshBasicMaterial: [
+    'color', 'wireframe', 'transparent', 'opacity',
+    'alphaTest', 'depthTest', 'depthWrite', 'visible', 'side', 'fog',
+    'map', 'alphaMap', 'aoMap', 'aoMapIntensity',
+    'lightMap', 'lightMapIntensity', 'envMap', 'envMapIntensity',
+  ],
 };
 
 const DEFAULTS_BY_TYPE: Record<MaterialType, Record<string, unknown>> = {

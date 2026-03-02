@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { clsx } from 'clsx';
 import { useAssetStore } from '../../stores/assetStore.js';
 import { useProjectStore } from '../../stores/projectStore.js';
@@ -16,6 +16,8 @@ import { useFBXImport } from '../../hooks/useFBXImport.js';
 import { FBXImportDialog } from '../../features/fbx/FBXImportDialog.js';
 import { ProgressDialog } from '../../features/scene/components/ProgressDialog.js';
 import { fbxImporter } from '../../features/fbx/FBXImporter.js';
+import { useTextureImport } from '../../features/textures/useTextureImport.js';
+import { TextureImportDialog } from '../../features/textures/TextureImportDialog.js';
 import type { AssetType } from '@digittwinedit/shared';
 
 type FolderType = 'scenes' | 'models' | 'materials' | 'textures';
@@ -23,7 +25,6 @@ type FolderType = 'scenes' | 'models' | 'materials' | 'textures';
 export const ProjectPanel: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState<'project' | 'resources'>('project');
   const [selectedFolder, setSelectedFolder] = useState<FolderType>('scenes');
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { currentProject, scenes, switchScene, updateSceneMetadata, deleteScene } = useProjectStore();
   const {
@@ -32,10 +33,8 @@ export const ProjectPanel: React.FC = () => {
     uploadProgress,
     selectedAssetId,
     loadAssets,
-    uploadAsset,
     deleteAsset,
     updateAsset,
-    getAssetUrl,
     selectAsset,
   } = useAssetStore();
   const { addAssetToScene } = useSceneStore();
@@ -54,6 +53,9 @@ export const ProjectPanel: React.FC = () => {
 
   // FBX 导入 Hook（Models 文件夹专用）
   const fbx = useFBXImport();
+
+  // 纹理导入 Hook（Textures 文件夹专用）
+  const tex = useTextureImport();
 
   const [blankContextMenu, setBlankContextMenu] = useState<{ x: number; y: number } | null>(null);
 
@@ -143,30 +145,6 @@ export const ProjectPanel: React.FC = () => {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || !currentProject) return;
-
-    const type: 'model' | 'texture' = selectedFolder === 'models' ? 'model' : 'texture';
-
-    for (const file of Array.from(files)) {
-      try {
-        await uploadAsset(currentProject.id, file, type);
-      } catch (error) {
-        console.error('Failed to upload file:', error);
-      }
-    }
-
-    // 重置文件输入
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
   const handleDeleteAsset = async (assetId: number) => {
     if (confirm('确定要删除这个资产吗？')) {
       try {
@@ -214,9 +192,12 @@ export const ProjectPanel: React.FC = () => {
     },
   ];
 
-  // 过滤掉原始 FBX 文件，只显示转换后的 GLB 资产
+  // 过滤掉原始 FBX 文件和原始纹理文件（只显示转换后的 GLB 和 KTX2 资产）
   const displayAssets = assets.filter(
-    (a) => !(a.metadata as Record<string, unknown> | undefined)?.isSourceFbx
+    (a) => {
+      const meta = a.metadata as Record<string, unknown> | undefined;
+      return !meta?.isSourceFbx && !meta?.isSourceTexture;
+    }
   );
 
   return (
@@ -346,30 +327,29 @@ export const ProjectPanel: React.FC = () => {
 
                 {selectedFolder === 'textures' && (
                   <button
-                    onClick={handleUploadClick}
+                    onClick={tex.trigger}
                     className="flex items-center space-x-1 px-3 py-1 bg-primary hover:bg-primary-hover text-white text-xs rounded transition-colors"
                     disabled={!currentProject}
                   >
                     <span className="material-symbols-outlined text-sm">upload</span>
-                    <span>上传</span>
+                    <span>导入纹理（→KTX2）</span>
                   </button>
                 )}
 
-                {/* 纹理上传 input */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept=".png,.jpg,.jpeg,.webp"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
                 {/* FBX 导入 input */}
                 <input
                   ref={fbx.inputRef}
                   type="file"
                   accept=".fbx"
                   onChange={fbx.handleFileSelected}
+                  className="hidden"
+                />
+                {/* 纹理导入 input（由 useTextureImport 管理） */}
+                <input
+                  ref={tex.inputRef}
+                  type="file"
+                  accept=".jpg,.jpeg,.png"
+                  onChange={tex.handleFileSelected}
                   className="hidden"
                 />
               </div>
@@ -433,10 +413,10 @@ export const ProjectPanel: React.FC = () => {
                         )}
                         {selectedFolder === 'textures' && (
                           <button
-                            onClick={handleUploadClick}
+                            onClick={tex.trigger}
                             className="text-primary hover:underline text-xs"
                           >
-                            点击上传
+                            点击导入
                           </button>
                         )}
                       </div>
@@ -562,6 +542,50 @@ export const ProjectPanel: React.FC = () => {
         canCancel={fbx.importProgress.percent < 65}
         onCancel={() => fbxImporter.abort()}
       />
+
+      {/* 纹理导入配置对话框 */}
+      {tex.pendingFile && (
+        <TextureImportDialog
+          isOpen={tex.showDialog}
+          fileName={tex.pendingFile.name}
+          fileSize={tex.pendingFile.size}
+          originalWidth={tex.imageSize.w}
+          originalHeight={tex.imageSize.h}
+          onConfirm={tex.handleConfirm}
+          onCancel={tex.handleCancel}
+        />
+      )}
+
+      {/* 纹理转换进度对话框 */}
+      <ProgressDialog
+        isOpen={tex.isConverting}
+        title="纹理转换中"
+        percentage={tex.progress.percent}
+        currentTask={tex.progress.step}
+        canCancel={tex.progress.percent < 65}
+        onCancel={tex.handleAbort}
+      />
+      {/* 纹理转换错误对话框 */}
+      {tex.conversionError && (
+        <Dialog
+          isOpen={true}
+          onClose={tex.clearConversionError}
+          title="纹理转换失败"
+          className="max-w-[420px]"
+        >
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-red-400">{tex.conversionError}</p>
+            <div className="flex justify-end">
+              <button
+                onClick={tex.clearConversionError}
+                className="px-4 py-1.5 text-xs bg-slate-700 text-white rounded hover:bg-slate-600 transition-colors"
+              >
+                确定
+              </button>
+            </div>
+          </div>
+        </Dialog>
+      )}
     </div>
   );
 };

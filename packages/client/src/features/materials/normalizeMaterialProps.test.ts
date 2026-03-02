@@ -55,6 +55,34 @@ describe('normalizeMaterialProps', () => {
     expect(result.roughness).toBe(0.3);
   });
 
+  it('Standard → Phong 切换时保留 Phong 支持的贴图（map/normalMap/emissiveMap）', () => {
+    const props = {
+      map:          { assetId: 1, url: '/color.png' },
+      normalMap:    { assetId: 2, url: '/normal.png' },
+      emissiveMap:  { assetId: 3, url: '/emissive.png' },
+      roughnessMap: { assetId: 4, url: '/roughness.png' }, // Phong 不支持
+      roughness: 0.5, // Phong 不支持
+    };
+    const result = normalizeMaterialProps(props, 'MeshPhongMaterial');
+    expect(result.map).toEqual({ assetId: 1, url: '/color.png' });
+    expect(result.normalMap).toEqual({ assetId: 2, url: '/normal.png' });
+    expect(result.emissiveMap).toEqual({ assetId: 3, url: '/emissive.png' });
+    expect(result.roughnessMap).toBeUndefined();  // Phong 不支持 PBR 贴图
+    expect(result.roughness).toBeUndefined();      // Phong 不支持 roughness
+  });
+
+  it('Standard → Lambert 切换时保留 Lambert 支持的贴图（map/emissiveMap）', () => {
+    const props = {
+      map:       { assetId: 1, url: '/color.png' },
+      emissiveMap: { assetId: 2, url: '/emissive.png' },
+      normalMap: { assetId: 3, url: '/normal.png' }, // Lambert 不支持
+    };
+    const result = normalizeMaterialProps(props, 'MeshLambertMaterial');
+    expect(result.map).toEqual({ assetId: 1, url: '/color.png' });
+    expect(result.emissiveMap).toEqual({ assetId: 2, url: '/emissive.png' });
+    expect(result.normalMap).toBeUndefined();  // Lambert 不支持法线贴图
+  });
+
   it('Physical → Standard 切换时丢弃 Physical 专属字段', () => {
     const props = { clearcoat: 0.8, roughness: 0.5, iridescence: 0.3 };
     const result = normalizeMaterialProps(props, 'MeshStandardMaterial');

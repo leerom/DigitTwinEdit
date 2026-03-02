@@ -3,14 +3,19 @@ import { useSceneStore } from '@/stores/sceneStore';
 import { useEditorStore } from '@/stores/editorStore';
 import { useAssetStore } from '@/stores/assetStore';
 import { MaterialSpec, ObjectType } from '@/types';
-import { ThreeEvent } from '@react-three/fiber';
+import { ThreeEvent, useThree } from '@react-three/fiber';
 import { useHelper, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { assetsApi } from '@/api/assets';
 import { createThreeMaterial, isTextureRef, applyTextureProps } from '@/features/materials/materialFactory';
 import { findNodeByPath } from '@/components/assets/modelHierarchy';
 
-const DEFAULT_BOX_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
+const DEFAULT_BOX_GEOMETRY = (() => {
+  const geo = new THREE.BoxGeometry(1, 1, 1);
+  // aoMap/lightMap 需要 UV1（第二套 UV），将 UV0 复制过去
+  if (geo.attributes.uv) geo.setAttribute('uv1', geo.attributes.uv);
+  return geo;
+})();
 
 // 加载失败时静默降级，防止崩溃整个场景树
 class ModelErrorBoundary extends React.Component<
@@ -48,6 +53,11 @@ const ModelMesh: React.FC<{
   const { scene: gltfScene } = useGLTF(url, true, true, (loader) => {
     loader.setWithCredentials(true);
   });
+
+  // 获取 WebGL renderer，供 applyTextureProps/createThreeMaterial 中 KTX2Loader.detectSupport 使用
+  const { gl: modelGl } = useThree();
+  const modelGlRef = useRef<THREE.WebGLRenderer | null>(null);
+  modelGlRef.current = modelGl;
 
   // 克隆场景，同时克隆每个网格的材质以免修改共享实例；
   // 依次应用：① 对象级 materialSpec（覆盖全部子网格）② 节点级 nodeOverrides 中的材质覆盖（变换覆盖由单独 useEffect 应用）
@@ -99,10 +109,11 @@ const ModelMesh: React.FC<{
           for (const [key, value] of Object.entries(scalarProps)) {
             if (key === 'color' && typeof value === 'string' && m.color?.set) m.color.set(value);
             else if (key === 'emissive' && typeof value === 'string' && m.emissive?.set) m.emissive.set(value);
-            else if (key === 'normalScale' && Array.isArray(value) && m.normalScale?.set) m.normalScale.set(value[0], value[1]);
+            else if (key === 'normalScale' && Array.isArray(value) && m.normalScale?.isVector2) m.normalScale.set(value[0], value[1]);
+            else if (key === 'clearcoatNormalScale' && Array.isArray(value) && m.clearcoatNormalScale?.isVector2) m.clearcoatNormalScale.set(value[0], value[1]);
             else m[key] = value;
           }
-          if (Object.keys(texProps).length > 0) applyTextureProps(mat, texProps);
+          if (Object.keys(texProps).length > 0) applyTextureProps(mat, texProps, modelGlRef.current ?? undefined);
           m.needsUpdate = true;
         });
       });
@@ -117,7 +128,7 @@ const ModelMesh: React.FC<{
         node.traverse((child) => {
           const m = child as THREE.Mesh;
           if (m.isMesh) {
-            m.material = createThreeMaterial(override.material);
+            m.material = createThreeMaterial(override.material, modelGlRef.current ?? undefined);
           }
         });
       }
@@ -226,13 +237,28 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const activeSubNodePath = useEditorStore((state) => state.activeSubNodePath);
   const assets = useAssetStore((state) => state.assets);
 
+  // 获取 WebGL renderer，用于 KTX2Loader.detectSupport 及加载 KTX2 纹理
+  const { gl } = useThree();
+  const glRef = useRef<THREE.WebGLRenderer | null>(null);
+  glRef.current = gl;
+
   // Hooks 必须每次渲染保持一致调用次数，这里不能在 hooks 之间提前 return
   const isSelected = selectedIds.includes(id);
   // const isActive = activeId === id;
 
   const lightRef = useRef<THREE.DirectionalLight>(null!);
+  const lightTargetRef = useRef<THREE.Object3D>(null!);
   const cameraRef = useRef<THREE.Camera>(null!);
   const groupRef = useRef<THREE.Group>(null!);
+
+  // DirectionalLight 方向 = light.worldPos → target.worldPos。
+  // 将 target 挂载在 group 内部 (0,0,0)，light 挂在 (0,0,2)，
+  // group 旋转时两者同步旋转，方向随之变化。
+  useEffect(() => {
+    if (lightRef.current && lightTargetRef.current) {
+      lightRef.current.target = lightTargetRef.current;
+    }
+  }, []);
 
   // Safe access to object properties for hooks
   useHelper(isSelected && object?.type === ObjectType.LIGHT ? lightRef : null, THREE.DirectionalLightHelper, 1, 'yellow');
@@ -256,15 +282,21 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     if (!object || object?.type !== ObjectType.MESH) return null;
     const geoType = object.components?.mesh?.geometry || 'box';
 
+    let geo: THREE.BufferGeometry;
     switch (geoType) {
-      case 'sphere': return new THREE.SphereGeometry(0.5, 32, 32);
-      case 'plane': return new THREE.PlaneGeometry(1, 1);
-      case 'cylinder': return new THREE.CylinderGeometry(0.5, 0.5, 1, 32);
-      case 'capsule': return new THREE.CapsuleGeometry(0.5, 1, 4, 8);
-      case 'torus': return new THREE.TorusGeometry(0.5, 0.2, 16, 100);
+      case 'sphere':   geo = new THREE.SphereGeometry(0.5, 32, 32); break;
+      case 'plane':    geo = new THREE.PlaneGeometry(1, 1); break;
+      case 'cylinder': geo = new THREE.CylinderGeometry(0.5, 0.5, 1, 32); break;
+      case 'capsule':  geo = new THREE.CapsuleGeometry(0.5, 1, 4, 8); break;
+      case 'torus':    geo = new THREE.TorusGeometry(0.5, 0.2, 16, 100); break;
       case 'box':
-      default: return DEFAULT_BOX_GEOMETRY;
+      default: return DEFAULT_BOX_GEOMETRY; // 共享实例，模块初始化时已添加 UV1
     }
+    // 非 box 几何体：添加 UV1，供 aoMap/lightMap 使用
+    if (geo.attributes.uv && !geo.attributes.uv1) {
+      geo.setAttribute('uv1', geo.attributes.uv);
+    }
+    return geo;
   }, [object?.type, object?.components?.mesh?.geometry]);
 
   const { position, rotation, scale } = object?.transform || { position: [0,0,0], rotation: [0,0,0], scale: [1,1,1] };
@@ -325,7 +357,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   // - props 变：把 props 逐项 apply 到当前 material，并标记 needsUpdate
   if (materialSpec && lastTypeRef.current !== materialSpec.type) {
     materialRef.current?.dispose();
-    materialRef.current = createThreeMaterial(materialSpec);
+    materialRef.current = createThreeMaterial(materialSpec, glRef.current ?? undefined);
     lastTypeRef.current = materialSpec.type;
   }
 
@@ -367,7 +399,7 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
 
     // 异步加载贴图（加载完成后自动 needsUpdate）
     if (Object.keys(texProps).length > 0) {
-      applyTextureProps(mat, texProps);
+      applyTextureProps(mat, texProps, glRef.current ?? undefined);
     }
   }, [materialSpec, renderMode, selectedIds]);
 
@@ -433,11 +465,17 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
 
       {object?.type === ObjectType.LIGHT && (
         <group>
+          {/*
+            DirectionalLight 放在本地 (0,0,2)，target 挂在本地 (0,0,0)。
+            group 旋转时两者同步旋转 → 方向始终沿 group 本地 -Z 轴，随旋转 Gizmo 联动。
+          */}
           <directionalLight
             ref={lightRef}
+            position={[0, 0, 2]}
             color={object.components?.light?.color ?? '#ffffff'}
             intensity={object.components?.light?.intensity ?? 1}
           />
+          <object3D ref={lightTargetRef} />
           <mesh>
             <sphereGeometry args={[0.3, 16, 16]} />
             <meshBasicMaterial color="#ffff00" />
