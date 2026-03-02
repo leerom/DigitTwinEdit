@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useEditorStore } from '../../stores/editorStore';
 import { useSceneStore } from '../../stores/sceneStore';
 import { useAssetStore } from '../../stores/assetStore';
@@ -9,8 +9,10 @@ import { TwinDataProp } from '../inspector/TwinDataProp';
 import { CameraProp } from '../inspector/specific/CameraProp';
 import { LightProp } from '../inspector/specific/LightProp';
 import { ModelImportProp } from '../inspector/ModelImportProp';
+import { TextureImportProp } from '../inspector/TextureImportProp';
 import { ModelPreview } from '../inspector/ModelPreview';
 import { SubNodeInspector } from '../inspector/SubNodeInspector';
+import { assetsApi } from '../../api/assets';
 
 export const InspectorPanel: React.FC = () => {
   const activeId = useEditorStore((state) => state.activeId);
@@ -22,10 +24,29 @@ export const InspectorPanel: React.FC = () => {
   const selectedNodePath = useAssetStore((state) => state.selectedNodePath);
   const assets = useAssetStore((state) => state.assets);
 
+  const selectedAsset = selectedAssetId
+    ? assets.find((a) => a.id === selectedAssetId)
+    : undefined;
+
+  // 纹理缩略图 URL：KTX2 使用源 PNG；普通纹理直接用下载 URL（组件顶层确保 hooks 规则）
+  const textureThumbnailUrl = useMemo(() => {
+    if (!selectedAsset) return null;
+    if (selectedAsset.type !== 'texture' && (selectedAsset.type as string) !== 'image') return null;
+    const meta = selectedAsset.metadata as Record<string, unknown> | undefined;
+    if (selectedAsset.mime_type === 'image/ktx2') {
+      const sourceId = meta?.sourceTextureAssetId as number | undefined;
+      if (sourceId) {
+        const sourceAsset = assets.find((a) => a.id === sourceId);
+        if (sourceAsset) {
+          return `${assetsApi.getAssetDownloadUrl(sourceId)}?v=${new Date(sourceAsset.updated_at).getTime()}`;
+        }
+      }
+      return null;
+    }
+    return `${assetsApi.getAssetDownloadUrl(selectedAsset.id)}?v=${new Date(selectedAsset.updated_at).getTime()}`;
+  }, [selectedAsset, assets]);
+
   if (!activeId) {
-    const selectedAsset = selectedAssetId
-      ? assets.find((a) => a.id === selectedAssetId)
-      : undefined;
 
     return (
       <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
@@ -46,13 +67,24 @@ export const InspectorPanel: React.FC = () => {
               {/* 资产头部 */}
               <div className="p-4 border-b border-border-dark bg-header-dark/50">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-slate-800 rounded flex items-center justify-center border border-white/5">
-                    <span className="material-symbols-outlined text-primary text-base">deployed_code</span>
+                  <div className="w-10 h-10 bg-slate-800 rounded flex items-center justify-center border border-white/5 overflow-hidden shrink-0">
+                    {textureThumbnailUrl ? (
+                      <img
+                        src={textureThumbnailUrl}
+                        crossOrigin="use-credentials"
+                        alt={selectedAsset.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="material-symbols-outlined text-primary text-base">
+                        {selectedAsset.type === 'texture' ? 'image' : 'deployed_code'}
+                      </span>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-white font-medium truncate">{selectedAsset.name}</p>
                     <p className="text-[10px] text-slate-500 mt-0.5">
-                      {selectedAsset.type} · {(selectedAsset.file_size / 1024).toFixed(0)} KB
+                      {selectedAsset.mime_type ?? selectedAsset.type} · {(selectedAsset.file_size / 1024).toFixed(0)} KB
                     </p>
                   </div>
                 </div>
@@ -61,6 +93,11 @@ export const InspectorPanel: React.FC = () => {
               {/* 资产属性内容 */}
               <div className="p-4">
                 <ModelImportProp
+                  asset={selectedAsset}
+                  projectId={selectedAsset.project_id}
+                  onReimportComplete={() => {}}
+                />
+                <TextureImportProp
                   asset={selectedAsset}
                   projectId={selectedAsset.project_id}
                   onReimportComplete={() => {}}
