@@ -85,7 +85,6 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
         type: spec.type,
         properties: spec.props,
       } as any);
-      useSceneStore.getState().syncMaterialAsset(materialId, spec);
       set({ saveError: null });
     } catch {
       set({ saveError: '保存失败，请重试' });
