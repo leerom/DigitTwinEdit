@@ -2,11 +2,15 @@ import React from 'react';
 import { useSceneStore } from '../../stores/sceneStore';
 import { useEditorStore } from '../../stores/editorStore';
 import { useProjectStore } from '../../stores/projectStore';
+import { useHistoryStore } from '@/stores/historyStore';
 import { ObjectType } from '../../types';
+import type { MaterialSpec, MaterialType } from '@/types';
 import { clsx } from 'clsx';
 import { useAssetDrop } from '@/hooks/useAssetDrop';
 import { v4 as uuidv4 } from 'uuid';
 import { GltfNodeTree } from './GltfNodeTree';
+import { BindMaterialAssetCommand } from '@/features/editor/commands/BindMaterialAssetCommand';
+import { materialsApi } from '@/api/assets';
 
 interface HierarchyItemProps {
   id: string;
@@ -24,6 +28,7 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth, onC
 
   const [expanded, setExpanded] = React.useState(true);
   const [renameValue, setRenameValue] = React.useState('');
+  const [isDragOver, setIsDragOver] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const isRenaming = renamingId === id;
@@ -83,6 +88,42 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth, onC
     setExpanded(!expanded);
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    if (e.dataTransfer.types.includes('assettype')) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      setIsDragOver(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const assetType = e.dataTransfer.getData('assetType');
+    if (assetType !== 'material') return;
+
+    if (object.type !== ObjectType.MESH) return;
+
+    const assetId = parseInt(e.dataTransfer.getData('assetId'), 10);
+    if (isNaN(assetId)) return;
+
+    try {
+      const data = await materialsApi.getMaterial(assetId);
+      const spec: MaterialSpec = { type: data.type as MaterialType, props: data.properties };
+      useHistoryStore.getState().execute(new BindMaterialAssetCommand(id, assetId, spec));
+    } catch (error) {
+      console.error('Failed to bind material on drop:', error);
+    }
+  };
+
   const getIcon = () => {
     switch (object.type) {
       case ObjectType.CAMERA:
@@ -103,11 +144,15 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth, onC
       <div
         className={clsx(
           "hierarchy-item",
-          isSelected && "bg-primary/20 text-white border-l-2 border-primary"
+          isSelected && "bg-primary/20 text-white border-l-2 border-primary",
+          isDragOver && object.type === ObjectType.MESH && "ring-1 ring-primary/60 bg-primary/10"
         )}
         style={{ paddingLeft: `${depth * 16 + 12}px` }}
         onClick={handleSelect}
         onContextMenu={handleContextMenuEvent}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
       >
         {/* Expand/Collapse Button */}
         {isExpandable ? (
