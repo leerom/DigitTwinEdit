@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useEditorStore } from '../../stores/editorStore';
 import { useSceneStore } from '../../stores/sceneStore';
 import { useAssetStore } from '../../stores/assetStore';
+import { useMaterialStore } from '../../stores/materialStore';
 import { ObjectType } from '@/types';
 import { TransformProp } from '../inspector/TransformProp';
 import { MaterialProp } from '../inspector/MaterialProp';
@@ -12,6 +13,7 @@ import { ModelImportProp } from '../inspector/ModelImportProp';
 import { TextureImportProp } from '../inspector/TextureImportProp';
 import { ModelPreview } from '../inspector/ModelPreview';
 import { SubNodeInspector } from '../inspector/SubNodeInspector';
+import { MaterialAssetProp } from '../inspector/MaterialAssetProp';
 import { assetsApi } from '../../api/assets';
 
 export const InspectorPanel: React.FC = () => {
@@ -26,6 +28,12 @@ export const InspectorPanel: React.FC = () => {
 
   const selectedAsset = selectedAssetId
     ? assets.find((a) => a.id === selectedAssetId)
+    : undefined;
+
+  const selectedMaterialId = useMaterialStore((s) => s.selectedMaterialId);
+  const materials = useMaterialStore((s) => s.materials);
+  const selectedMaterial = selectedMaterialId
+    ? materials.find((m) => m.id === selectedMaterialId)
     : undefined;
 
   // 纹理缩略图 URL：KTX2 使用源 PNG；普通纹理直接用下载 URL（组件顶层确保 hooks 规则）
@@ -47,6 +55,44 @@ export const InspectorPanel: React.FC = () => {
   }, [selectedAsset, assets]);
 
   if (!activeId) {
+
+    // 材质资产检视模式（优先于 model/texture）
+    if (selectedMaterial) {
+      return (
+        <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
+          <div className="panel-title">
+            <div className="flex items-center space-x-2">
+              <span className="material-symbols-outlined text-xs">info</span>
+              <span>属性检视器 (Inspector)</span>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            {/* 资产头部 */}
+            <div className="p-4 border-b border-border-dark bg-header-dark/50">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-slate-800 rounded flex items-center justify-center border border-white/5 shrink-0">
+                  <span className="material-symbols-outlined text-primary text-base">texture</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-white font-medium truncate">{selectedMaterial.name}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">
+                    {(selectedMaterial.metadata as any)?.materialType ?? 'material'} ·{' '}
+                    {(selectedMaterial.file_size / 1024).toFixed(0)} KB
+                  </p>
+                </div>
+              </div>
+            </div>
+            {/* 属性编辑 */}
+            <div className="p-4">
+              <MaterialAssetProp
+                assetId={selectedMaterial.id}
+                projectId={selectedMaterial.project_id}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
