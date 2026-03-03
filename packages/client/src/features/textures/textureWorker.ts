@@ -93,7 +93,12 @@ self.onmessage = async (e: MessageEvent<TextureWorkerInput>) => {
       clearTimeout(timeoutHandle);
       timeoutHandle = null;
     }
-    const ktx2Buffer = ktx2Data.buffer as ArrayBuffer;
+    // ktx2Data 是 BasisEncoder 预分配的 10MB 缓冲区的视图（byteOffset=0，byteLength=实际大小）
+    // 必须 slice 出实际数据段，避免将整个 10MB 缓冲区传输给主线程
+    const ktx2Buffer = ktx2Data.buffer.slice(
+      ktx2Data.byteOffset,
+      ktx2Data.byteOffset + ktx2Data.byteLength
+    );
     postMsg(
       { type: 'done', ktx2Buffer, finalWidth: targetWidth, finalHeight: targetHeight },
       [ktx2Buffer]
