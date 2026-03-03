@@ -34,6 +34,7 @@ export interface MeshComponent {
   geometry?: 'box' | 'sphere' | 'plane' | 'cylinder' | 'torus' | 'capsule';
   castShadow: boolean;
   receiveShadow: boolean;
+  materialAssetId?: number;   // 绑定的材质资产 DB ID（可选）
 }
 
 // Twin Component (Digital Twin Metadata)
