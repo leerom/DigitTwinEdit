@@ -518,16 +518,7 @@ export const ProjectPanel: React.FC = () => {
                   ) : (
                     <div className="grid grid-cols-10 gap-4 content-start">
                       {materials.map((mat) => (
-                        <div
-                          key={mat.id}
-                          onContextMenu={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            selectMaterial(mat.id);
-                            selectAsset(null);
-                            setMaterialContextMenu({ x: e.clientX, y: e.clientY, assetId: mat.id, assetName: mat.name });
-                          }}
-                        >
+                        <div key={mat.id}>
                           <AssetCard
                             asset={mat}
                             selected={selectedMaterialId === mat.id}
@@ -535,6 +526,11 @@ export const ProjectPanel: React.FC = () => {
                               selectMaterial(mat.id);
                               selectAsset(null);
                               clearSelection();
+                            }}
+                            onContextMenu={(e) => {
+                              selectMaterial(mat.id);
+                              selectAsset(null);
+                              setMaterialContextMenu({ x: e.clientX, y: e.clientY, assetId: mat.id, assetName: mat.name });
                             }}
                             onOpen={() => {}}
                             onRename={(name) => handleRenameMaterial(mat.id, name)}

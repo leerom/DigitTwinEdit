@@ -11,6 +11,7 @@ interface AssetCardProps {
   onRename?: (newName: string) => void;
   onDelete?: () => void;
   onDragStart?: (e: React.DragEvent) => void;
+  onContextMenu?: (e: React.MouseEvent) => void;
 }
 
 export const AssetCard: React.FC<AssetCardProps> = ({
@@ -21,6 +22,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
   onRename,
   onDelete,
   onDragStart,
+  onContextMenu: onContextMenuProp,
 }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [editedName, setEditedName] = useState(asset.name);
@@ -55,7 +57,11 @@ export const AssetCard: React.FC<AssetCardProps> = ({
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setContextMenu({ x: e.clientX, y: e.clientY });
+    if (onContextMenuProp) {
+      onContextMenuProp(e);
+    } else {
+      setContextMenu({ x: e.clientX, y: e.clientY });
+    }
   };
 
   const handleRenameClick = () => {
