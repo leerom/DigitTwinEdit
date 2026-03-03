@@ -49,7 +49,7 @@
 |------|------|----------|------|
 | 2026-01-27 | [materials-editor-design](materials/2026-01-27-materials-editor-design.md) | [materials-editor](materials/2026-01-27-materials-editor.md) | 材质资产编辑器 |
 | 2026-02-28 | [material-inspector-design](materials/2026-02-28-material-inspector-design.md) | — | 材质属性检视器（Schema 化字段） |
-| 2026-03-03 | [material-preview-design](materials/2026-03-03-material-preview-design.md) | — | Inspector 底部材质预览面板 ✅ 已实施 |
+| 2026-03-03 | [material-preview-design](materials/2026-03-03-material-preview-design.md) | [material-preview](materials/2026-03-03-material-preview.md) | Inspector 底部材质预览面板 ✅ 已实施 |
 
 ---
 
