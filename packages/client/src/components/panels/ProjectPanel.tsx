@@ -583,6 +583,7 @@ export const ProjectPanel: React.FC = () => {
                             selected={selectedAssetId === asset.id}
                             onSelect={() => {
                               selectAsset(asset.id);
+                              selectMaterial(null);
                               clearSelection();
                             }}
                             onOpen={() => handleAssetOpen(asset.id)}

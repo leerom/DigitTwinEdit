@@ -92,8 +92,7 @@ export const MaterialProp: React.FC<{ objectId: string }> = ({ objectId }) => {
   };
 
   const handleUnbind = () => {
-    const currentSpec: MaterialSpec = { type: type as MaterialType, props };
-    exec(new BindMaterialAssetCommand(objectId, 0, currentSpec));
+    exec(new BindMaterialAssetCommand(objectId, 0, { type: 'MeshStandardMaterial', props: {} }));
   };
 
   const toggleGroup = (group: FieldGroup) => {

@@ -340,25 +340,24 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   }, [object?.components?.model]);
 
   const materialRef = useRef<THREE.Material | null>(null);
-  const lastTypeRef = useRef<MaterialSpec['type'] | null>(null);
+  const lastMaterialSpecRef = useRef<MaterialSpec | null>(null);
 
   // 当组件卸载时 dispose；当材质类型切换时重建并 dispose 旧材质
   useEffect(() => {
     return () => {
       materialRef.current?.dispose();
       materialRef.current = null;
-      lastTypeRef.current = null;
+      lastMaterialSpecRef.current = null;
     };
   }, []);
 
-  // 注意：材质 props（如 color/roughness/metalness）变化时也要实时联动到 SceneView。
-  // 这里用「类型变化就重建」+「props 变化就同步到现有实例」的组合策略：
-  // - type 变：dispose 旧实例，new 新实例
-  // - props 变：把 props 逐项 apply 到当前 material，并标记 needsUpdate
-  if (materialSpec && lastTypeRef.current !== materialSpec.type) {
+  // materialSpec 变化时（包括 props 清空/重置）重建材质实例，确保旧 props 不残留
+  if (materialSpec !== lastMaterialSpecRef.current) {
     materialRef.current?.dispose();
-    materialRef.current = createThreeMaterial(materialSpec, glRef.current ?? undefined);
-    lastTypeRef.current = materialSpec.type;
+    materialRef.current = materialSpec
+      ? createThreeMaterial(materialSpec, glRef.current ?? undefined)
+      : null;
+    lastMaterialSpecRef.current = materialSpec;
   }
 
   useEffect(() => {
