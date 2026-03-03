@@ -275,6 +275,30 @@ describe('bindMaterialAsset', () => {
     expect(obj.components?.mesh?.material).toEqual(spec);
   });
 
+  it('模型对象（仅有 components.model）也能正确绑定材质资产', () => {
+    act(() => {
+      useSceneStore.getState().addObject({
+        id: 'model-obj',
+        type: ObjectType.MESH,
+        name: 'Model Object',
+        components: {
+          model: { assetId: 7, path: 'models/test.glb' },
+        },
+      });
+    });
+
+    const spec: MaterialSpec = { type: 'MeshStandardMaterial', props: { color: '#00ff00' } };
+    act(() => {
+      useSceneStore.getState().bindMaterialAsset('model-obj', 42, spec);
+    });
+
+    const obj = useSceneStore.getState().scene.objects['model-obj'];
+    expect(obj.components?.mesh?.materialAssetId).toBe(42);
+    expect(obj.components?.mesh?.material).toEqual(spec);
+    // components.model 保持不变
+    expect((obj.components?.model as any)?.assetId).toBe(7);
+  });
+
   it('assetId 为 0 时清除 materialAssetId', () => {
     act(() => {
       useSceneStore.getState().addObject({

@@ -101,7 +101,7 @@ describe('useMaterialStore', () => {
   });
 
   describe('updateMaterialSpec', () => {
-    it('成功时调用 API 更新材质并触发 syncMaterialAsset', async () => {
+    it('成功时调用 API 更新材质（syncMaterialAsset 由 UI 层负责，不在此调用）', async () => {
       vi.mocked(materialsApi.updateMaterial).mockResolvedValue(undefined);
       const syncFn = vi.fn();
       vi.mocked(useSceneStore.getState).mockReturnValue({ syncMaterialAsset: syncFn, clearMaterialAssetRefs: vi.fn() } as any);
@@ -113,7 +113,9 @@ describe('useMaterialStore', () => {
         type: 'MeshStandardMaterial',
         properties: { color: '#00ff00' },
       });
-      expect(syncFn).toHaveBeenCalledWith(7, spec);
+      // syncMaterialAsset 由 MaterialAssetProp UI 层直接调用（实时同步），
+      // materialStore.updateMaterialSpec 仅负责持久化到服务端，不再重复调用
+      expect(syncFn).not.toHaveBeenCalled();
       expect(useMaterialStore.getState().saveError).toBeNull();
     });
 

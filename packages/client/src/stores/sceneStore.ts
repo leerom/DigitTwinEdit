@@ -398,7 +398,10 @@ export const useSceneStore = create<SceneState>()(
       bindMaterialAsset: (objectId, assetId, spec) =>
         set((state) => {
           const obj = state.scene.objects[objectId];
-          if (!obj?.components?.mesh) return;
+          if (!obj) return;
+          // 自动初始化 components / mesh，支持仅有 components.model 的模型对象
+          if (!obj.components) obj.components = {};
+          if (!obj.components.mesh) obj.components.mesh = {} as MeshComponent;
           obj.components.mesh.material = spec;
           if (assetId === 0) {
             delete obj.components.mesh.materialAssetId;
