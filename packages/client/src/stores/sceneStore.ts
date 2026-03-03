@@ -425,6 +425,7 @@ export const useSceneStore = create<SceneState>()(
           for (const obj of Object.values(state.scene.objects)) {
             if (obj.components?.mesh?.materialAssetId === assetId) {
               delete obj.components.mesh.materialAssetId;
+              obj.components.mesh.material = { type: 'MeshStandardMaterial', props: {} };
             }
           }
           state.scene.updatedAt = new Date().toISOString();

@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { AssetModel, type AssetRow } from '../models/Asset.js';
 import { fileStorage } from '../utils/fileStorage.js';
 
@@ -91,18 +92,18 @@ export class MaterialService {
       updated_at: new Date().toISOString()
     };
 
-    // 保存更新后的材质
+    // 保存更新后的材质（使用 path.basename 兼容 Windows 反斜杠路径；fs.writeFile 会直接覆盖同名文件）
     const buffer = Buffer.from(JSON.stringify(updatedData, null, 2), 'utf-8');
-    await fileStorage.deleteFile(asset.file_path);
     await fileStorage.saveFile(
       asset.project_id,
       'materials',
-      asset.file_path.split('/').pop()!,
+      path.basename(asset.file_path),
       buffer
     );
 
-    // 更新元数据
+    // 更新元数据（若包含 name 则同步更新 DB name 字段）
     await AssetModel.update(materialId, {
+      ...(materialData.name ? { name: materialData.name } : {}),
       metadata: {
         ...asset.metadata,
         materialType: updatedData.type,

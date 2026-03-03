@@ -79,6 +79,9 @@ export const ProjectPanel: React.FC = () => {
   const [materialContextMenu, setMaterialContextMenu] = useState<{
     x: number; y: number; assetId: number; assetName: string;
   } | null>(null);
+  const [showRenameMaterialDialog, setShowRenameMaterialDialog] = useState(false);
+  const [renameMaterialId, setRenameMaterialId] = useState<number | null>(null);
+  const [renameMaterialCurrentName, setRenameMaterialCurrentName] = useState('');
 
   // 加载资产
   useEffect(() => {
@@ -235,7 +238,7 @@ export const ProjectPanel: React.FC = () => {
     const refCount = Object.values(useSceneStore.getState().scene.objects)
       .filter((obj: any) => obj.components?.mesh?.materialAssetId === assetId).length;
     const confirmMsg = refCount > 0
-      ? `该材质被场景中 ${refCount} 个对象使用，删除后这些对象将保留当前材质外观，但失去与资产的关联。\n\n确认删除？`
+      ? `该材质被场景中 ${refCount} 个对象使用，删除后这些对象的材质将同时被清除。\n\n确认删除？`
       : '确定要删除这个材质资产吗？';
     if (!confirm(confirmMsg)) return;
     try {
@@ -642,6 +645,16 @@ export const ProjectPanel: React.FC = () => {
               },
             },
             {
+              label: '重命名',
+              icon: 'edit',
+              onClick: () => {
+                setRenameMaterialId(materialContextMenu.assetId);
+                setRenameMaterialCurrentName(materialContextMenu.assetName);
+                setMaterialContextMenu(null);
+                setShowRenameMaterialDialog(true);
+              },
+            },
+            {
               label: '删除',
               icon: 'delete',
               danger: true,
@@ -765,6 +778,26 @@ export const ProjectPanel: React.FC = () => {
           </div>
         </Dialog>
       )}
+
+      {/* 材质资产重命名对话框 */}
+      <InputDialog
+        isOpen={showRenameMaterialDialog}
+        title="重命名材质"
+        placeholder="请输入新名称"
+        defaultValue={renameMaterialCurrentName}
+        confirmText="重命名"
+        onConfirm={(name) => {
+          if (renameMaterialId !== null) {
+            handleRenameMaterial(renameMaterialId, name);
+          }
+          setShowRenameMaterialDialog(false);
+          setRenameMaterialId(null);
+        }}
+        onCancel={() => {
+          setShowRenameMaterialDialog(false);
+          setRenameMaterialId(null);
+        }}
+      />
 
       {/* 新建材质 Dialog */}
       <Dialog

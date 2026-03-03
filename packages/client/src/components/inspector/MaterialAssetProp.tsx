@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useMaterialStore } from '@/stores/materialStore';
+import { useSceneStore } from '@/stores/sceneStore';
 import { materialsApi } from '@/api/assets';
 import type { MaterialSpec, MaterialType } from '@/types';
 import { getFieldsForType, type FieldGroup } from '@/features/materials/materialSchema';
@@ -33,6 +34,7 @@ export const MaterialAssetProp: React.FC<Props> = ({ assetId, projectId }) => {
   const saveError = useMaterialStore((s) => s.saveError);
   const clearSaveError = useMaterialStore((s) => s.clearSaveError);
   const updateMaterialSpec = useMaterialStore((s) => s.updateMaterialSpec);
+  const syncMaterialAsset = useSceneStore((s) => s.syncMaterialAsset);
 
   const [localSpec, setLocalSpec] = useState<MaterialSpec>({
     type: 'MeshStandardMaterial',
@@ -76,12 +78,14 @@ export const MaterialAssetProp: React.FC<Props> = ({ assetId, projectId }) => {
   const handleTypeChange = (nextType: MaterialType) => {
     const newSpec = { type: nextType, props: localSpec.props };
     setLocalSpec(newSpec);
+    syncMaterialAsset(assetId, newSpec);  // 立即同步到 Scene View
     scheduleUpdate(newSpec);
   };
 
   const handlePropChange = (key: string, value: unknown) => {
     const newSpec = { ...localSpec, props: { ...localSpec.props, [key]: value } };
     setLocalSpec(newSpec);
+    syncMaterialAsset(assetId, newSpec);  // 立即同步到 Scene View
     scheduleUpdate(newSpec);
   };
 
