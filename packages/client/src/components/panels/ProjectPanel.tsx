@@ -18,7 +18,9 @@ import { ProgressDialog } from '../../features/scene/components/ProgressDialog.j
 import { fbxImporter } from '../../features/fbx/FBXImporter.js';
 import { useTextureImport } from '../../features/textures/useTextureImport.js';
 import { TextureImportDialog } from '../../features/textures/TextureImportDialog.js';
+import { useMaterialStore } from '../../stores/materialStore.js';
 import type { AssetType } from '@digittwinedit/shared';
+import type { MaterialType } from '../../types/index.js';
 
 type FolderType = 'scenes' | 'models' | 'materials' | 'textures';
 
@@ -41,6 +43,18 @@ export const ProjectPanel: React.FC = () => {
   const clearSelection = useEditorStore((state) => state.clearSelection);
 
   const {
+    materials,
+    isLoading: isMaterialsLoading,
+    selectedMaterialId,
+    loadMaterials,
+    createMaterial,
+    duplicateMaterial,
+    renameMaterial,
+    deleteMaterial: deleteMaterialAsset,
+    selectMaterial,
+  } = useMaterialStore();
+
+  const {
     showSaveConfirmDialog,
     showNewSceneDialog,
     handleNewSceneClick,
@@ -58,14 +72,24 @@ export const ProjectPanel: React.FC = () => {
   const tex = useTextureImport();
 
   const [blankContextMenu, setBlankContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const [showNewMaterialDialog, setShowNewMaterialDialog] = useState(false);
+  const [newMaterialName, setNewMaterialName] = useState('新建材质');
+  const [newMaterialType, setNewMaterialType] = useState<MaterialType>('MeshStandardMaterial');
+  const [newMaterialError, setNewMaterialError] = useState<string | null>(null);
+  const [materialContextMenu, setMaterialContextMenu] = useState<{
+    x: number; y: number; assetId: number; assetName: string;
+  } | null>(null);
 
   // 加载资产
   useEffect(() => {
-    if (currentProject && activeTab === 'project' && selectedFolder !== 'scenes') {
-      const assetType: AssetType = selectedFolder === 'models' ? 'model' : selectedFolder === 'materials' ? 'material' : 'texture';
+    if (!currentProject || activeTab !== 'project' || selectedFolder === 'scenes') return;
+    if (selectedFolder === 'materials') {
+      loadMaterials(currentProject.id);
+    } else {
+      const assetType: AssetType = selectedFolder === 'models' ? 'model' : 'texture';
       loadAssets(currentProject.id, assetType);
     }
-  }, [currentProject, selectedFolder, activeTab, loadAssets]);
+  }, [currentProject, selectedFolder, activeTab, loadAssets, loadMaterials]);
 
   // 场景操作处理函数
   const handleSceneOpen = async (sceneId: number) => {
@@ -165,7 +189,72 @@ export const ProjectPanel: React.FC = () => {
     e.dataTransfer.effectAllowed = 'copy';
   };
 
-  const blankAreaMenuItems: ContextMenuItem[] = [
+  const handleMaterialDragStart = (e: React.DragEvent, assetId: number) => {
+    e.dataTransfer.setData('assetId', assetId.toString());
+    e.dataTransfer.setData('assetType', 'material');
+    e.dataTransfer.effectAllowed = 'copy';
+  };
+
+  const handleNewMaterialConfirm = async () => {
+    if (!currentProject) return;
+    if (!newMaterialName.trim()) {
+      setNewMaterialError('名称不能为空');
+      return;
+    }
+    try {
+      setNewMaterialError(null);
+      await createMaterial(currentProject.id, newMaterialName.trim(), newMaterialType);
+      setShowNewMaterialDialog(false);
+      setNewMaterialName('新建材质');
+      setNewMaterialType('MeshStandardMaterial');
+    } catch {
+      setNewMaterialError('创建失败，请重试');
+    }
+  };
+
+  const handleDuplicateMaterial = async (assetId: number) => {
+    if (!currentProject) return;
+    try {
+      await duplicateMaterial(assetId, currentProject.id);
+    } catch (error) {
+      console.error('Failed to duplicate material:', error);
+    }
+  };
+
+  const handleRenameMaterial = async (assetId: number, newName: string) => {
+    if (!newName.trim()) { alert('名称不能为空'); return; }
+    if (newName.length > 255) { alert('名称过长（最多255字符）'); return; }
+    try {
+      await renameMaterial(assetId, newName.trim());
+    } catch {
+      alert('重命名失败，请重试');
+    }
+  };
+
+  const handleDeleteMaterial = async (assetId: number) => {
+    const refCount = Object.values(useSceneStore.getState().scene.objects)
+      .filter((obj: any) => obj.components?.mesh?.materialAssetId === assetId).length;
+    const confirmMsg = refCount > 0
+      ? `该材质被场景中 ${refCount} 个对象使用，删除后这些对象将保留当前材质外观，但失去与资产的关联。\n\n确认删除？`
+      : '确定要删除这个材质资产吗？';
+    if (!confirm(confirmMsg)) return;
+    try {
+      await deleteMaterialAsset(assetId);
+    } catch (error) {
+      console.error('Failed to delete material:', error);
+    }
+  };
+
+  const blankAreaMenuItems: ContextMenuItem[] = selectedFolder === 'materials' ? [
+    {
+      label: '新建材质',
+      icon: 'add',
+      onClick: () => {
+        setBlankContextMenu(null);
+        setShowNewMaterialDialog(true);
+      },
+    },
+  ] : [
     {
       label: '新建',
       icon: 'add',
@@ -311,7 +400,11 @@ export const ProjectPanel: React.FC = () => {
               {/* Toolbar */}
               <div className="flex items-center justify-between p-2 border-b border-border-dark">
                 <div className="text-xs text-slate-400">
-                  {selectedFolder === 'scenes' ? `${scenes.length} 个场景` : `${displayAssets.length} 个资产`}
+                  {selectedFolder === 'scenes'
+                    ? `${scenes.length} 个场景`
+                    : selectedFolder === 'materials'
+                    ? `${materials.length} 个资产`
+                    : `${displayAssets.length} 个资产`}
                 </div>
 
                 {selectedFolder === 'models' && (
@@ -333,6 +426,17 @@ export const ProjectPanel: React.FC = () => {
                   >
                     <span className="material-symbols-outlined text-sm">upload</span>
                     <span>导入纹理（→KTX2）</span>
+                  </button>
+                )}
+
+                {selectedFolder === 'materials' && (
+                  <button
+                    onClick={() => setShowNewMaterialDialog(true)}
+                    className="flex items-center space-x-1 px-3 py-1 bg-primary hover:bg-primary-hover text-white text-xs rounded transition-colors"
+                    disabled={!currentProject}
+                  >
+                    <span className="material-symbols-outlined text-sm">add</span>
+                    <span>新建材质</span>
                   </button>
                 )}
 
@@ -358,7 +462,7 @@ export const ProjectPanel: React.FC = () => {
               <div
                 className="flex-1 p-4 overflow-y-auto custom-scrollbar"
                 onContextMenu={
-                  selectedFolder === 'scenes'
+                  selectedFolder === 'scenes' || selectedFolder === 'materials'
                     ? (e) => {
                         e.preventDefault();
                         setBlankContextMenu({ x: e.clientX, y: e.clientY });
@@ -389,8 +493,60 @@ export const ProjectPanel: React.FC = () => {
                       ))}
                     </div>
                   )
+                ) : selectedFolder === 'materials' ? (
+                  // 材质列表（materialStore）
+                  isMaterialsLoading ? (
+                    <div className="flex items-center justify-center h-full text-slate-500">
+                      <div className="flex flex-col items-center space-y-2">
+                        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        <span className="text-xs">加载中...</span>
+                      </div>
+                    </div>
+                  ) : materials.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-slate-500">
+                      <div className="flex flex-col items-center space-y-2">
+                        <span className="material-symbols-outlined text-4xl">texture</span>
+                        <span className="text-xs">暂无材质资产</span>
+                        <button
+                          onClick={() => setShowNewMaterialDialog(true)}
+                          className="text-primary hover:underline text-xs"
+                        >
+                          点击新建
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-10 gap-4 content-start">
+                      {materials.map((mat) => (
+                        <div
+                          key={mat.id}
+                          onContextMenu={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            selectMaterial(mat.id);
+                            selectAsset(null);
+                            setMaterialContextMenu({ x: e.clientX, y: e.clientY, assetId: mat.id, assetName: mat.name });
+                          }}
+                        >
+                          <AssetCard
+                            asset={mat}
+                            selected={selectedMaterialId === mat.id}
+                            onSelect={() => {
+                              selectMaterial(mat.id);
+                              selectAsset(null);
+                              clearSelection();
+                            }}
+                            onOpen={() => {}}
+                            onRename={(name) => handleRenameMaterial(mat.id, name)}
+                            onDelete={() => handleDeleteMaterial(mat.id)}
+                            onDragStart={(e) => handleMaterialDragStart(e, mat.id)}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )
                 ) : (
-                  // 资产列表
+                  // 资产列表（models / textures）
                   isLoading ? (
                     <div className="flex items-center justify-center h-full text-slate-500">
                       <div className="flex flex-col items-center space-y-2">
@@ -474,6 +630,33 @@ export const ProjectPanel: React.FC = () => {
           items={blankAreaMenuItems}
           position={blankContextMenu}
           onClose={() => setBlankContextMenu(null)}
+        />
+      )}
+
+      {/* 材质资产右键菜单 */}
+      {materialContextMenu && (
+        <ContextMenu
+          items={[
+            {
+              label: '复制',
+              icon: 'content_copy',
+              onClick: () => {
+                handleDuplicateMaterial(materialContextMenu.assetId);
+                setMaterialContextMenu(null);
+              },
+            },
+            {
+              label: '删除',
+              icon: 'delete',
+              danger: true,
+              onClick: () => {
+                handleDeleteMaterial(materialContextMenu.assetId);
+                setMaterialContextMenu(null);
+              },
+            },
+          ]}
+          position={materialContextMenu}
+          onClose={() => setMaterialContextMenu(null)}
         />
       )}
 
@@ -586,6 +769,58 @@ export const ProjectPanel: React.FC = () => {
           </div>
         </Dialog>
       )}
+
+      {/* 新建材质 Dialog */}
+      <Dialog
+        isOpen={showNewMaterialDialog}
+        onClose={() => { setShowNewMaterialDialog(false); setNewMaterialError(null); }}
+        title="新建材质"
+        className="max-w-[400px]"
+      >
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-slate-400">名称</label>
+            <input
+              className="bg-[#0c0e14] border border-[#2d333f] text-sm text-white px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/50"
+              value={newMaterialName}
+              onChange={(e) => setNewMaterialName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleNewMaterialConfirm()}
+              autoFocus
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-slate-400">材质类型</label>
+            <select
+              className="bg-[#0c0e14] border border-[#2d333f] text-sm text-white px-2 py-1.5 rounded"
+              value={newMaterialType}
+              onChange={(e) => setNewMaterialType(e.target.value as MaterialType)}
+            >
+              <option value="MeshStandardMaterial">MeshStandardMaterial</option>
+              <option value="MeshPhysicalMaterial">MeshPhysicalMaterial</option>
+              <option value="MeshPhongMaterial">MeshPhongMaterial</option>
+              <option value="MeshLambertMaterial">MeshLambertMaterial</option>
+              <option value="MeshBasicMaterial">MeshBasicMaterial</option>
+            </select>
+          </div>
+          {newMaterialError && (
+            <p className="text-xs text-red-400">{newMaterialError}</p>
+          )}
+          <div className="flex justify-end gap-2 mt-2">
+            <button
+              onClick={() => { setShowNewMaterialDialog(false); setNewMaterialError(null); }}
+              className="px-3 py-1.5 text-xs text-text-secondary hover:text-white transition-colors"
+            >
+              取消
+            </button>
+            <button
+              onClick={handleNewMaterialConfirm}
+              className="px-3 py-1.5 text-xs bg-accent-blue hover:bg-accent-blue/90 text-white rounded transition-colors"
+            >
+              创建
+            </button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 };
