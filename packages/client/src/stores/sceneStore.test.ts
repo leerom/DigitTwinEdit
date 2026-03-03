@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useSceneStore } from './sceneStore';
 import { act } from '@testing-library/react';
+import { ObjectType } from '@/types';
+import type { MaterialSpec } from '@/types';
 
 describe('SceneStore - Import State', () => {
   beforeEach(() => {
@@ -216,5 +218,141 @@ describe('sceneStore - add asset to scene', () => {
         useSceneStore.getState().addAssetToScene(mockAsset);
       });
     }).toThrow('Only model assets can be added to scene');
+  });
+});
+
+// ── 材质资产绑定相关 action 测试 ──────────────────────────────────────────────
+
+const minimalScene = () => ({
+  id: 'test',
+  name: 'Test',
+  version: '1.0.0',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  root: 'root',
+  objects: {
+    root: {
+      id: 'root',
+      name: 'Root',
+      type: ObjectType.GROUP,
+      parentId: null as null,
+      children: [] as string[],
+      visible: true,
+      locked: false,
+      transform: { position: [0, 0, 0] as [number, number, number], rotation: [0, 0, 0] as [number, number, number], scale: [1, 1, 1] as [number, number, number] },
+    },
+  },
+  assets: {},
+  settings: { environment: 'default', gridVisible: true, backgroundColor: '#000' },
+});
+
+describe('bindMaterialAsset', () => {
+  beforeEach(() => {
+    act(() => {
+      useSceneStore.setState({ scene: minimalScene(), isDirty: false });
+    });
+  });
+
+  it('在目标对象的 mesh 组件上设置 materialAssetId 和 material', () => {
+    act(() => {
+      useSceneStore.getState().addObject({
+        id: 'test-mesh',
+        type: ObjectType.MESH,
+        name: 'Test Mesh',
+        components: {
+          mesh: { assetId: '', materialId: '', castShadow: false, receiveShadow: false },
+        },
+      });
+    });
+
+    const spec: MaterialSpec = { type: 'MeshStandardMaterial', props: { color: '#ff0000' } };
+    act(() => {
+      useSceneStore.getState().bindMaterialAsset('test-mesh', 42, spec);
+    });
+
+    const obj = useSceneStore.getState().scene.objects['test-mesh'];
+    expect(obj.components?.mesh?.materialAssetId).toBe(42);
+    expect(obj.components?.mesh?.material).toEqual(spec);
+  });
+
+  it('assetId 为 0 时清除 materialAssetId', () => {
+    act(() => {
+      useSceneStore.getState().addObject({
+        id: 'test-mesh-2',
+        type: ObjectType.MESH,
+        name: 'Test Mesh 2',
+        components: {
+          mesh: { assetId: '', materialId: '', castShadow: false, receiveShadow: false, materialAssetId: 99 },
+        },
+      });
+    });
+
+    const spec: MaterialSpec = { type: 'MeshStandardMaterial', props: {} };
+    act(() => {
+      useSceneStore.getState().bindMaterialAsset('test-mesh-2', 0, spec);
+    });
+
+    const obj = useSceneStore.getState().scene.objects['test-mesh-2'];
+    expect(obj.components?.mesh?.materialAssetId).toBeUndefined();
+  });
+});
+
+describe('syncMaterialAsset', () => {
+  beforeEach(() => {
+    act(() => {
+      useSceneStore.setState({ scene: minimalScene(), isDirty: false });
+    });
+  });
+
+  it('更新所有引用该资产 ID 的对象的 mesh.material', () => {
+    const spec1: MaterialSpec = { type: 'MeshStandardMaterial', props: { color: '#aabbcc' } };
+    act(() => {
+      useSceneStore.getState().addObject({
+        id: 'obj-a',
+        type: ObjectType.MESH,
+        name: 'Obj A',
+        components: { mesh: { assetId: '', materialId: '', castShadow: false, receiveShadow: false, materialAssetId: 10, material: spec1 } },
+      });
+      useSceneStore.getState().addObject({
+        id: 'obj-b',
+        type: ObjectType.MESH,
+        name: 'Obj B',
+        components: { mesh: { assetId: '', materialId: '', castShadow: false, receiveShadow: false, materialAssetId: 99 } },
+      });
+    });
+
+    const newSpec: MaterialSpec = { type: 'MeshStandardMaterial', props: { color: '#ffffff' } };
+    act(() => {
+      useSceneStore.getState().syncMaterialAsset(10, newSpec);
+    });
+
+    expect(useSceneStore.getState().scene.objects['obj-a'].components?.mesh?.material).toEqual(newSpec);
+    // obj-b 不受影响（assetId 不同）
+    expect(useSceneStore.getState().scene.objects['obj-b'].components?.mesh?.material).toBeUndefined();
+  });
+});
+
+describe('clearMaterialAssetRefs', () => {
+  beforeEach(() => {
+    act(() => {
+      useSceneStore.setState({ scene: minimalScene(), isDirty: false });
+    });
+  });
+
+  it('清除所有引用指定资产 ID 的 materialAssetId', () => {
+    act(() => {
+      useSceneStore.getState().addObject({
+        id: 'obj-c',
+        type: ObjectType.MESH,
+        name: 'Obj C',
+        components: { mesh: { assetId: '', materialId: '', castShadow: false, receiveShadow: false, materialAssetId: 55 } },
+      });
+    });
+
+    act(() => {
+      useSceneStore.getState().clearMaterialAssetRefs(55);
+    });
+
+    expect(useSceneStore.getState().scene.objects['obj-c'].components?.mesh?.materialAssetId).toBeUndefined();
   });
 });

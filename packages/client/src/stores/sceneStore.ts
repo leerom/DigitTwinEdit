@@ -47,6 +47,11 @@ interface SceneState {
   setImportProgress: (progress: Partial<ImportProgress>) => void;
   addImportError: (error: ImportError) => void;
   clearImportState: () => void;
+
+  // 材质资产绑定 actions
+  bindMaterialAsset: (objectId: string, assetId: number, spec: MaterialSpec) => void;
+  syncMaterialAsset: (assetId: number, spec: MaterialSpec) => void;
+  clearMaterialAssetRefs: (assetId: number) => void;
 }
 
 const DEFAULT_SCENE: Scene = {
@@ -388,6 +393,42 @@ export const useSceneStore = create<SceneState>()(
             currentTask: '',
           };
           state.importErrors = [];
+        }),
+
+      bindMaterialAsset: (objectId, assetId, spec) =>
+        set((state) => {
+          const obj = state.scene.objects[objectId];
+          if (!obj?.components?.mesh) return;
+          obj.components.mesh.material = spec;
+          if (assetId === 0) {
+            delete obj.components.mesh.materialAssetId;
+          } else {
+            obj.components.mesh.materialAssetId = assetId;
+          }
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
+        }),
+
+      syncMaterialAsset: (assetId, spec) =>
+        set((state) => {
+          for (const obj of Object.values(state.scene.objects)) {
+            if (obj.components?.mesh?.materialAssetId === assetId) {
+              obj.components.mesh.material = spec;
+            }
+          }
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
+        }),
+
+      clearMaterialAssetRefs: (assetId) =>
+        set((state) => {
+          for (const obj of Object.values(state.scene.objects)) {
+            if (obj.components?.mesh?.materialAssetId === assetId) {
+              delete obj.components.mesh.materialAssetId;
+            }
+          }
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
         }),
     })),
     { name: 'SceneStore' }
