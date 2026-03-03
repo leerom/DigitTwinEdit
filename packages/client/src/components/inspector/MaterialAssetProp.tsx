@@ -34,6 +34,7 @@ export const MaterialAssetProp: React.FC<Props> = ({ assetId, projectId }) => {
   const saveError = useMaterialStore((s) => s.saveError);
   const clearSaveError = useMaterialStore((s) => s.clearSaveError);
   const updateMaterialSpec = useMaterialStore((s) => s.updateMaterialSpec);
+  const setPreviewSpec = useMaterialStore((s) => s.setPreviewSpec);
   const syncMaterialAsset = useSceneStore((s) => s.syncMaterialAsset);
 
   const [localSpec, setLocalSpec] = useState<MaterialSpec>({
@@ -53,7 +54,9 @@ export const MaterialAssetProp: React.FC<Props> = ({ assetId, projectId }) => {
   useEffect(() => {
     setIsLoadingSpec(true);
     materialsApi.getMaterial(assetId).then((data) => {
-      setLocalSpec({ type: data.type as MaterialType, props: data.properties });
+      const spec = { type: data.type as MaterialType, props: data.properties };
+      setLocalSpec(spec);
+      setPreviewSpec(spec);
       setIsLoadingSpec(false);
     }).catch(() => setIsLoadingSpec(false));
   }, [assetId]);
@@ -78,6 +81,7 @@ export const MaterialAssetProp: React.FC<Props> = ({ assetId, projectId }) => {
   const handleTypeChange = (nextType: MaterialType) => {
     const newSpec = { type: nextType, props: localSpec.props };
     setLocalSpec(newSpec);
+    setPreviewSpec(newSpec);
     syncMaterialAsset(assetId, newSpec);  // 立即同步到 Scene View
     scheduleUpdate(newSpec);
   };
@@ -85,6 +89,7 @@ export const MaterialAssetProp: React.FC<Props> = ({ assetId, projectId }) => {
   const handlePropChange = (key: string, value: unknown) => {
     const newSpec = { ...localSpec, props: { ...localSpec.props, [key]: value } };
     setLocalSpec(newSpec);
+    setPreviewSpec(newSpec);
     syncMaterialAsset(assetId, newSpec);  // 立即同步到 Scene View
     scheduleUpdate(newSpec);
   };

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useEditorStore } from '../../stores/editorStore';
 import { useSceneStore } from '../../stores/sceneStore';
 import { useAssetStore } from '../../stores/assetStore';
@@ -14,6 +14,7 @@ import { TextureImportProp } from '../inspector/TextureImportProp';
 import { ModelPreview } from '../inspector/ModelPreview';
 import { SubNodeInspector } from '../inspector/SubNodeInspector';
 import { MaterialAssetProp } from '../inspector/MaterialAssetProp';
+import { MaterialPreview } from '../inspector/MaterialPreview';
 import { assetsApi } from '../../api/assets';
 
 export const InspectorPanel: React.FC = () => {
@@ -32,9 +33,17 @@ export const InspectorPanel: React.FC = () => {
 
   const selectedMaterialId = useMaterialStore((s) => s.selectedMaterialId);
   const materials = useMaterialStore((s) => s.materials);
+  const setPreviewSpec = useMaterialStore((s) => s.setPreviewSpec);
   const selectedMaterial = selectedMaterialId
     ? materials.find((m) => m.id === selectedMaterialId)
     : undefined;
+
+  // 离开材质检视模式时清除 previewSpec
+  useEffect(() => {
+    if (!selectedMaterial) {
+      setPreviewSpec(null);
+    }
+  }, [selectedMaterial, setPreviewSpec]);
 
   // 纹理缩略图 URL：KTX2 使用源 PNG；普通纹理直接用下载 URL（组件顶层确保 hooks 规则）
   const textureThumbnailUrl = useMemo(() => {
@@ -89,6 +98,10 @@ export const InspectorPanel: React.FC = () => {
                 projectId={selectedMaterial.project_id}
               />
             </div>
+          </div>
+          {/* 材质预览，固定在 Inspector 底部 */}
+          <div className="shrink-0 border-t border-border-dark px-4 py-3">
+            <MaterialPreview />
           </div>
         </div>
       );

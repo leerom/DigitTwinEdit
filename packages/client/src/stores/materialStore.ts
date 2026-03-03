@@ -9,6 +9,7 @@ interface MaterialState {
   isLoading: boolean;
   saveError: string | null;
   selectedMaterialId: number | null;
+  previewSpec: MaterialSpec | null;
 
   loadMaterials: (projectId: number) => Promise<void>;
   createMaterial: (projectId: number, name: string, type: MaterialType) => Promise<Asset>;
@@ -18,6 +19,7 @@ interface MaterialState {
   updateMaterialSpec: (materialId: number, spec: MaterialSpec) => Promise<void>;
   selectMaterial: (id: number | null) => void;
   clearSaveError: () => void;
+  setPreviewSpec: (spec: MaterialSpec | null) => void;
 }
 
 export const useMaterialStore = create<MaterialState>((set, get) => ({
@@ -25,6 +27,7 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
   isLoading: false,
   saveError: null,
   selectedMaterialId: null,
+  previewSpec: null,
 
   loadMaterials: async (projectId) => {
     set({ isLoading: true });
@@ -94,4 +97,6 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
   selectMaterial: (id) => set({ selectedMaterialId: id }),
 
   clearSaveError: () => set({ saveError: null }),
+
+  setPreviewSpec: (spec) => set({ previewSpec: spec }),
 }));
