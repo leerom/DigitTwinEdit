@@ -43,7 +43,11 @@ const ModelMesh: React.FC<{
   renderMode: string;
   activeSubNodePath: string | null;
   nodeOverrides: Record<string, any> | null;
-}> = React.memo(({ assetId, assetUpdatedAt, materialSpec, renderMode, activeSubNodePath, nodeOverrides }) => {
+  castShadow?: boolean;
+  receiveShadow?: boolean;
+  frustumCulled?: boolean;
+  renderOrder?: number;
+}> = React.memo(({ assetId, assetUpdatedAt, materialSpec, renderMode, activeSubNodePath, nodeOverrides, castShadow, receiveShadow, frustumCulled, renderOrder }) => {
   const baseUrl = assetsApi.getAssetDownloadUrl(assetId);
   // 将 updated_at 时间戳附加到 URL 作为版本标记；
   // useGLTF 按 URL 缓存，URL 变化即触发重新加载，消除重新导入后的缓存问题
@@ -164,6 +168,10 @@ const ModelMesh: React.FC<{
     clonedScene.traverse((child) => {
       const mesh = child as THREE.Mesh;
       if (!mesh.isMesh) return;
+      mesh.castShadow = castShadow ?? true;
+      mesh.receiveShadow = receiveShadow ?? true;
+      mesh.frustumCulled = frustumCulled ?? true;
+      mesh.renderOrder = renderOrder ?? 0;
       const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
       mats.forEach((mat) => {
         if (!mat) return;
@@ -171,7 +179,7 @@ const ModelMesh: React.FC<{
         mat.needsUpdate = true;
       });
     });
-  }, [clonedScene, renderMode]);
+  }, [clonedScene, renderMode, castShadow, receiveShadow, frustumCulled, renderOrder]);
 
   // 卸载时释放克隆的材质
   useEffect(() => {
@@ -414,6 +422,11 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
       position={position}
       rotation={rotation}
       scale={scale}
+      visible={object.visible}
+      castShadow={object.castShadow}
+      receiveShadow={object.receiveShadow}
+      frustumCulled={object.frustumCulled ?? true}
+      renderOrder={object.renderOrder ?? 0}
       onClick={handleClick}
     >
       {/* 基础几何体网格：模型对象（有 model 组件）不渲染 Box 占位，避免叠加 */}
@@ -445,6 +458,10 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
               renderMode={renderMode}
               activeSubNodePath={activeId === id ? activeSubNodePath : null}
               nodeOverrides={nodeOverrides}
+              castShadow={object.components?.mesh?.castShadow ?? true}
+              receiveShadow={object.components?.mesh?.receiveShadow ?? true}
+              frustumCulled={object.components?.mesh?.frustumCulled ?? true}
+              renderOrder={object.components?.mesh?.renderOrder ?? 0}
             />
           </Suspense>
         </ModelErrorBoundary>
