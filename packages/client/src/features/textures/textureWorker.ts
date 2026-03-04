@@ -98,7 +98,7 @@ self.onmessage = async (e: MessageEvent<TextureWorkerInput>) => {
     const ktx2Buffer = ktx2Data.buffer.slice(
       ktx2Data.byteOffset,
       ktx2Data.byteOffset + ktx2Data.byteLength
-    );
+    ) as ArrayBuffer;
     postMsg(
       { type: 'done', ktx2Buffer, finalWidth: targetWidth, finalHeight: targetHeight },
       [ktx2Buffer]
