@@ -101,69 +101,69 @@ export const MaterialProp: React.FC<{ objectId: string }> = ({ objectId }) => {
 
   return (
     <div className="bg-[#0c0e14] border border-[#2d333f] p-3 rounded-sm space-y-3">
-      {/* 类型选择 + 资产绑定 */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <label className="text-[11px] text-[#999999] font-medium">类型</label>
-        <div className="flex items-center gap-2 ml-auto">
-          {/* 已绑定资产时显示资产名 + 解除按钮 */}
-          {boundAsset ? (
-            <span className="text-[10px] text-primary flex items-center gap-1">
-              <span className="material-symbols-outlined text-xs">texture</span>
-              <button
-                className="hover:underline truncate max-w-[80px]"
-                title={boundAsset.name}
-                onClick={() => selectMaterial(materialAssetId!)}
-              >
-                {boundAsset.name}
-              </button>
-              <button
-                onClick={handleUnbind}
-                className="hover:text-slate-300 ml-1"
-                title="解除绑定"
-              >
-                ×
-              </button>
-            </span>
-          ) : (
-            <div className="relative">
-              <button
-                onClick={() => setShowAssetPicker((v) => !v)}
-                className="text-[10px] text-slate-400 hover:text-white border border-[#2d333f] rounded px-2 py-0.5"
-              >
-                从资产选择
-              </button>
-              {showAssetPicker && (
-                <div className="absolute right-0 top-6 z-50 bg-[#1a1d28] border border-[#2d333f] rounded shadow-xl p-1 min-w-[160px] max-h-48 overflow-y-auto">
-                  {materials.length === 0 ? (
-                    <p className="text-xs text-slate-500 px-2 py-1">暂无材质资产</p>
-                  ) : (
-                    materials.map((m) => (
-                      <button
-                        key={m.id}
-                        className="flex items-center gap-2 w-full text-left px-2 py-1 hover:bg-slate-700 text-xs rounded"
-                        onClick={() => handleBindAsset(m.id)}
-                      >
-                        <span className="material-symbols-outlined text-xs">texture</span>
-                        {m.name}
-                      </button>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-          {/* 类型选择（已绑定时禁用） */}
-          <select
-            className="bg-[#0c0e14] text-[12px] text-white border border-[#2d333f] rounded px-2 py-1 disabled:opacity-50"
-            value={type}
-            onChange={(e) => handleTypeChange(e.target.value as MaterialType)}
-            disabled={!!materialAssetId}
-          >
-            {MATERIAL_TYPES.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-        </div>
+      {/* 类型选择 */}
+      <div className="flex items-center gap-2">
+        <label className="text-[11px] text-[#999999] font-medium shrink-0">类型</label>
+        <select
+          className="flex-1 min-w-0 bg-[#0c0e14] text-[12px] text-white border border-[#2d333f] rounded px-2 py-1 disabled:opacity-50"
+          value={type}
+          onChange={(e) => handleTypeChange(e.target.value as MaterialType)}
+          disabled={!!materialAssetId}
+        >
+          {MATERIAL_TYPES.map((t) => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* 资产绑定 */}
+      <div className="flex justify-end">
+        {boundAsset ? (
+          <span className="text-[10px] text-primary flex items-center gap-1">
+            <span className="material-symbols-outlined text-xs">texture</span>
+            <button
+              className="hover:underline truncate max-w-[80px]"
+              title={boundAsset.name}
+              onClick={() => selectMaterial(materialAssetId!)}
+            >
+              {boundAsset.name}
+            </button>
+            <button
+              onClick={handleUnbind}
+              className="hover:text-slate-300 ml-1"
+              title="解除绑定"
+            >
+              ×
+            </button>
+          </span>
+        ) : (
+          <div className="relative">
+            <button
+              onClick={() => setShowAssetPicker((v) => !v)}
+              className="text-[10px] text-slate-400 hover:text-white border border-[#2d333f] rounded px-2 py-0.5"
+            >
+              从资产选择
+            </button>
+            {showAssetPicker && (
+              <div className="absolute right-0 top-6 z-50 bg-[#1a1d28] border border-[#2d333f] rounded shadow-xl p-1 min-w-[160px] max-h-48 overflow-y-auto">
+                {materials.length === 0 ? (
+                  <p className="text-xs text-slate-500 px-2 py-1">暂无材质资产</p>
+                ) : (
+                  materials.map((m) => (
+                    <button
+                      key={m.id}
+                      className="flex items-center gap-2 w-full text-left px-2 py-1 hover:bg-slate-700 text-xs rounded"
+                      onClick={() => handleBindAsset(m.id)}
+                    >
+                      <span className="material-symbols-outlined text-xs">texture</span>
+                      {m.name}
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 已绑定资产只读提示 */}
