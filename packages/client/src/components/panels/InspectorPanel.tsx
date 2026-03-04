@@ -252,7 +252,8 @@ export const InspectorPanel: React.FC = () => {
 
           {/* Object Properties — MESH 和 GROUP */}
           {!isAllCameras && !isAllLights && (
-            <div className="border-t border-white/5 pt-4">
+            <div>
+              <h3 className="text-[11px] font-bold text-slate-300 mb-3">对象属性 (Object)</h3>
               <MeshProp objectIds={selectedIds} />
             </div>
           )}

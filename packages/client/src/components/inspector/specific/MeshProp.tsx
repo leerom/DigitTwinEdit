@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSceneStore } from '@/stores/sceneStore';
 import { ObjectType, MeshComponent, SceneObject } from '@/types';
 import { getCommonValue, MIXED_VALUE } from '../utils/inspectorUtils';
@@ -13,8 +13,6 @@ export const MeshProp: React.FC<MeshPropProps> = ({ objectIds }) => {
   const objects = useSceneStore((state) => state.scene.objects);
   const updateComponent = useSceneStore((state) => state.updateComponent);
   const updateObject = useSceneStore((state) => state.updateObject);
-
-  const [collapsed, setCollapsed] = useState(false);
 
   // 过滤有效的 MESH 和 GROUP 对象
   const selectedObjects = objectIds
@@ -70,70 +68,52 @@ export const MeshProp: React.FC<MeshPropProps> = ({ objectIds }) => {
 
   return (
     <div className="bg-[#0c0e14] border border-[#2d333f] p-3 rounded-sm space-y-3">
-      {/* 可折叠标题 */}
-      <button
-        className="flex items-center w-full text-left gap-1"
-        onClick={() => setCollapsed((v) => !v)}
-      >
-        <span className="text-[9px] text-slate-500">
-          {collapsed ? '▶' : '▼'}
-        </span>
-        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-          对象属性 (Object)
-        </span>
-      </button>
-
-      {/* 属性列表 */}
-      {!collapsed && (
-        <div className="space-y-3 pl-2">
-          {/* 阴影 */}
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-[#999999] font-medium min-w-[60px]">阴影</span>
-            <div className="flex space-x-4 w-full">
-              <Checkbox
-                label="产生"
-                checked={castShadow === undefined ? true : castShadow as boolean | typeof MIXED_VALUE}
-                onChange={(val) => handleRenderPropUpdate('castShadow', val)}
-              />
-              <Checkbox
-                label="接收"
-                checked={receiveShadow === undefined ? true : receiveShadow as boolean | typeof MIXED_VALUE}
-                onChange={(val) => handleRenderPropUpdate('receiveShadow', val)}
-              />
-            </div>
-          </div>
-
-          {/* 可见性 */}
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-[#999999] font-medium min-w-[60px]">可见性</span>
-            <div className="w-full flex justify-start">
-              <Checkbox
-                checked={visible as boolean | typeof MIXED_VALUE}
-                onChange={handleVisibleUpdate}
-              />
-            </div>
-          </div>
-
-          {/* 视锥体裁剪 */}
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-[#999999] font-medium min-w-[60px]">视锥体裁剪</span>
-            <div className="w-full flex justify-start">
-              <Checkbox
-                checked={frustumCulled === undefined ? true : frustumCulled as boolean | typeof MIXED_VALUE}
-                onChange={(val) => handleRenderPropUpdate('frustumCulled', val)}
-              />
-            </div>
-          </div>
-
-          {/* 渲染次序 */}
-          <NumberInput
-            label="渲染次序"
-            value={renderOrder === undefined ? 0 : renderOrder as number | typeof MIXED_VALUE}
-            onChange={(val) => handleRenderPropUpdate('renderOrder', val)}
-            step="1"
+      {/* 阴影 */}
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] text-[#999999] font-medium min-w-[60px]">阴影</span>
+        <div className="flex space-x-4 w-full">
+          <Checkbox
+            label="产生"
+            checked={castShadow === undefined ? true : castShadow as boolean | typeof MIXED_VALUE}
+            onChange={(val) => handleRenderPropUpdate('castShadow', val)}
+          />
+          <Checkbox
+            label="接收"
+            checked={receiveShadow === undefined ? true : receiveShadow as boolean | typeof MIXED_VALUE}
+            onChange={(val) => handleRenderPropUpdate('receiveShadow', val)}
           />
         </div>
-      )}
+      </div>
+
+      {/* 可见性 */}
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] text-[#999999] font-medium min-w-[60px]">可见性</span>
+        <div className="w-full flex justify-start">
+          <Checkbox
+            checked={visible as boolean | typeof MIXED_VALUE}
+            onChange={handleVisibleUpdate}
+          />
+        </div>
+      </div>
+
+      {/* 视锥体裁剪 */}
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] text-[#999999] font-medium min-w-[60px]">视锥体裁剪</span>
+        <div className="w-full flex justify-start">
+          <Checkbox
+            checked={frustumCulled === undefined ? true : frustumCulled as boolean | typeof MIXED_VALUE}
+            onChange={(val) => handleRenderPropUpdate('frustumCulled', val)}
+          />
+        </div>
+      </div>
+
+      {/* 渲染次序 */}
+      <NumberInput
+        label="渲染次序"
+        value={renderOrder === undefined ? 0 : renderOrder as number | typeof MIXED_VALUE}
+        onChange={(val) => handleRenderPropUpdate('renderOrder', val)}
+        step="1"
+      />
     </div>
   );
 };

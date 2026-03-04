@@ -64,14 +64,9 @@ describe('MeshProp — MESH 对象', () => {
     setupMeshStore();
   });
 
-  it('显示"对象属性 (Object)"标题', () => {
+  it('渲染阴影/可见性等属性控件', () => {
     render(<MeshProp objectIds={['mesh1']} />);
-    expect(screen.getByText('对象属性 (Object)')).toBeTruthy();
-  });
-
-  it('castShadow 默认 true 时 Checkbox 为选中', () => {
-    render(<MeshProp objectIds={['mesh1']} />);
-    // 阴影行应存在两个 checkbox（产生 + 接收）
+    // 至少有产生阴影、接收阴影、可见性、视锥体裁剪 4 个 checkbox
     const checkboxes = screen.getAllByRole('checkbox');
     expect(checkboxes.length).toBeGreaterThanOrEqual(2);
   });
@@ -159,9 +154,10 @@ describe('MeshProp — GROUP 对象', () => {
     setupGroupStore();
   });
 
-  it('GROUP 对象也显示"对象属性 (Object)"标题', () => {
+  it('GROUP 对象也渲染阴影/可见性等属性控件', () => {
     render(<MeshProp objectIds={['group1']} />);
-    expect(screen.getByText('对象属性 (Object)')).toBeTruthy();
+    const checkboxes = screen.getAllByRole('checkbox');
+    expect(checkboxes.length).toBeGreaterThanOrEqual(1);
   });
 
   it('GROUP 修改 castShadow 时调用 updateObject（不是 updateComponent）', () => {
