@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface LayoutState {
   sidebarLeftVisible: boolean;
@@ -18,22 +19,36 @@ interface LayoutState {
   setBottomPanelHeight: (height: number) => void;
 }
 
-export const useLayoutStore = create<LayoutState>((set) => ({
-  // Initial state based on design requirements
-  sidebarLeftVisible: true,
-  sidebarRightVisible: true,
-  bottomPanelVisible: true,
-  sidebarLeftWidth: 256,   // Default width
-  sidebarRightWidth: 320,  // Default width
-  bottomPanelHeight: 256,  // Default height
-  themeMode: 'dark',       // Only dark mode supported currently
+export const useLayoutStore = create<LayoutState>()(
+  persist(
+    (set) => ({
+      sidebarLeftVisible: true,
+      sidebarRightVisible: true,
+      bottomPanelVisible: true,
+      sidebarLeftWidth: 256,
+      sidebarRightWidth: 320,
+      bottomPanelHeight: 256,
+      themeMode: 'dark',
 
-  // Actions implementation
-  toggleSidebarLeft: () => set((state) => ({ sidebarLeftVisible: !state.sidebarLeftVisible })),
-  toggleSidebarRight: () => set((state) => ({ sidebarRightVisible: !state.sidebarRightVisible })),
-  toggleBottomPanel: () => set((state) => ({ bottomPanelVisible: !state.bottomPanelVisible })),
+      toggleSidebarLeft: () => set((state) => ({ sidebarLeftVisible: !state.sidebarLeftVisible })),
+      toggleSidebarRight: () => set((state) => ({ sidebarRightVisible: !state.sidebarRightVisible })),
+      toggleBottomPanel: () => set((state) => ({ bottomPanelVisible: !state.bottomPanelVisible })),
 
-  setSidebarLeftWidth: (width) => set({ sidebarLeftWidth: Math.max(200, Math.min(width, 500)) }),
-  setSidebarRightWidth: (width) => set({ sidebarRightWidth: Math.max(240, Math.min(width, 600)) }),
-  setBottomPanelHeight: (height) => set({ bottomPanelHeight: Math.max(100, Math.min(height, 800)) }),
-}));
+      setSidebarLeftWidth: (width) => set({ sidebarLeftWidth: Math.max(200, Math.min(width, 500)) }),
+      setSidebarRightWidth: (width) => set({ sidebarRightWidth: Math.max(240, Math.min(width, 600)) }),
+      setBottomPanelHeight: (height) => set({ bottomPanelHeight: Math.max(100, Math.min(height, 800)) }),
+    }),
+    {
+      name: 'digittwinedit-layout',
+      // 仅持久化尺寸和显隐，不持久化 themeMode（留给未来主题系统）
+      partialize: (state) => ({
+        sidebarLeftVisible: state.sidebarLeftVisible,
+        sidebarRightVisible: state.sidebarRightVisible,
+        bottomPanelVisible: state.bottomPanelVisible,
+        sidebarLeftWidth: state.sidebarLeftWidth,
+        sidebarRightWidth: state.sidebarRightWidth,
+        bottomPanelHeight: state.bottomPanelHeight,
+      }),
+    }
+  )
+);
