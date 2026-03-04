@@ -44,6 +44,18 @@ export const LightProp: React.FC<LightPropProps> = ({ objectIds }) => {
   const castShadow = getLightValue('castShadow');
   const color = getLightValue('color');
 
+  // 阴影属性（仅直射光）
+  const shadowCameraSize = getLightValue('shadowCameraSize');
+  const shadowNear = getLightValue('shadowNear');
+  const shadowFar = getLightValue('shadowFar');
+  const shadowMapSize = getLightValue('shadowMapSize');
+  const shadowBias = getLightValue('shadowBias');
+  const shadowNormalBias = getLightValue('shadowNormalBias');
+  const shadowRadius = getLightValue('shadowRadius');
+
+  const isDirectional = type === 'directional';
+  const showShadowSettings = isDirectional && castShadow === true;
+
   const supportsRangeDecay = type === 'point' || type === 'spot' || type === MIXED_VALUE;
   const supportsAngle = type === 'spot' || type === MIXED_VALUE;
   const supportsShadow = type !== 'ambient';
@@ -123,6 +135,65 @@ export const LightProp: React.FC<LightPropProps> = ({ objectIds }) => {
                     {castShadow === MIXED_VALUE && <span className="ml-2 text-xs text-slate-500 italic">Mixed</span>}
                 </div>
             </div>
+        )}
+
+        {showShadowSettings && (
+          <div className="flex flex-col gap-2 pl-2 border-l border-slate-600 mt-1">
+            <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+              阴影设置 (Shadow)
+            </h4>
+            <div className="grid grid-cols-2 gap-2">
+              <NumberInput
+                label="Camera Size"
+                value={shadowCameraSize === undefined ? 10 : shadowCameraSize as number}
+                onChange={(val) => handleUpdate('shadowCameraSize', val)}
+                step="1"
+              />
+              <NumberInput
+                label="Near"
+                value={shadowNear === undefined ? 0.5 : shadowNear as number}
+                onChange={(val) => handleUpdate('shadowNear', val)}
+                step="0.1"
+              />
+              <NumberInput
+                label="Far"
+                value={shadowFar === undefined ? 500 : shadowFar as number}
+                onChange={(val) => handleUpdate('shadowFar', val)}
+                step="10"
+              />
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-slate-400">Map Resolution</label>
+                <select
+                  value={shadowMapSize === undefined ? 1024 : shadowMapSize as number}
+                  onChange={(e) => handleUpdate('shadowMapSize', Number(e.target.value) as 512 | 1024 | 2048 | 4096)}
+                  className="bg-slate-700 border border-slate-600 text-xs text-slate-200 rounded px-1 py-1 w-full"
+                >
+                  <option value={512}>512</option>
+                  <option value={1024}>1024</option>
+                  <option value={2048}>2048</option>
+                  <option value={4096}>4096</option>
+                </select>
+              </div>
+              <NumberInput
+                label="Bias"
+                value={shadowBias === undefined ? -0.001 : shadowBias as number}
+                onChange={(val) => handleUpdate('shadowBias', val)}
+                step="0.001"
+              />
+              <NumberInput
+                label="Normal Bias"
+                value={shadowNormalBias === undefined ? 0.02 : shadowNormalBias as number}
+                onChange={(val) => handleUpdate('shadowNormalBias', val)}
+                step="0.01"
+              />
+              <NumberInput
+                label="Radius"
+                value={shadowRadius === undefined ? 1 : shadowRadius as number}
+                onChange={(val) => handleUpdate('shadowRadius', val)}
+                step="0.5"
+              />
+            </div>
+          </div>
         )}
     </div>
   );
