@@ -119,25 +119,23 @@ export const TransformProp: React.FC<{ objectIds: string[], scaleReadOnly?: bool
   };
 
   return (
-    <div className="flex flex-col">
-      <div className="pb-2 flex flex-col gap-3">
-        <Vector3Input
-            label="位置 P"
-            value={commonPosition}
-            onChange={(v) => handleUpdate('position', v)}
-        />
-        <Vector3Input
-            label="旋转 R"
-            value={commonRotationDeg}
-            onChange={(v) => handleUpdate('rotation', v)}
-        />
-        <Vector3Input
-            label="缩放 S"
-            value={commonScale}
-            onChange={(v) => handleUpdate('scale', v)}
-            disabled={scaleReadOnly}
-        />
-      </div>
+    <div className="bg-[#0c0e14] border border-[#2d333f] p-3 rounded-sm space-y-3">
+      <Vector3Input
+          label="位置 P"
+          value={commonPosition}
+          onChange={(v) => handleUpdate('position', v)}
+      />
+      <Vector3Input
+          label="旋转 R"
+          value={commonRotationDeg}
+          onChange={(v) => handleUpdate('rotation', v)}
+      />
+      <Vector3Input
+          label="缩放 S"
+          value={commonScale}
+          onChange={(v) => handleUpdate('scale', v)}
+          disabled={scaleReadOnly}
+      />
     </div>
   );
 };
