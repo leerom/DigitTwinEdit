@@ -1,12 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Plus, Check } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { useProjectStore } from '../../../stores/projectStore';
 
 export function SceneSwitcher() {
-  const { scenes, currentScene, currentSceneId, switchScene, createScene } = useProjectStore();
+  const { scenes, currentScene, currentSceneId, switchScene } = useProjectStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [newSceneName, setNewSceneName] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // 点击外部关闭下拉菜单
@@ -14,7 +12,6 @@ export function SceneSwitcher() {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
-        setIsCreating(false);
       }
     };
 
@@ -26,20 +23,6 @@ export function SceneSwitcher() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
-
-  const handleCreateScene = async () => {
-    if (!newSceneName.trim()) return;
-
-    try {
-      await createScene(newSceneName);
-      setNewSceneName('');
-      setIsCreating(false);
-      setIsOpen(false);
-    } catch (error) {
-      console.error('Failed to create scene:', error);
-      alert('Failed to create scene');
-    }
-  };
 
   const handleSwitchScene = async (sceneId: number) => {
     if (sceneId === currentSceneId) {
@@ -85,55 +68,6 @@ export function SceneSwitcher() {
               </button>
             ))}
           </div>
-
-          {/* Divider */}
-          <div className="border-t border-gray-700" />
-
-          {/* Create New Scene */}
-          {isCreating ? (
-            <div className="p-2">
-              <input
-                type="text"
-                value={newSceneName}
-                onChange={(e) => setNewSceneName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleCreateScene();
-                  if (e.key === 'Escape') {
-                    setIsCreating(false);
-                    setNewSceneName('');
-                  }
-                }}
-                placeholder="Scene name..."
-                className="w-full px-3 py-1.5 text-sm bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                autoFocus
-              />
-              <div className="flex gap-2 mt-2">
-                <button
-                  onClick={handleCreateScene}
-                  className="flex-1 px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                >
-                  Create
-                </button>
-                <button
-                  onClick={() => {
-                    setIsCreating(false);
-                    setNewSceneName('');
-                  }}
-                  className="flex-1 px-3 py-1 text-xs bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              onClick={() => setIsCreating(true)}
-              className="w-full px-4 py-2 text-left text-sm text-blue-400 hover:bg-gray-700 transition-colors flex items-center gap-2"
-            >
-              <Plus size={16} />
-              <span>New Scene</span>
-            </button>
-          )}
         </div>
       )}
     </div>

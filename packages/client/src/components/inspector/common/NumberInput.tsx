@@ -76,7 +76,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 
   return (
     <div className={`flex items-center justify-between ${className}`}>
-      <label className="text-[11px] text-[#999999] font-medium min-w-[60px]">{label}</label>
+      <label className="text-[11px] text-[#999999] font-medium min-w-[60px] whitespace-nowrap shrink-0">{label}</label>
       <input
         className="w-full bg-transparent border-none text-[12px] font-mono text-[#3b82f6] focus:outline-none text-left p-0"
         value={localValue}
