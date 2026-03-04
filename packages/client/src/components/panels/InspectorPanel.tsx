@@ -9,6 +9,7 @@ import { MaterialProp } from '../inspector/MaterialProp';
 import { TwinDataProp } from '../inspector/TwinDataProp';
 import { CameraProp } from '../inspector/specific/CameraProp';
 import { LightProp } from '../inspector/specific/LightProp';
+import { MeshProp } from '../inspector/specific/MeshProp';
 import { ModelImportProp } from '../inspector/ModelImportProp';
 import { TextureImportProp } from '../inspector/TextureImportProp';
 import { ModelPreview } from '../inspector/ModelPreview';
@@ -246,6 +247,13 @@ export const InspectorPanel: React.FC = () => {
               <div className="space-y-4">
                 <TransformProp objectIds={selectedIds} scaleReadOnly={isMainCamera} />
               </div>
+            </div>
+          )}
+
+          {/* Object Properties — MESH 和 GROUP */}
+          {!isAllCameras && !isAllLights && (
+            <div className="border-t border-white/5 pt-4">
+              <MeshProp objectIds={selectedIds} />
             </div>
           )}
 
