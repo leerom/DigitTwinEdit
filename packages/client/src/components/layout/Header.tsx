@@ -9,7 +9,8 @@ import { SceneManager } from '../../features/scene/services/SceneManager';
 import { useNewSceneFlow } from '../../hooks/useNewSceneFlow';
 import { useSceneStore } from '../../stores/sceneStore';
 import { useEditorStore } from '../../stores/editorStore';
-import { Upload, FileDown, FilePlus, Box, Circle, Square, Sun, Layers, Cylinder, FolderOpen, Save, FileInput } from 'lucide-react';
+import { useLayoutStore } from '../../stores/layoutStore';
+import { Upload, FileDown, FilePlus, Box, Circle, Square, Sun, Layers, Cylinder, FolderOpen, Save, FileInput, Check } from 'lucide-react';
 import { SceneSwitcher } from '../../features/scene/components/SceneSwitcher';
 import { UserMenu } from '../UserMenu';
 import { FBXImportDialog } from '../../features/fbx/FBXImportDialog';
@@ -40,6 +41,15 @@ export const Header: React.FC = () => {
 
   const select = useEditorStore((state) => state.select);
   const setActiveTool = useEditorStore((state) => state.setActiveTool);
+
+  const {
+    sidebarLeftVisible,
+    sidebarRightVisible,
+    bottomPanelVisible,
+    toggleSidebarLeft,
+    toggleSidebarRight,
+    toggleBottomPanel,
+  } = useLayoutStore();
 
   // FBX 导入 Hook
   const fbx = useFBXImport();
@@ -222,6 +232,30 @@ export const Header: React.FC = () => {
     </button>
   );
 
+  const windowMenuItems: DropdownMenuItem[] = [
+    {
+      label: '层级视图',
+      icon: sidebarLeftVisible
+        ? <Check className="w-3 h-3" />
+        : <span className="w-3 h-3 inline-block" />,
+      onClick: toggleSidebarLeft,
+    },
+    {
+      label: '项目视图',
+      icon: bottomPanelVisible
+        ? <Check className="w-3 h-3" />
+        : <span className="w-3 h-3 inline-block" />,
+      onClick: toggleBottomPanel,
+    },
+    {
+      label: '属性检视器',
+      icon: sidebarRightVisible
+        ? <Check className="w-3 h-3" />
+        : <span className="w-3 h-3 inline-block" />,
+      onClick: toggleSidebarRight,
+    },
+  ];
+
   return (
     <header className="h-10 bg-header-dark border-b border-border-dark flex items-center px-3 justify-between z-50 flex-shrink-0 select-none">
       {/* Left: Logo & Menu */}
@@ -259,7 +293,14 @@ export const Header: React.FC = () => {
           <MenuItem label="资产" />
           <MenuItem label="游戏对象" />
           <MenuItem label="组件" />
-          <MenuItem label="窗口" />
+          <DropdownMenu
+            trigger={
+              <button className="px-2 py-1 text-xs hover:bg-slate-700 rounded transition-colors text-slate-300">
+                窗口
+              </button>
+            }
+            items={windowMenuItems}
+          />
           <MenuItem label="帮助" />
         </nav>
       </div>
