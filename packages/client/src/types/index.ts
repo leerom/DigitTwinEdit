@@ -35,6 +35,8 @@ export interface MeshComponent {
   castShadow: boolean;
   receiveShadow: boolean;
   materialAssetId?: number;   // 绑定的材质资产 DB ID（可选）
+  frustumCulled?: boolean;   // Three.js 视锥体裁剪，默认 true
+  renderOrder?: number;      // Three.js 渲染顺序，默认 0
 }
 
 // Twin Component (Digital Twin Metadata)
@@ -95,6 +97,10 @@ export interface SceneObject {
   children: string[];
   visible: boolean;
   locked: boolean;
+  castShadow?: boolean;      // GROUP 使用；MESH 用 MeshComponent.castShadow
+  receiveShadow?: boolean;   // GROUP 使用；MESH 用 MeshComponent.receiveShadow
+  frustumCulled?: boolean;   // GROUP 使用；MESH 用 MeshComponent.frustumCulled
+  renderOrder?: number;      // GROUP 使用；MESH 用 MeshComponent.renderOrder
   transform: TransformComponent;
   components?: {
     mesh?: MeshComponent;
