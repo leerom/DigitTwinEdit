@@ -10,11 +10,13 @@ interface UseResizeReturn {
  * 拖拽调整面板尺寸的 Hook。
  * - horizontal：左右拖拽，delta = clientX 变化量（正数 = 向右 = 增大）
  * - vertical：上下拖拽，delta = -(clientY 变化量)（向上拖 = 减小 clientY = 增大高度）
+ * - reverse：取反 delta，用于右侧面板（向左拖 = 增大）
  */
 export function useResize(
   direction: Direction,
   setter: (size: number) => void,
-  getCurrentSize: () => number
+  getCurrentSize: () => number,
+  reverse?: boolean
 ): UseResizeReturn {
   const dragging = useRef(false);
   const startPos = useRef(0);
@@ -33,9 +35,10 @@ export function useResize(
       const onMouseMove = (moveEvent: MouseEvent) => {
         if (!dragging.current) return;
         const currentPos = direction === 'horizontal' ? moveEvent.clientX : moveEvent.clientY;
-        const delta = direction === 'horizontal'
+        const rawDelta = direction === 'horizontal'
           ? currentPos - startPos.current
           : startPos.current - currentPos; // 向上拖为正
+        const delta = reverse ? -rawDelta : rawDelta;
         setter(startSize.current + delta);
       };
 

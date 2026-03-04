@@ -31,7 +31,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   } = useLayoutStore();
 
   const leftResize = useResize('horizontal', setSidebarLeftWidth, () => sidebarLeftWidth);
-  const rightResize = useResize('horizontal', (w) => setSidebarRightWidth(w), () => sidebarRightWidth);
+  const rightResize = useResize('horizontal', (w) => setSidebarRightWidth(w), () => sidebarRightWidth, true);
   const bottomResize = useResize('vertical', setBottomPanelHeight, () => bottomPanelHeight);
 
   return (
