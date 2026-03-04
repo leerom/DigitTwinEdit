@@ -67,6 +67,14 @@ export interface LightComponent {
   range?: number; // for point/spot
   decay?: number; // for point/spot
   angle?: number; // for spot
+  // directional light shadow properties
+  shadowCameraSize?: number;
+  shadowNear?: number;
+  shadowFar?: number;
+  shadowMapSize?: 512 | 1024 | 2048 | 4096;
+  shadowBias?: number;
+  shadowNormalBias?: number;
+  shadowRadius?: number;
 }
 
 // Object Types
