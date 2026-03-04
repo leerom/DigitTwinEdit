@@ -418,7 +418,14 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
     >
       {/* 基础几何体网格：模型对象（有 model 组件）不渲染 Box 占位，避免叠加 */}
       {object?.type === ObjectType.MESH && !object.components?.model && geometry && materialRef.current && (
-        <mesh castShadow receiveShadow geometry={geometry} material={materialRef.current}>
+        <mesh
+          castShadow={object.components?.mesh?.castShadow ?? true}
+          receiveShadow={object.components?.mesh?.receiveShadow ?? true}
+          frustumCulled={object.components?.mesh?.frustumCulled ?? true}
+          renderOrder={object.components?.mesh?.renderOrder ?? 0}
+          geometry={geometry}
+          material={materialRef.current}
+        >
            {showEdges && (
               <lineSegments>
                 <edgesGeometry args={[geometry]} />
