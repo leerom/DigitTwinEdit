@@ -473,6 +473,18 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
             position={[0, 0, 2]}
             color={object.components?.light?.color ?? '#ffffff'}
             intensity={object.components?.light?.intensity ?? 1}
+            castShadow={object.components?.light?.castShadow ?? false}
+            shadow-camera-left={-(object.components?.light?.shadowCameraSize ?? 10)}
+            shadow-camera-right={object.components?.light?.shadowCameraSize ?? 10}
+            shadow-camera-top={object.components?.light?.shadowCameraSize ?? 10}
+            shadow-camera-bottom={-(object.components?.light?.shadowCameraSize ?? 10)}
+            shadow-camera-near={object.components?.light?.shadowNear ?? 0.5}
+            shadow-camera-far={object.components?.light?.shadowFar ?? 500}
+            shadow-mapSize-width={object.components?.light?.shadowMapSize ?? 1024}
+            shadow-mapSize-height={object.components?.light?.shadowMapSize ?? 1024}
+            shadow-bias={object.components?.light?.shadowBias ?? -0.001}
+            shadow-normalBias={object.components?.light?.shadowNormalBias ?? 0.02}
+            shadow-radius={object.components?.light?.shadowRadius ?? 1}
           />
           <object3D ref={lightTargetRef} />
           <mesh>
