@@ -79,7 +79,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
           >
              <div className="flex items-center gap-2">
                 {item.icon && <span className="w-4 h-4">{item.icon}</span>}
-                <span>{item.label}</span>
+                <span className="whitespace-nowrap">{item.label}</span>
              </div>
              <ChevronRight className="w-3 h-3 text-slate-400" />
           </button>
@@ -102,7 +102,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
         )}
       >
         {item.icon && <span className="w-4 h-4">{item.icon}</span>}
-        <span>{item.label}</span>
+        <span className="whitespace-nowrap">{item.label}</span>
       </button>
     );
   };
