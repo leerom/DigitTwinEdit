@@ -276,8 +276,8 @@ export const InspectorPanel: React.FC = () => {
             <LightProp objectIds={selectedIds} />
           )}
 
-          {/* Digital Twin Data - Single Select Only, Not for Camera */}
-          {!isMultiSelect && !isAllCameras && (
+          {/* Digital Twin Data - Single Select Only, Not for Camera/Light */}
+          {!isMultiSelect && !isAllCameras && !isAllLights && (
             <div className="p-3 bg-primary/5 rounded border border-primary/20">
               <div className="flex items-center text-primary mb-2">
                 <span className="material-symbols-outlined text-xs mr-2">database</span>
