@@ -254,8 +254,12 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   const isSelected = selectedIds.includes(id);
   // const isActive = activeId === id;
 
-  const lightRef = useRef<THREE.DirectionalLight>(null!);
+  const directionalLightRef = useRef<THREE.DirectionalLight>(null!);
+  const pointLightRef = useRef<THREE.PointLight>(null!);
+  const spotLightRef = useRef<THREE.SpotLight>(null!);
+  const hemisphereLightRef = useRef<THREE.HemisphereLight>(null!);
   const lightTargetRef = useRef<THREE.Object3D>(null!);
+  const lightType = object?.components?.light?.type;
   const cameraRef = useRef<THREE.Camera>(null!);
   const groupRef = useRef<THREE.Group>(null!);
 
@@ -263,13 +267,18 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
   // 将 target 挂载在 group 内部 (0,0,0)，light 挂在 (0,0,2)，
   // group 旋转时两者同步旋转，方向随之变化。
   useEffect(() => {
-    if (lightRef.current && lightTargetRef.current) {
-      lightRef.current.target = lightTargetRef.current;
+    if (lightType === 'directional' && directionalLightRef.current && lightTargetRef.current) {
+      directionalLightRef.current.target = lightTargetRef.current;
     }
-  }, []);
+    if (lightType === 'spot' && spotLightRef.current && lightTargetRef.current) {
+      spotLightRef.current.target = lightTargetRef.current;
+    }
+  }, [lightType]);
 
   // Safe access to object properties for hooks
-  useHelper(isSelected && object?.type === ObjectType.LIGHT ? lightRef : null, THREE.DirectionalLightHelper, 1, 'yellow');
+  useHelper(isSelected && object?.type === ObjectType.LIGHT && lightType === 'directional' ? directionalLightRef : null, THREE.DirectionalLightHelper, 1);
+  useHelper(isSelected && object?.type === ObjectType.LIGHT && lightType === 'point' ? pointLightRef : null, THREE.PointLightHelper, 0.5);
+  useHelper(isSelected && object?.type === ObjectType.LIGHT && lightType === 'spot' ? spotLightRef : null, THREE.SpotLightHelper);
   useHelper(isSelected && object?.type === ObjectType.CAMERA ? cameraRef : null, THREE.CameraHelper);
   // 抓手工具模式下，为选中的 MESH 对象显示金色包围盒描边
   useHelper(isSelected && activeTool === 'hand' && object?.type === ObjectType.MESH ? groupRef : null, THREE.BoxHelper, '#FFD700');
@@ -486,45 +495,109 @@ const ObjectRenderer: React.FC<{ id: string }> = React.memo(({ id }) => {
         </group>
       )}
 
-      {object?.type === ObjectType.LIGHT && (
-        <group>
-          {/*
-            DirectionalLight 放在本地 (0,0,2)，target 挂在本地 (0,0,0)。
-            group 旋转时两者同步旋转 → 方向始终沿 group 本地 -Z 轴，随旋转 Gizmo 联动。
-          */}
-          <directionalLight
-            ref={lightRef}
-            position={[0, 0, 2]}
-            color={object.components?.light?.color ?? '#ffffff'}
-            intensity={object.components?.light?.intensity ?? 1}
-            castShadow={object.components?.light?.castShadow ?? false}
-            shadow-camera-left={-(object.components?.light?.shadowCameraSize ?? 10)}
-            shadow-camera-right={object.components?.light?.shadowCameraSize ?? 10}
-            shadow-camera-top={object.components?.light?.shadowCameraSize ?? 10}
-            shadow-camera-bottom={-(object.components?.light?.shadowCameraSize ?? 10)}
-            shadow-camera-near={object.components?.light?.shadowNear ?? 0.5}
-            shadow-camera-far={object.components?.light?.shadowFar ?? 500}
-            shadow-mapSize-width={object.components?.light?.shadowMapSize ?? 1024}
-            shadow-mapSize-height={object.components?.light?.shadowMapSize ?? 1024}
-            shadow-bias={object.components?.light?.shadowBias ?? -0.001}
-            shadow-normalBias={object.components?.light?.shadowNormalBias ?? 0.02}
-            shadow-radius={object.components?.light?.shadowRadius ?? 1}
-          />
-          <object3D ref={lightTargetRef} />
-          <mesh>
-            <sphereGeometry args={[0.3, 16, 16]} />
-            <meshBasicMaterial color="#ffff00" />
-          </mesh>
-           <group>
-             {[0, Math.PI/2, Math.PI, -Math.PI/2].map((angle, i) => (
-               <mesh key={i} rotation={[0, 0, angle]} position={[Math.cos(angle)*0.5, Math.sin(angle)*0.5, 0]}>
-                  <cylinderGeometry args={[0.02, 0.02, 0.4]} />
-                  <meshBasicMaterial color="#ffff00" />
-               </mesh>
-             ))}
-           </group>
-        </group>
-      )}
+      {object?.type === ObjectType.LIGHT && (() => {
+        const light = object.components?.light;
+        const lt = light?.type ?? 'directional';
+        return (
+          <group>
+            {/* 黄色球体 Gizmo：所有光源类型均显示，用于选中 */}
+            <mesh>
+              <sphereGeometry args={[0.3, 16, 16]} />
+              <meshBasicMaterial color="#ffff00" />
+            </mesh>
+
+            {lt === 'ambient' && (
+              <ambientLight
+                color={light?.color ?? '#ffffff'}
+                intensity={light?.intensity ?? 0.5}
+              />
+            )}
+
+            {lt === 'directional' && (
+              <>
+                <directionalLight
+                  ref={directionalLightRef}
+                  position={[0, 0, 2]}
+                  color={light?.color ?? '#ffffff'}
+                  intensity={light?.intensity ?? 1}
+                  castShadow={light?.castShadow ?? false}
+                  shadow-camera-left={-(light?.shadowCameraSize ?? 10)}
+                  shadow-camera-right={light?.shadowCameraSize ?? 10}
+                  shadow-camera-top={light?.shadowCameraSize ?? 10}
+                  shadow-camera-bottom={-(light?.shadowCameraSize ?? 10)}
+                  shadow-camera-near={light?.shadowNear ?? 0.5}
+                  shadow-camera-far={light?.shadowFar ?? 500}
+                  shadow-mapSize-width={light?.shadowMapSize ?? 1024}
+                  shadow-mapSize-height={light?.shadowMapSize ?? 1024}
+                  shadow-bias={light?.shadowBias ?? -0.001}
+                  shadow-normalBias={light?.shadowNormalBias ?? 0.02}
+                  shadow-radius={light?.shadowRadius ?? 1}
+                />
+                <object3D ref={lightTargetRef} />
+                {/* 方向指示辐射线 */}
+                <group>
+                  {[0, Math.PI/2, Math.PI, -Math.PI/2].map((angle, i) => (
+                    <mesh key={i} rotation={[0, 0, angle]} position={[Math.cos(angle)*0.5, Math.sin(angle)*0.5, 0]}>
+                      <cylinderGeometry args={[0.02, 0.02, 0.4]} />
+                      <meshBasicMaterial color="#ffff00" />
+                    </mesh>
+                  ))}
+                </group>
+              </>
+            )}
+
+            {lt === 'hemisphere' && (
+              <hemisphereLight
+                ref={hemisphereLightRef}
+                color={light?.color ?? '#ffffff'}
+                groundColor={light?.groundColor ?? '#444444'}
+                intensity={light?.intensity ?? 0.6}
+              />
+            )}
+
+            {lt === 'point' && (
+              <pointLight
+                ref={pointLightRef}
+                color={light?.color ?? '#ffffff'}
+                intensity={light?.intensity ?? 1}
+                distance={light?.range ?? 0}
+                decay={light?.decay ?? 2}
+                castShadow={light?.castShadow ?? false}
+                shadow-camera-near={light?.shadowNear ?? 0.5}
+                shadow-camera-far={light?.range && light.range > 0 ? light.range : 500}
+                shadow-mapSize-width={light?.shadowMapSize ?? 1024}
+                shadow-mapSize-height={light?.shadowMapSize ?? 1024}
+                shadow-bias={light?.shadowBias ?? -0.001}
+                shadow-normalBias={light?.shadowNormalBias ?? 0.02}
+                shadow-radius={light?.shadowRadius ?? 1}
+              />
+            )}
+
+            {lt === 'spot' && (
+              <>
+                <spotLight
+                  ref={spotLightRef}
+                  color={light?.color ?? '#ffffff'}
+                  intensity={light?.intensity ?? 1}
+                  distance={light?.range ?? 10}
+                  angle={light?.angle ?? Math.PI / 6}
+                  penumbra={light?.penumbra ?? 0.1}
+                  decay={light?.decay ?? 2}
+                  castShadow={light?.castShadow ?? false}
+                  shadow-camera-near={light?.shadowNear ?? 0.5}
+                  shadow-camera-far={light?.range && light.range > 0 ? light.range : 500}
+                  shadow-mapSize-width={light?.shadowMapSize ?? 1024}
+                  shadow-mapSize-height={light?.shadowMapSize ?? 1024}
+                  shadow-bias={light?.shadowBias ?? -0.001}
+                  shadow-normalBias={light?.shadowNormalBias ?? 0.02}
+                  shadow-radius={light?.shadowRadius ?? 1}
+                />
+                <object3D ref={lightTargetRef} />
+              </>
+            )}
+          </group>
+        );
+      })()}
 
       {object?.type === ObjectType.GROUP && (
         <group>
