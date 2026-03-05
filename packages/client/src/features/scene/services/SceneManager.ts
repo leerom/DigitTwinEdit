@@ -166,4 +166,85 @@ export class SceneManager {
         }
       };
   }
+
+  /**
+   * Creates a new light object with specified light type and defaults
+   */
+  static createLight(
+    name: string,
+    lightType: LightComponent['type']
+  ): SceneObject {
+    const id = uuidv4();
+
+    const lightDefaults: Record<LightComponent['type'], Partial<LightComponent>> = {
+      ambient: {
+        type: 'ambient',
+        color: '#ffffff',
+        intensity: 0.5,
+      },
+      directional: {
+        type: 'directional',
+        color: '#ffffff',
+        intensity: 1,
+        castShadow: true,
+        shadowCameraSize: 10,
+        shadowNear: 0.5,
+        shadowFar: 500,
+        shadowMapSize: 1024,
+        shadowBias: -0.001,
+        shadowNormalBias: 0.02,
+        shadowRadius: 1,
+      },
+      hemisphere: {
+        type: 'hemisphere',
+        color: '#ffffff',
+        intensity: 0.6,
+        groundColor: '#444444',
+      },
+      point: {
+        type: 'point',
+        color: '#ffffff',
+        intensity: 1,
+        range: 0,
+        decay: 2,
+        castShadow: false,
+        shadowMapSize: 1024,
+        shadowBias: -0.001,
+        shadowNormalBias: 0.02,
+        shadowRadius: 1,
+      },
+      spot: {
+        type: 'spot',
+        color: '#ffffff',
+        intensity: 1,
+        range: 10,
+        angle: Math.PI / 6,
+        penumbra: 0.1,
+        decay: 2,
+        castShadow: false,
+        shadowMapSize: 1024,
+        shadowBias: -0.001,
+        shadowNormalBias: 0.02,
+        shadowRadius: 1,
+      },
+    };
+
+    return {
+      id,
+      name,
+      type: ObjectType.LIGHT,
+      parentId: null,
+      children: [],
+      visible: true,
+      locked: false,
+      transform: {
+        position: [0, 3, 0],
+        rotation: [0, 0, 0],
+        scale: [1, 1, 1],
+      },
+      components: {
+        light: lightDefaults[lightType] as LightComponent,
+      },
+    };
+  }
 }
