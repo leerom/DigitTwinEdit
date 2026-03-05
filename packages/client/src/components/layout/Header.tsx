@@ -98,6 +98,16 @@ export const Header: React.FC = () => {
     setActiveTool('translate');
   };
 
+  const handleAddLight = (
+    name: string,
+    lightType: import('@/types').LightComponent['type']
+  ) => {
+    const newObject = SceneManager.createLight(name, lightType);
+    addObject(newObject);
+    select([newObject.id], false);
+    setActiveTool('translate');
+  };
+
   const sceneMenuItems: DropdownMenuItem[] = [
     {
       label: '新建场景',
@@ -206,11 +216,31 @@ export const Header: React.FC = () => {
       label: '光源',
       icon: <Sun className="w-3 h-3" />,
       children: [
-        { label: '环境光 (Ambient)', disabled: true },
-        { label: '平行光 (Directional)', disabled: true },
-        { label: '半球光 (Hemisphere)', disabled: true },
-        { label: '点光源 (Point)', disabled: true },
-        { label: '聚光灯 (Spot)', disabled: true },
+        {
+          label: '环境光 (Ambient)',
+          onClick: () => handleAddLight('Ambient Light', 'ambient'),
+          icon: <Sun className="w-3 h-3" />,
+        },
+        {
+          label: '平行光 (Directional)',
+          onClick: () => handleAddLight('Directional Light', 'directional'),
+          icon: <Sun className="w-3 h-3" />,
+        },
+        {
+          label: '半球光 (Hemisphere)',
+          onClick: () => handleAddLight('Hemisphere Light', 'hemisphere'),
+          icon: <Sun className="w-3 h-3" />,
+        },
+        {
+          label: '点光源 (Point)',
+          onClick: () => handleAddLight('Point Light', 'point'),
+          icon: <Sun className="w-3 h-3" />,
+        },
+        {
+          label: '聚光灯 (Spot)',
+          onClick: () => handleAddLight('Spot Light', 'spot'),
+          icon: <Sun className="w-3 h-3" />,
+        },
       ]
     },
     {
