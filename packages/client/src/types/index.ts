@@ -62,21 +62,34 @@ export interface CameraComponent {
 
 // Light Component
 export interface LightComponent {
-  color: string;
-  intensity: number;
-  type: 'directional' | 'point' | 'spot' | 'ambient';
+  color: string;           // 所有光源（半球光为天空色 skyColor）
+  intensity: number;       // 所有光源
+  type: 'directional' | 'point' | 'spot' | 'ambient' | 'hemisphere';
+
+  // 仅 hemisphere
+  groundColor?: string;    // 地面色，默认 '#444444'
+
+  // directional / point / spot
   castShadow?: boolean;
-  range?: number; // for point/spot
-  decay?: number; // for point/spot
-  angle?: number; // for spot
-  // directional light shadow properties
-  shadowCameraSize?: number;
-  shadowNear?: number;
-  shadowFar?: number;
+
+  // point / spot
+  range?: number;          // Three.js distance，0 = 无限
+  decay?: number;          // 默认 2
+
+  // 仅 spot
+  angle?: number;          // 锥角 0~π/2，默认 π/6
+  penumbra?: number;       // 柔边 0~1，默认 0.1
+
+  // 阴影参数（directional / point / spot，castShadow=true 时生效）
   shadowMapSize?: 512 | 1024 | 2048 | 4096;
   shadowBias?: number;
   shadowNormalBias?: number;
   shadowRadius?: number;
+
+  // 仅 directional 阴影正交摄像机
+  shadowCameraSize?: number;
+  shadowNear?: number;
+  shadowFar?: number;
 }
 
 // Object Types
