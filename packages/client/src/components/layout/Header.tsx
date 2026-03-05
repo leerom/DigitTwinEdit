@@ -17,6 +17,7 @@ import { FBXImportDialog } from '../../features/fbx/FBXImportDialog';
 import { fbxImporter } from '../../features/fbx/FBXImporter';
 import { ProgressDialog } from '../../features/scene/components/ProgressDialog';
 import { useFBXImport } from '../../hooks/useFBXImport';
+import type { LightComponent } from '@/types';
 
 export const Header: React.FC = () => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -100,7 +101,7 @@ export const Header: React.FC = () => {
 
   const handleAddLight = (
     name: string,
-    lightType: import('@/types').LightComponent['type']
+    lightType: LightComponent['type']
   ) => {
     const newObject = SceneManager.createLight(name, lightType);
     addObject(newObject);
