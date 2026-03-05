@@ -128,8 +128,14 @@ const HierarchyItem: React.FC<HierarchyItemProps> = React.memo(({ id, depth, onC
     switch (object.type) {
       case ObjectType.CAMERA:
         return { icon: 'videocam', color: 'text-slate-500' };
-      case ObjectType.LIGHT:
-        return { icon: 'light_mode', color: 'text-yellow-400' };
+      case ObjectType.LIGHT: {
+        const lt = object.components?.light?.type;
+        if (lt === 'ambient') return { icon: 'wb_twilight', color: 'text-yellow-300' };
+        if (lt === 'hemisphere') return { icon: 'gradient', color: 'text-blue-300' };
+        if (lt === 'point') return { icon: 'lightbulb', color: 'text-yellow-400' };
+        if (lt === 'spot') return { icon: 'flashlight_on', color: 'text-yellow-400' };
+        return { icon: 'light_mode', color: 'text-yellow-400' }; // directional 默认
+      }
       case ObjectType.GROUP:
         return { icon: 'grid_view', color: 'text-slate-500' };
       default:
