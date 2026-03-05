@@ -63,8 +63,8 @@ describe('LightProp — 直射光阴影设置', () => {
     expect(screen.getByText('Radius')).toBeTruthy();
   });
 
-  it('非直射光不显示阴影设置区（即使 castShadow=true）', () => {
-    setupStore({ type: 'point', castShadow: true });
+  it('环境光不显示阴影设置区', () => {
+    setupStore({ type: 'ambient' });
     render(<LightProp objectIds={['light1']} />);
     expect(screen.queryByText('阴影设置 (Shadow)')).toBeNull();
   });
@@ -92,5 +92,44 @@ describe('LightProp — 直射光阴影设置', () => {
     const input = screen.getByDisplayValue('10'); // Camera Size 默认值
     fireEvent.change(input, { target: { value: '20' } });
     expect(mockUpdateComponent).toHaveBeenCalledWith('light1', 'light', { shadowCameraSize: 20 });
+  });
+});
+
+describe('LightProp — 半球光', () => {
+  it('显示 Ground Color 颜色选择器', () => {
+    setupStore({ type: 'hemisphere', groundColor: '#444444' });
+    render(<LightProp objectIds={['light1']} />);
+    expect(screen.getByText('Ground Color')).toBeTruthy();
+  });
+
+  it('不显示 Cast Shadow', () => {
+    setupStore({ type: 'hemisphere' });
+    render(<LightProp objectIds={['light1']} />);
+    expect(screen.queryByText('Cast Shadow')).toBeNull();
+  });
+});
+
+describe('LightProp — 点光源', () => {
+  it('显示 Range 和 Decay', () => {
+    setupStore({ type: 'point', range: 10, decay: 2 });
+    render(<LightProp objectIds={['light1']} />);
+    expect(screen.getByText('Range')).toBeTruthy();
+    expect(screen.getByText('Decay')).toBeTruthy();
+  });
+
+  it('castShadow=true 时显示阴影设置（无 Camera Size）', () => {
+    setupStore({ type: 'point', castShadow: true });
+    render(<LightProp objectIds={['light1']} />);
+    expect(screen.getByText('阴影设置 (Shadow)')).toBeTruthy();
+    expect(screen.queryByText('Camera Size')).toBeNull();
+  });
+});
+
+describe('LightProp — 聚光灯', () => {
+  it('显示 Angle 和 Penumbra', () => {
+    setupStore({ type: 'spot', angle: Math.PI / 6, penumbra: 0.1 });
+    render(<LightProp objectIds={['light1']} />);
+    expect(screen.getByText('Angle')).toBeTruthy();
+    expect(screen.getByText('Penumbra')).toBeTruthy();
   });
 });

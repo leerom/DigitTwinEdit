@@ -52,13 +52,20 @@ export const LightProp: React.FC<LightPropProps> = ({ objectIds }) => {
   const shadowBias = getLightValue('shadowBias');
   const shadowNormalBias = getLightValue('shadowNormalBias');
   const shadowRadius = getLightValue('shadowRadius');
+  const groundColor = getLightValue('groundColor');
+  const penumbra = getLightValue('penumbra');
 
+  const isAmbient = type === 'ambient';
   const isDirectional = type === 'directional';
-  const showShadowSettings = isDirectional && castShadow === true;
+  const isHemisphere = type === 'hemisphere';
+  const isPoint = type === 'point';
+  const isSpot = type === 'spot';
 
-  const supportsRangeDecay = type === 'point' || type === 'spot' || type === MIXED_VALUE;
-  const supportsAngle = type === 'spot' || type === MIXED_VALUE;
-  const supportsShadow = type !== 'ambient';
+  const supportsRangeDecay = isPoint || isSpot || type === MIXED_VALUE;
+  const supportsAngle = isSpot || type === MIXED_VALUE;
+  const supportsShadow = !isAmbient && !isHemisphere;
+  const showShadowSettings = supportsShadow && castShadow === true;
+  const showCameraSize = showShadowSettings && isDirectional;
 
   const handleUpdate = (key: string, value: any) => {
     selectedLights.forEach((obj) => {
@@ -72,7 +79,7 @@ export const LightProp: React.FC<LightPropProps> = ({ objectIds }) => {
 
         {/* Color Picker */}
         <div className="flex items-center justify-between">
-          <label className="text-xs text-slate-400">Color</label>
+          <label className="text-xs text-slate-400">{isHemisphere ? 'Sky Color' : 'Color'}</label>
           <div className="flex items-center gap-2">
              <input
                 type="color"
@@ -83,6 +90,21 @@ export const LightProp: React.FC<LightPropProps> = ({ objectIds }) => {
              {color === MIXED_VALUE && <span className="text-xs text-slate-500 italic">Mixed</span>}
           </div>
         </div>
+
+        {isHemisphere && (
+          <div className="flex items-center justify-between">
+            <label className="text-xs text-slate-400">Ground Color</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={groundColor === MIXED_VALUE ? '#000000' : (groundColor as string) || '#444444'}
+                onChange={(e) => handleUpdate('groundColor', e.target.value)}
+                className="w-8 h-6 bg-transparent border-0 p-0 cursor-pointer"
+              />
+              {groundColor === MIXED_VALUE && <span className="text-xs text-slate-500 italic">Mixed</span>}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-2">
             <NumberInput
@@ -110,12 +132,20 @@ export const LightProp: React.FC<LightPropProps> = ({ objectIds }) => {
             )}
 
             {supportsAngle && (
-                <NumberInput
-                    label="Angle"
-                    value={angle === undefined ? Math.PI / 3 : angle}
-                    onChange={(val) => handleUpdate('angle', val)}
-                    step="0.1"
-                />
+                <>
+                  <NumberInput
+                      label="Angle"
+                      value={angle === undefined ? Math.PI / 6 : angle}
+                      onChange={(val) => handleUpdate('angle', val)}
+                      step="0.01"
+                  />
+                  <NumberInput
+                      label="Penumbra"
+                      value={penumbra === undefined ? 0.1 : penumbra as number}
+                      onChange={(val) => handleUpdate('penumbra', val)}
+                      step="0.01"
+                  />
+                </>
             )}
         </div>
 
@@ -143,12 +173,14 @@ export const LightProp: React.FC<LightPropProps> = ({ objectIds }) => {
               阴影设置 (Shadow)
             </h4>
             <div className="grid grid-cols-2 gap-2">
-              <NumberInput
-                label="Camera Size"
-                value={shadowCameraSize === undefined ? 10 : shadowCameraSize as number}
-                onChange={(val) => handleUpdate('shadowCameraSize', val)}
-                step="1"
-              />
+              {showCameraSize && (
+                <NumberInput
+                  label="Camera Size"
+                  value={shadowCameraSize === undefined ? 10 : shadowCameraSize as number}
+                  onChange={(val) => handleUpdate('shadowCameraSize', val)}
+                  step="1"
+                />
+              )}
               <NumberInput
                 label="Near"
                 value={shadowNear === undefined ? 0.5 : shadowNear as number}
