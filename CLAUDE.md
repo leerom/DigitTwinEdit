@@ -173,11 +173,12 @@ GET/POST/PUT/DELETE  /api/materials/:id
 | Store | 位置 | 核心职责 |
 |-------|------|---------|
 | `useSceneStore` | `stores/sceneStore.ts` | 场景数据模型（对象树、isDirty、导入进度）；**使用 immer 中间件**，actions 内可直接 mutate state |
-| `useEditorStore` | `stores/editorStore.ts:63` | 交互状态（activeTool、selectedIds、renderMode、navigationMode） |
+| `useEditorStore` | `stores/editorStore.ts` | 交互状态（activeTool、selectedIds、renderMode、navigationMode、activeSubNodePath、renamingId、viewMode） |
 | `useHistoryStore` | `stores/historyStore.ts` | 命令模式撤销/重做；`execute(cmd)` 入栈，支持 `cmd.merge()` 合并连续操作 |
 | `useProjectStore` | `stores/projectStore.ts` | 项目/场景列表、currentScene、autoSaveScene() |
 | `useAuthStore` | `stores/authStore.ts` | 认证状态（user、isAuthenticated、login/logout/checkAuth） |
-| `useAssetStore` | `stores/assetStore.ts` | 资产列表缓存，供 Inspector 和 SceneRenderer 查找 assetId/updated_at |
+| `useAssetStore` | `stores/assetStore.ts` | 资产列表缓存，供 Inspector 和 SceneRenderer 查找 assetId/updated_at；selectedAssetId/selectedNodePath 供 Inspector 展示资产属性 |
+| `useMaterialStore` | `stores/materialStore.ts` | 材质资产列表、selectedMaterialId、previewSpec；CRUD 操作对接 materialsApi |
 | `useLayoutStore` | `stores/layoutStore.ts` | 面板可见性/尺寸（sidebarLeft/Right/bottomPanel）；仅支持 dark 主题 |
 
 #### 场景数据模型（SceneObject）
@@ -188,19 +189,28 @@ interface SceneObject {
   id: string; name: string; type: ObjectType;  // GROUP/MESH/LIGHT/CAMERA/TWIN
   parentId: string | null; children: string[];
   visible: boolean; locked: boolean;
+  // GROUP 对象在顶层存储渲染属性（MESH 同名字段在 MeshComponent 内）
+  castShadow?: boolean; receiveShadow?: boolean;
+  frustumCulled?: boolean; renderOrder?: number;
   transform: { position, rotation, scale }; // Vector3 = [number,number,number]
   components?: {
-    mesh?: {
-      geometry?: 'box'|'sphere'|'plane'|'cylinder'|'torus'|'capsule'; // 基础几何体
-      model?: { assetId: number; path?: string };  // GLTF/GLB 模型
-      material?: MaterialSpec;  // Inspector 材质覆盖
+    mesh?: {                                       // 基础几何体 MESH 使用
+      geometry?: 'box'|'sphere'|'plane'|'cylinder'|'torus'|'capsule';
+      material?: MaterialSpec;                    // Inspector 材质覆盖（序列化存储）
+      castShadow?: boolean; receiveShadow?: boolean;
+      frustumCulled?: boolean; renderOrder?: number;
+      materialAssetId?: number;                  // 绑定的材质资产 DB ID
     };
-    light?: { color, intensity, type };
+    model?: { assetId: number; path?: string;    // GLTF/GLB 模型使用（独立 key，非 mesh 子项）
+              nodeOverrides?: Record<string, { material?: MaterialSpec; transform?: ... }> };
+    light?: { color, intensity, type, castShadow?, range?, angle? };
     camera?: { fov, near, far, orthographic };
     twin?: { externalId, dataSource, status };
   };
 }
 ```
+
+**关键点**：GLTF/GLB 模型存储在 `components.model`，基础几何体存储在 `components.mesh.geometry`。两者互斥，同一对象不会同时有 `components.model` 和 `components.mesh.geometry`。`components.mesh.material` 用于对象级材质覆盖，两类对象都可使用。
 
 `Scene.objects` 是以 id 为 key 的扁平字典，通过 `parentId/children` 维护树形层级，根节点固定为 `'root'`。
 
@@ -234,11 +244,30 @@ interface Command {
 - 导入配置：`FBXImportSettings`（scale/convertUnits/normals/saveFormat/embedTextures）
 - 进度通过 `sceneStore.importProgress` 广播，`ImportProgress.percentage` 0–100
 
+#### 纹理导入管线
+
+位置：`packages/client/src/features/textures/`
+
+流程：TextureImportDialog（UI）→ textureWorker（Web Worker，PNG/JPG→KTX2 压缩转换）→ assetsApi.upload（上传原图 + KTX2）
+
+- 支持两种压缩模式：`ETC1S`（文件小）/ `UASTC`（质量高）
+- 配置：`TextureConvertSettings`（generateMipmaps/potResize/quality/colorSpace/compressionMode）
+- KTX2 资产的 `metadata.sourceTextureAssetId` 指向原始 PNG 资产（用于缩略图）
+- Inspector 中通过 `TexturePicker` 组件将纹理资产绑定到材质属性
+
 #### 材质系统
 
 - `MaterialSpec.type`：`MeshStandardMaterial`（默认）| `MeshBasicMaterial` | `MeshLambertMaterial` | `MeshPhongMaterial` | `MeshPhysicalMaterial`
 - 工厂函数：`packages/client/src/features/materials/materialFactory.ts` → `createThreeMaterial(spec)`
 - Inspector 修改材质通过 `UpdateMaterialPropsCommand` / `ChangeMaterialTypeCommand` 走命令系统
+- 材质资产（独立持久化）通过 `BindMaterialAssetCommand` 绑定到 `MeshComponent.materialAssetId`；`sceneStore.syncMaterialAsset()` 将资产 spec 同步到引用该资产的所有对象
+
+#### Inspector Panel 模式
+
+`InspectorPanel`（`components/panels/InspectorPanel.tsx`）有三种显示模式：
+1. **对象检视**：`editorStore.activeId` 有值时，显示 Transform/MeshProp/MaterialProp/LightProp 等（依对象类型）
+2. **资产检视**：`assetStore.selectedAssetId` 有值时，显示 ModelImportProp / TextureImportProp + 底部 3D 预览
+3. **材质资产检视**：`materialStore.selectedMaterialId` 有值时，显示 MaterialAssetProp + 底部 MaterialPreview
 
 #### 自动保存机制
 
