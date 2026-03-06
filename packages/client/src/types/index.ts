@@ -148,6 +148,7 @@ export interface SceneSettings {
   environment: SceneEnvironmentSettings;
   gridVisible: boolean;
   backgroundColor: string;
+  shadowMapType?: 'PCFSoftShadowMap' | 'PCFShadowMap' | 'VSMShadowMap';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
