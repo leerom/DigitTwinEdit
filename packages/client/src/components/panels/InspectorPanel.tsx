@@ -18,6 +18,8 @@ import { MaterialAssetProp } from '../inspector/MaterialAssetProp';
 import { MaterialPreview } from '../inspector/MaterialPreview';
 import { IBLImportProp } from '../inspector/IBLImportProp';
 import { SceneEnvironmentProp } from '../inspector/SceneEnvironmentProp';
+import { SceneProp } from '../inspector/SceneProp';
+import { useProjectStore } from '../../stores/projectStore';
 import { assetsApi } from '../../api/assets';
 
 function isRuntimeIBLAsset(asset: { type: string; metadata?: unknown } | undefined): boolean {
@@ -55,6 +57,12 @@ export const InspectorPanel: React.FC = () => {
     ? materials.find((m) => m.id === selectedMaterialId)
     : undefined;
 
+  const sceneRootSelected = useEditorStore((state) => state.sceneRootSelected);
+  const sceneName = useProjectStore((state) => {
+    const id = state.currentSceneId;
+    return state.scenes.find((s) => s.id === id)?.name ?? '场景';
+  });
+
   // 离开材质检视模式时清除 previewSpec
   useEffect(() => {
     if (!selectedMaterial) {
@@ -89,6 +97,37 @@ export const InspectorPanel: React.FC = () => {
   }, [selectedAsset, assets]);
 
   if (!activeId) {
+
+    // 场景根目录检视模式
+    if (sceneRootSelected) {
+      return (
+        <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
+          <div className="panel-title">
+            <div className="flex items-center space-x-2">
+              <span className="material-symbols-outlined text-xs">info</span>
+              <span>属性检视器 (Inspector)</span>
+            </div>
+            <button className="material-symbols-outlined text-xs hover:text-white transition-colors">settings</button>
+          </div>
+          {/* 场景标题头部 */}
+          <div className="p-4 border-b border-border-dark bg-header-dark/50">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-slate-800 rounded flex items-center justify-center border border-white/5">
+                <span className="material-symbols-outlined text-primary">deployed_code</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-white font-medium truncate">{sceneName}</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">Scene</p>
+              </div>
+            </div>
+          </div>
+          {/* 场景属性 */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <SceneProp />
+          </div>
+        </div>
+      );
+    }
 
     // 材质资产检视模式（优先于 model/texture）
     if (selectedMaterial) {
