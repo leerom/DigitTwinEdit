@@ -99,7 +99,7 @@ export const InspectorPanel: React.FC = () => {
   if (!activeId) {
 
     // 场景根目录检视模式
-    if (sceneRootSelected) {
+    if (sceneRootSelected && !selectedAsset && !selectedMaterial) {
       return (
         <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
           <div className="panel-title">

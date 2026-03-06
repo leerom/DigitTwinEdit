@@ -136,7 +136,8 @@ export const useEditorStore = create<EditorState>()(
           const newSelection = state.selectedIds.filter(id => !ids.includes(id));
           return {
             selectedIds: newSelection,
-            activeId: newSelection.length > 0 ? newSelection[newSelection.length - 1] : null
+            activeId: newSelection.length > 0 ? newSelection[newSelection.length - 1] : null,
+            sceneRootSelected: false
           };
         }),
 
