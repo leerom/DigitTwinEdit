@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { LoginForm } from './components/LoginForm';
 import { RegisterDialog } from './components/RegisterDialog';
@@ -12,8 +12,7 @@ export function LoginPage() {
 
   // 如果已登录，重定向到项目列表页
   if (isAuthenticated && !isLoading) {
-    navigate('/projects', { replace: true });
-    return null;
+    return <Navigate to="/projects" replace />;
   }
 
   const handleLoginSuccess = () => {

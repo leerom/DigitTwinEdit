@@ -1,21 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { LoginPage } from '../LoginPage';
 import { useAuthStore } from '../../../stores/authStore';
 
-// Mock stores
 vi.mock('../../../stores/authStore');
 
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  };
-});
+function renderLoginPage() {
+  return render(
+    <MemoryRouter initialEntries={['/login']}>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/projects" element={<div>项目列表页</div>} />
+      </Routes>
+    </MemoryRouter>
+  );
+}
 
 describe('LoginPage', () => {
   beforeEach(() => {
@@ -30,22 +31,14 @@ describe('LoginPage', () => {
   });
 
   it('should render login page', () => {
-    render(
-      <BrowserRouter>
-        <LoginPage />
-      </BrowserRouter>
-    );
+    renderLoginPage();
 
     expect(screen.getByText('数字孪生编辑器')).toBeInTheDocument();
     expect(screen.getByText('用户名')).toBeInTheDocument();
   });
 
   it('should display feature highlights', () => {
-    render(
-      <BrowserRouter>
-        <LoginPage />
-      </BrowserRouter>
-    );
+    renderLoginPage();
 
     expect(screen.getByText('实时预览')).toBeInTheDocument();
     expect(screen.getByText('协作管理')).toBeInTheDocument();
@@ -61,11 +54,7 @@ describe('LoginPage', () => {
       login: vi.fn(),
     });
 
-    render(
-      <BrowserRouter>
-        <LoginPage />
-      </BrowserRouter>
-    );
+    renderLoginPage();
 
     expect(screen.getByText('加载中...')).toBeInTheDocument();
   });
@@ -73,11 +62,7 @@ describe('LoginPage', () => {
   it('should open register dialog', async () => {
     const user = userEvent.setup();
 
-    render(
-      <BrowserRouter>
-        <LoginPage />
-      </BrowserRouter>
-    );
+    renderLoginPage();
 
     const registerButton = screen.getByText('还没有账号？立即注册');
     await user.click(registerButton);
@@ -85,7 +70,9 @@ describe('LoginPage', () => {
     expect(screen.getByText('创建账号')).toBeInTheDocument();
   });
 
-  it('should redirect when authenticated', () => {
+  it('should redirect when authenticated without render-phase navigation warning', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
     (useAuthStore as any).mockReturnValue({
       isAuthenticated: true,
       isLoading: false,
@@ -93,12 +80,22 @@ describe('LoginPage', () => {
       login: vi.fn(),
     });
 
-    render(
-      <BrowserRouter>
-        <LoginPage />
-      </BrowserRouter>
-    );
+    renderLoginPage();
 
-    expect(mockNavigate).toHaveBeenCalledWith('/projects', { replace: true });
+    await waitFor(() => {
+      expect(screen.getByText('项目列表页')).toBeInTheDocument();
+    });
+
+    expect(
+      consoleErrorSpy.mock.calls.some((call) =>
+        call.some(
+          (arg) =>
+            typeof arg === 'string' &&
+            arg.includes('You should call navigate() in a React.useEffect()')
+        )
+      )
+    ).toBe(false);
+
+    consoleErrorSpy.mockRestore();
   });
 });

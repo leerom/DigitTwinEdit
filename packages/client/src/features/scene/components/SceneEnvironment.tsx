@@ -6,7 +6,7 @@ import type { Asset } from '@digittwinedit/shared';
 import { useAssetStore } from '@/stores/assetStore';
 import { useSceneStore } from '@/stores/sceneStore';
 import { assetsApi } from '@/api/assets';
-import { normalizeSceneEnvironmentSettings } from '@/types';
+import type { SceneEnvironmentSettings } from '@/types';
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 
 const environmentCache = new Map<string, Promise<THREE.Texture>>();
@@ -55,9 +55,34 @@ function loadEnvironmentTexture(asset: Asset, renderer: THREE.WebGLRenderer): Pr
   return texturePromise;
 }
 
+const DEFAULT_SCENE_ENVIRONMENT: SceneEnvironmentSettings = {
+  mode: 'default',
+  assetId: null,
+};
+
+export function selectSceneEnvironmentSettings(state: {
+  scene: {
+    settings: {
+      environment: SceneEnvironmentSettings | string | null | undefined;
+    };
+  };
+}): SceneEnvironmentSettings {
+  const environment = state.scene.settings.environment;
+
+  if (environment && typeof environment === 'object') {
+    if (environment.mode === 'asset' && typeof environment.assetId === 'number') {
+      return environment;
+    }
+
+    return DEFAULT_SCENE_ENVIRONMENT;
+  }
+
+  return DEFAULT_SCENE_ENVIRONMENT;
+}
+
 export function SceneEnvironment() {
   const { gl, scene: threeScene } = useThree();
-  const sceneEnvironment = useSceneStore((state) => normalizeSceneEnvironmentSettings(state.scene.settings.environment));
+  const sceneEnvironment = useSceneStore(selectSceneEnvironmentSettings);
   const assets = useAssetStore((state) => state.assets);
   const appliedEnvironmentRef = useRef<THREE.Texture | null>(null);
   const pmremTextureRef = useRef<THREE.Texture | null>(null);
