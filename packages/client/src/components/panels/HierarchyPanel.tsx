@@ -11,6 +11,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { GltfNodeTree } from './GltfNodeTree';
 import { BindMaterialAssetCommand } from '@/features/editor/commands/BindMaterialAssetCommand';
 import { materialsApi } from '@/api/assets';
+import { useAssetStore } from '../../stores/assetStore.js';
+import { useMaterialStore } from '../../stores/materialStore.js';
 
 interface HierarchyItemProps {
   id: string;
@@ -224,7 +226,18 @@ export const HierarchyPanel: React.FC = () => {
   const select = useEditorStore((state) => state.select);
   const setDeleteConfirmation = useEditorStore((state) => state.setDeleteConfirmation);
 
+  const sceneRootSelected = useEditorStore((state) => state.sceneRootSelected);
+  const selectSceneRoot = useEditorStore((state) => state.selectSceneRoot);
+  const selectAsset = useAssetStore((state) => state.selectAsset);
+  const selectMaterial = useMaterialStore((state) => state.selectMaterial);
+
   const [contextMenu, setContextMenu] = React.useState<{ id: string; x: number; y: number } | null>(null);
+
+  const handleSceneRootClick = () => {
+    selectSceneRoot();
+    selectAsset(null);
+    selectMaterial(null);
+  };
 
   const { isDraggingOver, onDragOver, onDragLeave, onDrop } = useAssetDrop();
 
@@ -311,7 +324,15 @@ export const HierarchyPanel: React.FC = () => {
       {/* Content */}
       <div className="flex-1 overflow-y-auto custom-scrollbar pt-1">
         {/* Scene Root Header */}
-        <div className="hierarchy-item text-slate-400 font-semibold mb-1">
+        <div
+          className={clsx(
+            "hierarchy-item font-semibold mb-1 cursor-pointer",
+            sceneRootSelected
+              ? "bg-primary/20 text-white border-l-2 border-primary"
+              : "text-slate-400"
+          )}
+          onClick={handleSceneRootClick}
+        >
           <span className="material-symbols-outlined text-xs mr-1">expand_more</span>
           <span className="material-symbols-outlined text-xs mr-2 text-blue-400">deployed_code</span>
           <span>{sceneName}</span>
