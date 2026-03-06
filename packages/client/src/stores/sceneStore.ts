@@ -49,6 +49,7 @@ interface SceneState {
   setDefaultEnvironment: () => void;
   setEnvironmentAsset: (assetId: number) => void;
   clearEnvironment: () => void;
+  updateSceneSettings: (patch: Partial<import('@/types').SceneSettings>) => void;
   addAssetToScene: (asset: import('@digittwinedit/shared').Asset, position?: Vector3) => void;
 
   // Dirty state actions
@@ -349,6 +350,13 @@ export const useSceneStore = create<SceneState>()(
       clearEnvironment: () =>
         set((state) => {
           state.scene.settings.environment = { mode: 'default', assetId: null };
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
+        }),
+
+      updateSceneSettings: (patch) =>
+        set((state) => {
+          Object.assign(state.scene.settings, patch);
           state.scene.updatedAt = new Date().toISOString();
           state.isDirty = true;
         }),
