@@ -21,6 +21,8 @@ interface EditorState {
   activeId: string | null;
   activeSubNodePath: string | null;
   setActiveSubNodePath: (path: string | null) => void;
+  sceneRootSelected: boolean;
+  selectSceneRoot: () => void;
 
   // View
   camera: CameraState;
@@ -72,6 +74,7 @@ export const useEditorStore = create<EditorState>()(
       selectedIds: [],
       activeId: null,
       activeSubNodePath: null,
+      sceneRootSelected: false,
       camera: {
         position: [10, 10, 10],
         target: [0, 0, 0],
@@ -124,6 +127,7 @@ export const useEditorStore = create<EditorState>()(
             selectedIds: newSelection,
             activeId: newSelection.length > 0 ? newSelection[newSelection.length - 1] : null,
             activeSubNodePath: null,  // 切换对象时清除子节点选中
+            sceneRootSelected: false,
           };
         }),
 
@@ -137,7 +141,10 @@ export const useEditorStore = create<EditorState>()(
         }),
 
       clearSelection: () =>
-        set({ selectedIds: [], activeId: null, activeSubNodePath: null }),
+        set({ selectedIds: [], activeId: null, activeSubNodePath: null, sceneRootSelected: false }),
+
+      selectSceneRoot: () =>
+        set({ selectedIds: [], activeId: null, activeSubNodePath: null, sceneRootSelected: true }),
 
       setCamera: (cameraUpdate) =>
         set((state) => ({
