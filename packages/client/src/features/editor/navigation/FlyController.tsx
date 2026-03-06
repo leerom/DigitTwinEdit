@@ -1,13 +1,13 @@
 import { useRef, useEffect } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
-import { Vector3, Euler, Quaternion } from 'three';
+import { Vector3, Euler } from 'three';
 import { useInputState } from './useInputState';
 
 const MOVE_SPEED = 10;
 const LOOK_SPEED = 0.002;
 const SHIFT_MULTIPLIER = 2.5;
 
-export const FlyController: React.FC<{ enabled: boolean }> = ({ enabled }) => {
+export const FlyController = ({ enabled }: { enabled: boolean }) => {
   const { camera, gl } = useThree();
   const keys = useInputState((state) => state.keys);
 
@@ -37,10 +37,6 @@ export const FlyController: React.FC<{ enabled: boolean }> = ({ enabled }) => {
       rotation.current.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, rotation.current.x));
 
       camera.quaternion.setFromEuler(rotation.current);
-    };
-
-    const requestLock = () => {
-      canvas.requestPointerLock();
     };
 
     // We assume the lock is triggered externally or on mount for now,

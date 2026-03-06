@@ -84,7 +84,7 @@ export class SceneManager {
       },
       assets: {},
       settings: {
-        environment: 'default',
+        environment: { mode: 'default', assetId: null },
         gridVisible: true,
         backgroundColor: '#1a1a1a',
       },

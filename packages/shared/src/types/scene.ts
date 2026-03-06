@@ -136,8 +136,13 @@ export interface MaterialReference {
 }
 
 // Scene Settings
+export interface SceneEnvironmentSettings {
+  mode: 'default' | 'asset';
+  assetId: number | null;
+}
+
 export interface SceneSettings {
-  environment: string;
+  environment: SceneEnvironmentSettings | string;
   gridVisible: boolean;
   backgroundColor: string;
   [key: string]: any;

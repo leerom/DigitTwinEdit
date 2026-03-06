@@ -161,7 +161,7 @@ describe('sceneStore - add asset to scene', () => {
           },
           assets: {},
           settings: {
-            environment: 'default',
+            environment: { mode: 'default', assetId: null },
             gridVisible: true,
             backgroundColor: '#1a1a1a',
           },
@@ -243,7 +243,51 @@ const minimalScene = () => ({
     },
   },
   assets: {},
-  settings: { environment: 'default', gridVisible: true, backgroundColor: '#000' },
+  settings: { environment: { mode: 'default', assetId: null }, gridVisible: true, backgroundColor: '#000' },
+});
+
+describe('scene environment settings', () => {
+  beforeEach(() => {
+    act(() => {
+      useSceneStore.setState({ scene: minimalScene(), isDirty: false });
+    });
+  });
+
+  it('setEnvironmentAsset 应切换为 asset 模式并记录 assetId', () => {
+    act(() => {
+      useSceneStore.getState().setEnvironmentAsset(12);
+    });
+
+    expect(useSceneStore.getState().scene.settings.environment).toEqual({ mode: 'asset', assetId: 12 });
+    expect(useSceneStore.getState().isDirty).toBe(true);
+  });
+
+  it('setDefaultEnvironment 应回退到默认环境', () => {
+    act(() => {
+      useSceneStore.getState().setEnvironmentAsset(12);
+      useSceneStore.getState().setDefaultEnvironment();
+    });
+
+    expect(useSceneStore.getState().scene.settings.environment).toEqual({ mode: 'default', assetId: null });
+  });
+
+  it('loadScene 应兼容旧版字符串环境配置', () => {
+    const legacyScene = {
+      ...minimalScene(),
+      settings: {
+        environment: 'default',
+        gridVisible: true,
+        backgroundColor: '#123456',
+      },
+    };
+
+    act(() => {
+      useSceneStore.getState().loadScene(legacyScene as any);
+    });
+
+    expect(useSceneStore.getState().scene.settings.environment).toEqual({ mode: 'default', assetId: null });
+    expect(useSceneStore.getState().scene.settings.backgroundColor).toBe('#123456');
+  });
 });
 
 describe('bindMaterialAsset', () => {

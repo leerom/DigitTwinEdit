@@ -23,13 +23,16 @@ export const upload = multer({
       'image/jpg',
       'image/webp',
       'image/ktx2',  // KTX2 纹理（basis_universal 编码）
+      'image/vnd.radiance',
+      'image/x-exr',
+      'application/x-exr',
 
       // JSON材质文件
       'application/json'
     ];
 
     const fileExt = file.originalname.split('.').pop()?.toLowerCase();
-    const allowedExtensions = ['glb', 'gltf', 'fbx', 'obj', 'png', 'jpg', 'jpeg', 'webp', 'json', 'ktx2'];
+    const allowedExtensions = ['glb', 'gltf', 'fbx', 'obj', 'png', 'jpg', 'jpeg', 'webp', 'json', 'ktx2', 'hdr', 'exr'];
 
     // 同时检查MIME类型和扩展名
     if (

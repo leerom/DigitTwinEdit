@@ -5,8 +5,8 @@ import {
   ObjectType,
   SceneSettings,
   AssetReference,
-  AssetType,
   Vector3,
+  normalizeSceneEnvironmentSettings,
 } from '../../../types';
 import { ExternalSceneFile, ExternalSceneObject } from '../types';
 
@@ -23,7 +23,7 @@ export class SceneFormatConverter {
     const rootId = 'root';
 
     // 1. 转换对象数组为Record,构建层级树
-    const { objects, root } = this.convertObjects(
+    const { objects } = this.convertObjects(
       externalScene.objects || [],
       rootId
     );
@@ -186,7 +186,7 @@ export class SceneFormatConverter {
     const viewer = externalScene.viewer || {};
 
     return {
-      environment: viewer.environment || 'default',
+      environment: normalizeSceneEnvironmentSettings(viewer.environment),
       gridVisible: true,
       backgroundColor: viewer.background || '#1a1a1a',
     };

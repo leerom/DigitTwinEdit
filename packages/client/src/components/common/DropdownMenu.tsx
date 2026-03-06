@@ -56,7 +56,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
     }
   };
 
-  const renderMenuItem = (item: DropdownMenuItem, index: number, isSubmenu: boolean = false) => {
+  const renderMenuItem = (item: DropdownMenuItem, index: number) => {
     // 渲染分隔线
     if (item.separator) {
       return (
@@ -85,7 +85,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
           </button>
 
           <div className="absolute left-full top-0 min-w-[160px] bg-header-dark/90 backdrop-blur-sm border border-border-dark rounded shadow-lg hidden group-hover/submenu:block -ml-1">
-             {item.children.map((child, idx) => renderMenuItem(child, idx, true))}
+             {item.children.map((child, idx) => renderMenuItem(child, idx))}
           </div>
         </div>
       );

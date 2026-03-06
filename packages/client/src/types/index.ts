@@ -2,7 +2,7 @@
 export type Vector3 = [number, number, number];
 
 // Import shared types
-import type { AssetType as SharedAssetType, AssetReference as SharedAssetReference, MaterialReference as SharedMaterialReference } from '@digittwinedit/shared';
+import type { AssetReference as SharedAssetReference, MaterialReference as SharedMaterialReference } from '@digittwinedit/shared';
 export type { AssetType, AssetReference, MaterialReference } from '@digittwinedit/shared';
 
 // Core Transform Component
@@ -125,12 +125,44 @@ export interface SceneObject {
 }
 
 // Scene Settings
+export interface SceneEnvironmentSettings {
+  mode: 'default' | 'asset';
+  assetId: number | null;
+}
+
+export function normalizeSceneEnvironmentSettings(
+  environment: SceneEnvironmentSettings | string | null | undefined
+): SceneEnvironmentSettings {
+  if (environment && typeof environment === 'object') {
+    if (environment.mode === 'asset' && typeof environment.assetId === 'number') {
+      return { mode: 'asset', assetId: environment.assetId };
+    }
+
+    return { mode: 'default', assetId: null };
+  }
+
+  return { mode: 'default', assetId: null };
+}
+
 export interface SceneSettings {
-  environment: string;
+  environment: SceneEnvironmentSettings;
   gridVisible: boolean;
   backgroundColor: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
+}
+
+export function normalizeSceneSettings(
+  settings: Omit<SceneSettings, 'environment'> & {
+    environment?: SceneEnvironmentSettings | string | null;
+  }
+): SceneSettings {
+  return {
+    gridVisible: settings.gridVisible,
+    backgroundColor: settings.backgroundColor,
+    ...settings,
+    environment: normalizeSceneEnvironmentSettings(settings.environment),
+  };
 }
 
 // Scene

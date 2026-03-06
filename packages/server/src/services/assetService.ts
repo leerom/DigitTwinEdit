@@ -46,7 +46,7 @@ export class AssetService {
     const asset = await AssetModel.create(assetData);
 
     // 异步生成缩略图（不阻塞响应）
-    if (type === 'model' || type === 'texture') {
+    if (type === 'model' || this.shouldGenerateTextureThumbnail(file, type)) {
       this.generateThumbnail(asset.id, file.buffer, type).catch(err => {
         console.error(`Failed to generate thumbnail for asset ${asset.id}:`, err);
       });
@@ -78,20 +78,24 @@ export class AssetService {
       throw new Error('Asset not found');
     }
 
-    // 删除文件
-    try {
-      await fileStorage.deleteFile(asset.file_path);
+    const assetIdsToDelete = [asset.id, ...this.getLinkedIBLAssetIds(asset)];
 
-      // 删除缩略图
-      if (asset.thumbnail_path) {
-        await fileStorage.deleteFile(asset.thumbnail_path);
+    for (const currentAssetId of assetIdsToDelete) {
+      const currentAsset = currentAssetId === asset.id ? asset : await AssetModel.findById(currentAssetId);
+      if (!currentAsset) continue;
+
+      try {
+        await fileStorage.deleteFile(currentAsset.file_path);
+
+        if (currentAsset.thumbnail_path) {
+          await fileStorage.deleteFile(currentAsset.thumbnail_path);
+        }
+      } catch (error) {
+        console.error('Failed to delete asset files:', error);
       }
-    } catch (error) {
-      console.error(`Failed to delete asset files:`, error);
-    }
 
-    // 删除数据库记录
-    await AssetModel.delete(assetId);
+      await AssetModel.delete(currentAssetId);
+    }
   }
 
   /**
@@ -149,6 +153,35 @@ export class AssetService {
       console.error('Failed to generate thumbnail:', error);
       return null;
     }
+  }
+
+  private getLinkedIBLAssetIds(asset: AssetRow): number[] {
+    const metadata = asset.metadata as Record<string, unknown> | undefined;
+    if (metadata?.usage !== 'ibl' || metadata?.isSourceEnvironment || metadata?.isEnvironmentPreview) {
+      return [];
+    }
+
+    const relatedIds = [
+      metadata?.sourceEnvironmentAssetId,
+      metadata?.previewAssetId,
+    ].filter((value): value is number => typeof value === 'number');
+
+    return [...new Set(relatedIds)];
+  }
+
+  private shouldGenerateTextureThumbnail(file: Express.Multer.File, type: AssetType): boolean {
+    if (type !== 'texture') return false;
+
+    const extension = file.originalname.split('.').pop()?.toLowerCase();
+    if (extension === 'hdr' || extension === 'exr' || extension === 'ktx2') {
+      return false;
+    }
+
+    if (file.mimetype === 'image/ktx2' || file.mimetype === 'image/vnd.radiance' || file.mimetype === 'image/x-exr') {
+      return false;
+    }
+
+    return true;
   }
 
   /**

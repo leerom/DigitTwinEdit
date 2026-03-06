@@ -1,12 +1,13 @@
 import React, { Suspense, useCallback } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Environment, Grid } from '@react-three/drei';
+import { Grid } from '@react-three/drei';
 import { ViewGizmo } from '@/components/viewport/ViewGizmo';
 import { SceneContent } from '@/features/scene/SceneRenderer';
 import { BoxSelector } from '@/features/interaction/BoxSelector';
 import { useEditorStore } from '@/stores/editorStore';
 import { useSceneStore } from '@/stores/sceneStore';
 import { useSceneConfig } from '@/features/scene/hooks/useSceneConfig';
+import { SceneEnvironment } from '@/features/scene/components/SceneEnvironment';
 import { InstanceManager } from '@/features/performance/InstanceManager';
 import { ViewportOverlay } from '@/components/viewport/ViewportOverlay';
 import { CameraSystem } from '@/features/editor/navigation/CameraSystem';
@@ -113,7 +114,7 @@ export const SceneView: React.FC = () => {
 
         <Suspense fallback={null}>
           <SceneConfigApplier />
-          <Environment preset="city" />
+          <SceneEnvironment />
 
           <Grid
             infiniteGrid

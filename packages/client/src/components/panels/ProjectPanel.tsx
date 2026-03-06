@@ -18,11 +18,13 @@ import { ProgressDialog } from '../../features/scene/components/ProgressDialog.j
 import { fbxImporter } from '../../features/fbx/FBXImporter.js';
 import { useTextureImport } from '../../features/textures/useTextureImport.js';
 import { TextureImportDialog } from '../../features/textures/TextureImportDialog.js';
+import { useIBLImport } from '../../features/ibl/useIBLImport.js';
+import { IBLImportDialog } from '../../features/ibl/IBLImportDialog.js';
 import { useMaterialStore } from '../../stores/materialStore.js';
 import type { AssetType } from '@digittwinedit/shared';
 import type { MaterialType } from '../../types/index.js';
 
-type FolderType = 'scenes' | 'models' | 'materials' | 'textures';
+type FolderType = 'scenes' | 'models' | 'materials' | 'textures' | 'environments';
 
 export const ProjectPanel: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState<'project' | 'resources'>('project');
@@ -39,7 +41,7 @@ export const ProjectPanel: React.FC = () => {
     updateAsset,
     selectAsset,
   } = useAssetStore();
-  const { addAssetToScene } = useSceneStore();
+  const { addAssetToScene, scene, setDefaultEnvironment } = useSceneStore();
   const clearSelection = useEditorStore((state) => state.clearSelection);
 
   const {
@@ -70,6 +72,9 @@ export const ProjectPanel: React.FC = () => {
 
   // 纹理导入 Hook（Textures 文件夹专用）
   const tex = useTextureImport();
+
+  // IBL 导入 Hook（Environments 文件夹专用）
+  const ibl = useIBLImport();
 
   const [blankContextMenu, setBlankContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [showNewMaterialDialog, setShowNewMaterialDialog] = useState(false);
@@ -174,6 +179,9 @@ export const ProjectPanel: React.FC = () => {
     if (confirm('确定要删除这个资产吗？')) {
       try {
         await deleteAsset(assetId);
+        if (scene.settings.environment.mode === 'asset' && scene.settings.environment.assetId === assetId) {
+          setDefaultEnvironment();
+        }
         if (selectedAssetId === assetId) {
           selectAsset(null);
         }
@@ -282,13 +290,31 @@ export const ProjectPanel: React.FC = () => {
     },
   ];
 
+  const isRuntimeIBLAsset = (asset: (typeof assets)[number]) => {
+    const meta = asset.metadata as Record<string, unknown> | undefined;
+    return meta?.usage === 'ibl' && !meta?.isSourceEnvironment && !meta?.isEnvironmentPreview;
+  };
+
   // 过滤掉原始 FBX 文件和原始纹理文件（只显示转换后的 GLB 和 KTX2 资产）
-  const displayAssets = assets.filter(
-    (a) => {
-      const meta = a.metadata as Record<string, unknown> | undefined;
-      return !meta?.isSourceFbx && !meta?.isSourceTexture;
+  const displayAssets = assets.filter((asset) => {
+    const meta = asset.metadata as Record<string, unknown> | undefined;
+    return !meta?.isSourceFbx && !meta?.isSourceTexture;
+  });
+
+  const visibleAssets = displayAssets.filter((asset) => {
+    const meta = asset.metadata as Record<string, unknown> | undefined;
+
+    if (selectedFolder === 'models') {
+      return asset.type === 'model';
     }
-  );
+    if (selectedFolder === 'textures') {
+      return (asset.type === 'texture' || (asset.type as string) === 'image') && meta?.usage !== 'ibl';
+    }
+    if (selectedFolder === 'environments') {
+      return isRuntimeIBLAsset(asset);
+    }
+    return false;
+  });
 
   return (
     <div className="flex flex-col h-full w-full bg-panel-dark flex-shrink-0">
@@ -392,6 +418,19 @@ export const ProjectPanel: React.FC = () => {
                     <span className="material-symbols-outlined text-xs">image</span>
                     <span>Textures</span>
                   </div>
+
+                  <div
+                    className={clsx(
+                      "flex items-center space-x-2 text-xs cursor-pointer px-2 py-1 rounded",
+                      selectedFolder === 'environments'
+                        ? "text-slate-300 bg-primary/10"
+                        : "text-slate-500 hover:text-white hover:bg-slate-800"
+                    )}
+                    onClick={() => setSelectedFolder('environments')}
+                  >
+                    <span className="material-symbols-outlined text-xs">hdr_strong</span>
+                    <span>Environments</span>
+                  </div>
                 </div>
               </div>
             </aside>
@@ -405,7 +444,7 @@ export const ProjectPanel: React.FC = () => {
                     ? `${scenes.length} 个场景`
                     : selectedFolder === 'materials'
                     ? `${materials.length} 个资产`
-                    : `${displayAssets.length} 个资产`}
+                    : `${visibleAssets.length} 个资产`}
                 </div>
 
                 {selectedFolder === 'models' && (
@@ -427,6 +466,18 @@ export const ProjectPanel: React.FC = () => {
                   >
                     <span className="material-symbols-outlined text-sm">upload</span>
                     <span>导入纹理（→KTX2）</span>
+                  </button>
+                )}
+
+                {selectedFolder === 'environments' && (
+                  <button
+                    aria-label="导入 HDR/EXR"
+                    onClick={ibl.trigger}
+                    className="flex items-center space-x-1 px-3 py-1 bg-primary hover:bg-primary-hover text-white text-xs rounded transition-colors"
+                    disabled={!currentProject}
+                  >
+                    <span aria-hidden="true" className="material-symbols-outlined text-sm">upload</span>
+                    <span>导入 HDR/EXR</span>
                   </button>
                 )}
 
@@ -455,6 +506,14 @@ export const ProjectPanel: React.FC = () => {
                   type="file"
                   accept=".jpg,.jpeg,.png"
                   onChange={tex.handleFileSelected}
+                  className="hidden"
+                />
+                {/* IBL 导入 input（由 useIBLImport 管理） */}
+                <input
+                  ref={ibl.inputRef}
+                  type="file"
+                  accept=".hdr,.exr"
+                  onChange={ibl.handleFileSelected}
                   className="hidden"
                 />
               </div>
@@ -551,7 +610,7 @@ export const ProjectPanel: React.FC = () => {
                         <span className="text-xs">加载中...</span>
                       </div>
                     </div>
-                  ) : displayAssets.length === 0 ? (
+                  ) : visibleAssets.length === 0 ? (
                     <div className="flex items-center justify-center h-full text-slate-500">
                       <div className="flex flex-col items-center space-y-2">
                         <span className="material-symbols-outlined text-4xl">folder_open</span>
@@ -572,11 +631,19 @@ export const ProjectPanel: React.FC = () => {
                             点击导入
                           </button>
                         )}
+                        {selectedFolder === 'environments' && (
+                          <button
+                            onClick={ibl.trigger}
+                            className="text-primary hover:underline text-xs"
+                          >
+                            点击导入 HDR/EXR
+                          </button>
+                        )}
                       </div>
                     </div>
                   ) : (
                     <div className="grid grid-cols-10 gap-4 content-start">
-                      {displayAssets.map((asset) => (
+                      {visibleAssets.map((asset) => (
                         <div key={asset.id} className="relative">
                           <AssetCard
                             asset={asset}
@@ -767,6 +834,49 @@ export const ProjectPanel: React.FC = () => {
             <div className="flex justify-end">
               <button
                 onClick={tex.clearConversionError}
+                className="px-4 py-1.5 text-xs bg-slate-700 text-white rounded hover:bg-slate-600 transition-colors"
+              >
+                确定
+              </button>
+            </div>
+          </div>
+        </Dialog>
+      )}
+
+      {/* IBL 导入配置对话框 */}
+      {ibl.pendingFile && (
+        <IBLImportDialog
+          isOpen={ibl.showDialog}
+          fileName={ibl.pendingFile.name}
+          fileSize={ibl.pendingFile.size}
+          onConfirm={ibl.handleConfirm}
+          onCancel={ibl.handleCancel}
+        />
+      )}
+
+      {/* IBL 转换进度对话框 */}
+      <ProgressDialog
+        isOpen={ibl.isConverting}
+        title="HDR/EXR 转换中"
+        percentage={ibl.progress.percent}
+        currentTask={ibl.progress.step}
+        canCancel={ibl.progress.percent < 65}
+        onCancel={ibl.handleAbort}
+      />
+
+      {/* IBL 转换错误对话框 */}
+      {ibl.conversionError && (
+        <Dialog
+          isOpen={true}
+          onClose={ibl.clearConversionError}
+          title="环境转换失败"
+          className="max-w-[420px]"
+        >
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-red-400">{ibl.conversionError}</p>
+            <div className="flex justify-end">
+              <button
+                onClick={ibl.clearConversionError}
                 className="px-4 py-1.5 text-xs bg-slate-700 text-white rounded hover:bg-slate-600 transition-colors"
               >
                 确定

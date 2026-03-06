@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const TwinDataProp: React.FC<{ objectId: string }> = ({ objectId }) => {
+export const TwinDataProp: React.FC<{ objectId: string }> = () => {
   return (
     <div className="grid grid-cols-2 gap-2 text-[10px]">
         <span className="text-[#64748b]">外部 ID:</span>

@@ -1,7 +1,17 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { Scene, SceneObject, TransformComponent, ObjectType, MaterialSpec, MeshComponent, Vector3 } from '@/types';
+import {
+  Scene,
+  SceneObject,
+  TransformComponent,
+  ObjectType,
+  MaterialSpec,
+  MeshComponent,
+  Vector3,
+  normalizeSceneSettings,
+} from '@/types';
+import type { Scene as SharedScene } from '@digittwinedit/shared';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface ImportProgress {
@@ -35,7 +45,10 @@ interface SceneState {
   updateObject: (id: string, data: Partial<SceneObject>) => void;
   updateMeshMaterialSpec: (id: string, spec: import('@/types').MaterialSpec) => void;
   restoreObject: (obj: SceneObject) => void;
-  loadScene: (scene: Scene) => void;
+  loadScene: (scene: Scene | SharedScene) => void;
+  setDefaultEnvironment: () => void;
+  setEnvironmentAsset: (assetId: number) => void;
+  clearEnvironment: () => void;
   addAssetToScene: (asset: import('@digittwinedit/shared').Asset, position?: Vector3) => void;
 
   // Dirty state actions
@@ -123,7 +136,7 @@ const DEFAULT_SCENE: Scene = {
   },
   assets: {},
   settings: {
-    environment: 'default',
+    environment: { mode: 'default', assetId: null },
     gridVisible: true,
     backgroundColor: '#1a1a1a',
   },
@@ -312,8 +325,32 @@ export const useSceneStore = create<SceneState>()(
 
       loadScene: (newScene) =>
         set((state) => {
-          state.scene = newScene;
+          state.scene = {
+            ...newScene,
+            settings: normalizeSceneSettings(newScene.settings),
+          };
           state.isDirty = false;
+        }),
+
+      setDefaultEnvironment: () =>
+        set((state) => {
+          state.scene.settings.environment = { mode: 'default', assetId: null };
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
+        }),
+
+      setEnvironmentAsset: (assetId) =>
+        set((state) => {
+          state.scene.settings.environment = { mode: 'asset', assetId };
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
+        }),
+
+      clearEnvironment: () =>
+        set((state) => {
+          state.scene.settings.environment = { mode: 'default', assetId: null };
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
         }),
 
       addAssetToScene: (asset, position) =>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSceneStore } from '@/stores/sceneStore';
 import { ObjectType, CameraComponent } from '@/types';
-import { getCommonValue, MIXED_VALUE } from '../utils/inspectorUtils';
+import { MIXED_VALUE } from '../utils/inspectorUtils';
 import { NumberInput } from '../common/NumberInput';
 import { Checkbox } from '../common/Checkbox';
 

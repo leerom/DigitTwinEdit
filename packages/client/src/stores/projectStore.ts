@@ -4,7 +4,6 @@ import { sceneApi } from '../services/api/sceneApi';
 import type {
   ProjectResponse,
   ProjectWithScenesResponse,
-  SceneResponse,
   Scene,
 } from '@digittwinedit/shared';
 

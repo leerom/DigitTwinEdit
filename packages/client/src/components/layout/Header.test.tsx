@@ -51,7 +51,7 @@ describe('Header', () => {
         },
         assets: {},
         settings: {
-          environment: '',
+          environment: { mode: 'default', assetId: null },
           gridVisible: true,
           backgroundColor: '',
         },

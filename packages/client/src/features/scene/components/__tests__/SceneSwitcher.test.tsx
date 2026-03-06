@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { SceneSwitcher } from '../SceneSwitcher';
 import { useProjectStore } from '../../../../stores/projectStore';
@@ -22,7 +22,7 @@ describe('SceneSwitcher', () => {
     root: 'root',
     objects: {},
     assets: {},
-    settings: { environment: 'default', gridVisible: true, backgroundColor: '#000' },
+    settings: { environment: { mode: 'default', assetId: null }, gridVisible: true, backgroundColor: '#000' },
   };
 
   beforeEach(() => {
@@ -56,7 +56,7 @@ describe('SceneSwitcher', () => {
     expect(sceneOptions.length).toBeGreaterThan(1);
   });
 
-  it('should display all scenes in dropdown', async () => {
+  it('should display all scenes and not show create scene option in dropdown', async () => {
     const user = userEvent.setup();
 
     render(<SceneSwitcher />);
@@ -65,7 +65,7 @@ describe('SceneSwitcher', () => {
     await user.click(trigger);
 
     expect(screen.getByText('Scene 2')).toBeInTheDocument();
-    expect(screen.getByText('New Scene')).toBeInTheDocument();
+    expect(screen.queryByText('New Scene')).not.toBeInTheDocument();
   });
 
   it('should mark active scene with check icon', async () => {
@@ -112,50 +112,37 @@ describe('SceneSwitcher', () => {
     expect(mockSwitchScene).toHaveBeenCalledWith(2);
   });
 
-  it('should show create scene input when clicking New Scene', async () => {
+  it('should close dropdown without switching when selecting current scene', async () => {
     const user = userEvent.setup();
-
-    render(<SceneSwitcher />);
-
-    // Open dropdown
-    const trigger = screen.getByText('Scene 1');
-    await user.click(trigger);
-
-    // Click New Scene
-    const newSceneButton = screen.getByText('New Scene');
-    await user.click(newSceneButton);
-
-    // Should show input
-    const input = screen.getByPlaceholderText('Scene name...');
-    expect(input).toBeInTheDocument();
-  });
-
-  it('should create new scene', async () => {
-    const user = userEvent.setup();
-    const mockCreateScene = vi.fn().mockResolvedValue(undefined);
+    const mockSwitchScene = vi.fn().mockResolvedValue(undefined);
 
     (useProjectStore as any).mockReturnValue({
       scenes: mockScenes,
       currentScene: mockCurrentScene,
       currentSceneId: 1,
-      switchScene: vi.fn(),
-      createScene: mockCreateScene,
+      switchScene: mockSwitchScene,
     });
 
     render(<SceneSwitcher />);
 
-    // Open dropdown and click New Scene
     await user.click(screen.getByText('Scene 1'));
-    await user.click(screen.getByText('New Scene'));
+    const scene1Options = screen.getAllByText('Scene 1');
+    await user.click(scene1Options[1]);
 
-    // Type scene name
-    const input = screen.getByPlaceholderText('Scene name...');
-    await user.type(input, 'New Test Scene');
+    expect(mockSwitchScene).not.toHaveBeenCalled();
+    expect(screen.queryByText('Scene 2')).not.toBeInTheDocument();
+  });
 
-    // Click Create button
-    const createButton = screen.getByText('Create');
-    await user.click(createButton);
+  it('should close dropdown when clicking outside', async () => {
+    const user = userEvent.setup();
 
-    expect(mockCreateScene).toHaveBeenCalledWith('New Test Scene');
+    render(<SceneSwitcher />);
+
+    await user.click(screen.getByText('Scene 1'));
+    expect(screen.getByText('Scene 2')).toBeInTheDocument();
+
+    fireEvent.mouseDown(document.body);
+
+    expect(screen.queryByText('Scene 2')).not.toBeInTheDocument();
   });
 });

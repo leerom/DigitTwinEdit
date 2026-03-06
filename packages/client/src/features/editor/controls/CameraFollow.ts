@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { useEditorStore } from '@/stores/editorStore';
 import { useSceneStore } from '@/stores/sceneStore';
@@ -6,7 +6,6 @@ import * as THREE from 'three';
 
 export const CameraFollow = () => {
   const { camera, controls } = useThree();
-  const selectedIds = useEditorStore((state) => state.selectedIds);
   const objects = useSceneStore((state) => state.scene.objects);
   const activeId = useEditorStore((state) => state.activeId);
 
@@ -84,5 +83,3 @@ export const CameraFollow = () => {
 
   return null;
 };
-
-import React from 'react';

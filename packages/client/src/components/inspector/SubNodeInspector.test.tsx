@@ -67,7 +67,7 @@ const MOCK_SCENE_STATE = {
     },
   },
   assets: {},
-  settings: { environment: '', gridVisible: true, backgroundColor: '' },
+  settings: { environment: { mode: 'default', assetId: null }, gridVisible: true, backgroundColor: '' },
 } as any;
 
 describe('SubNodeInspector', () => {

@@ -16,14 +16,25 @@ import { ModelPreview } from '../inspector/ModelPreview';
 import { SubNodeInspector } from '../inspector/SubNodeInspector';
 import { MaterialAssetProp } from '../inspector/MaterialAssetProp';
 import { MaterialPreview } from '../inspector/MaterialPreview';
+import { IBLImportProp } from '../inspector/IBLImportProp';
+import { SceneEnvironmentProp } from '../inspector/SceneEnvironmentProp';
 import { assetsApi } from '../../api/assets';
+
+function isRuntimeIBLAsset(asset: { type: string; metadata?: unknown } | undefined): boolean {
+  if (!asset || (asset.type !== 'texture' && asset.type !== 'image')) return false;
+  const metadata = asset.metadata as Record<string, unknown> | undefined;
+  return metadata?.usage === 'ibl' && !metadata?.isSourceEnvironment && !metadata?.isEnvironmentPreview;
+}
 
 export const InspectorPanel: React.FC = () => {
   const activeId = useEditorStore((state) => state.activeId);
   const selectedIds = useEditorStore((state) => state.selectedIds);
   const activeSubNodePath = useEditorStore((state) => state.activeSubNodePath);
   const objects = useSceneStore((state) => state.scene.objects);
+  const environment = useSceneStore((state) => state.scene.settings.environment);
   const updateObject = useSceneStore((state) => state.updateObject);
+  const setDefaultEnvironment = useSceneStore((state) => state.setDefaultEnvironment);
+  const setEnvironmentAsset = useSceneStore((state) => state.setEnvironmentAsset);
   const selectedAssetId = useAssetStore((state) => state.selectedAssetId);
   const selectedNodePath = useAssetStore((state) => state.selectedNodePath);
   const assets = useAssetStore((state) => state.assets);
@@ -31,6 +42,11 @@ export const InspectorPanel: React.FC = () => {
   const selectedAsset = selectedAssetId
     ? assets.find((a) => a.id === selectedAssetId)
     : undefined;
+  const environmentAssets = assets.filter((asset) => isRuntimeIBLAsset(asset));
+  const activeEnvironmentAsset = environment?.assetId
+    ? assets.find((asset) => asset.id === environment.assetId)
+    : undefined;
+  const isSelectedAssetIBL = isRuntimeIBLAsset(selectedAsset);
 
   const selectedMaterialId = useMaterialStore((s) => s.selectedMaterialId);
   const materials = useMaterialStore((s) => s.materials);
@@ -52,6 +68,14 @@ export const InspectorPanel: React.FC = () => {
     if (selectedAsset.type !== 'texture' && (selectedAsset.type as string) !== 'image') return null;
     const meta = selectedAsset.metadata as Record<string, unknown> | undefined;
     if (selectedAsset.mime_type === 'image/ktx2') {
+      const previewId = meta?.previewAssetId as number | undefined;
+      if (previewId) {
+        const previewAsset = assets.find((a) => a.id === previewId);
+        if (previewAsset) {
+          return `${assetsApi.getAssetDownloadUrl(previewId)}?v=${new Date(previewAsset.updated_at).getTime()}`;
+        }
+      }
+
       const sourceId = meta?.sourceTextureAssetId as number | undefined;
       if (sourceId) {
         const sourceAsset = assets.find((a) => a.id === sourceId);
@@ -162,6 +186,14 @@ export const InspectorPanel: React.FC = () => {
                   projectId={selectedAsset.project_id}
                   onReimportComplete={() => {}}
                 />
+
+                {isSelectedAssetIBL && (
+                  <IBLImportProp
+                    asset={selectedAsset}
+                    projectId={selectedAsset.project_id}
+                    onReimportComplete={() => {}}
+                  />
+                )}
               </div>
             </div>
 
@@ -173,10 +205,13 @@ export const InspectorPanel: React.FC = () => {
             )}
           </>
         ) : (
-          /* 无选中状态 */
-          <div className="flex flex-col flex-1 items-center justify-center text-slate-500 text-sm italic">
-            No object selected
-          </div>
+          <SceneEnvironmentProp
+            mode={environment?.mode}
+            activeEnvironmentName={activeEnvironmentAsset?.name}
+            environmentAssets={environmentAssets.map((asset) => ({ id: asset.id, name: asset.name }))}
+            onUseDefault={() => setDefaultEnvironment?.()}
+            onSelectAsset={(assetId) => setEnvironmentAsset?.(assetId)}
+          />
         )}
       </div>
     );

@@ -12,7 +12,7 @@ describe('SceneFormatConverter', () => {
         scene: { name: 'Test Scene' },
         viewer: {
           background: '#000000',
-          environment: '/path/to/env.hdr',
+          environment: 'default',
         },
         objects: [
           {
@@ -129,7 +129,7 @@ describe('SceneFormatConverter', () => {
       const externalScene: ExternalSceneFile = {
         viewer: {
           background: '#ff0000',
-          environment: '/env/studio.hdr',
+          environment: 'default',
         },
         objects: [],
       };
@@ -137,8 +137,21 @@ describe('SceneFormatConverter', () => {
       const result = converter.convert(externalScene);
 
       expect(result.settings.backgroundColor).toBe('#ff0000');
-      expect(result.settings.environment).toBe('/env/studio.hdr');
+      expect(result.settings.environment).toEqual({ mode: 'default', assetId: null });
       expect(result.settings.gridVisible).toBe(true);
+    });
+
+    it('should fallback legacy environment paths to default environment settings', () => {
+      const externalScene: ExternalSceneFile = {
+        viewer: {
+          environment: '/env/studio.hdr',
+        },
+        objects: [],
+      };
+
+      const result = converter.convert(externalScene);
+
+      expect(result.settings.environment).toEqual({ mode: 'default', assetId: null });
     });
 
     it('should extract assets from objects', () => {

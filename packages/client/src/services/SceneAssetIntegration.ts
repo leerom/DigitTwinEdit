@@ -1,7 +1,6 @@
 import { Scene } from '@digittwinedit/shared';
 import { materialsApi } from '../api/assets.js';
 import { MaterialSerializer } from './MaterialSerializer.js';
-import { useSceneStore } from '../stores/sceneStore.js';
 import { useAssetStore } from '../stores/assetStore.js';
 import * as THREE from 'three';
 
@@ -25,7 +24,7 @@ export class SceneAssetIntegration {
     const materialReferences: Record<string, any> = {};
 
     // 遍历场景对象，提取并上传材质
-    for (const [objectId, sceneObject] of Object.entries(processedScene.objects)) {
+    for (const [, sceneObject] of Object.entries(processedScene.objects)) {
       const meshComponent = sceneObject.components?.mesh;
       if (!meshComponent || !meshComponent.materialId) continue;
 
@@ -79,7 +78,7 @@ export class SceneAssetIntegration {
 
     // 处理资产引用
     if (loadedScene.assets) {
-      for (const [assetRefId, assetRef] of Object.entries(loadedScene.assets)) {
+      for (const [, assetRef] of Object.entries(loadedScene.assets)) {
         if (assetRef.assetDbId) {
           // 更新资产URL
           assetRef.path = getAssetUrl(assetRef.assetDbId);
@@ -96,7 +95,7 @@ export class SceneAssetIntegration {
             const materialData = await materialsApi.getMaterial(materialRef.materialDbId);
 
             // 反序列化为Three.js材质
-            const threeMaterial = await MaterialSerializer.deserialize(materialData, getAssetUrl);
+            await MaterialSerializer.deserialize(materialData, getAssetUrl);
 
             // 缓存材质以便场景渲染使用
             // 注意：这里需要一个全局材质缓存机制

@@ -19,7 +19,7 @@ describe('Selection Integration', () => {
           'root': { id: 'root', name: 'Root', type: ObjectType.GROUP, parentId: null, children: [], visible: true, locked: true, transform: { position: [0,0,0], rotation: [0,0,0], scale: [1,1,1] } }
         },
         assets: {},
-        settings: { environment: '', gridVisible: true, backgroundColor: '' }
+        settings: { environment: { mode: 'default', assetId: null }, gridVisible: true, backgroundColor: '' }
       }
     });
   });

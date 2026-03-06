@@ -1,10 +1,8 @@
 import { useRef, useEffect, type ElementRef } from 'react';
 import { OrbitControls } from '@react-three/drei';
-import { useThree } from '@react-three/fiber';
 
-export const OrbitController: React.FC<{ enabled: boolean }> = ({ enabled }) => {
+export const OrbitController = ({ enabled }: { enabled: boolean }) => {
   const ref = useRef<ElementRef<typeof OrbitControls>>(null);
-  const { camera } = useThree();
 
   useEffect(() => {
     if (enabled && ref.current) {

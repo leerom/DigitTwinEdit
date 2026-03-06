@@ -47,6 +47,8 @@ describe('SceneManager', () => {
       // Verify hierarchy
       expect(scene.objects.root.children).toContain(mainCamera.id);
       expect(scene.objects.root.children).toContain(mainLight.id);
+
+      expect(scene.settings.environment).toEqual({ mode: 'default', assetId: null });
     });
   });
 

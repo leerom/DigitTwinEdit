@@ -3,8 +3,6 @@ import { useEditorStore } from '@/stores/editorStore';
 import { useInputState } from '@/features/editor/navigation/useInputState';
 import { buildShortcutKey } from '@/utils/platform';
 import { defaultShortcuts } from './shortcutRegistry';
-import { useSceneStore } from '@/stores/sceneStore';
-import type { ShortcutAction } from './types';
 
 export const KeyboardShortcutManager: React.FC = () => {
   const activeTool = useEditorStore((state) => state.activeTool);
