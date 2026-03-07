@@ -17,7 +17,6 @@ import { SubNodeInspector } from '../inspector/SubNodeInspector';
 import { MaterialAssetProp } from '../inspector/MaterialAssetProp';
 import { MaterialPreview } from '../inspector/MaterialPreview';
 import { IBLImportProp } from '../inspector/IBLImportProp';
-import { SceneEnvironmentProp } from '../inspector/SceneEnvironmentProp';
 import { SceneProp } from '../inspector/SceneProp';
 import { useProjectStore } from '../../stores/projectStore';
 import { assetsApi } from '../../api/assets';
@@ -32,21 +31,15 @@ export const InspectorPanel: React.FC = () => {
   const activeId = useEditorStore((state) => state.activeId);
   const selectedIds = useEditorStore((state) => state.selectedIds);
   const activeSubNodePath = useEditorStore((state) => state.activeSubNodePath);
+  const sceneRootSelected = useEditorStore((state) => state.sceneRootSelected);
   const objects = useSceneStore((state) => state.scene.objects);
-  const environment = useSceneStore((state) => state.scene.settings.environment);
   const updateObject = useSceneStore((state) => state.updateObject);
-  const setDefaultEnvironment = useSceneStore((state) => state.setDefaultEnvironment);
-  const setEnvironmentAsset = useSceneStore((state) => state.setEnvironmentAsset);
   const selectedAssetId = useAssetStore((state) => state.selectedAssetId);
   const selectedNodePath = useAssetStore((state) => state.selectedNodePath);
   const assets = useAssetStore((state) => state.assets);
 
   const selectedAsset = selectedAssetId
     ? assets.find((a) => a.id === selectedAssetId)
-    : undefined;
-  const environmentAssets = assets.filter((asset) => isRuntimeIBLAsset(asset));
-  const activeEnvironmentAsset = environment?.assetId
-    ? assets.find((asset) => asset.id === environment.assetId)
     : undefined;
   const isSelectedAssetIBL = isRuntimeIBLAsset(selectedAsset);
 
@@ -57,7 +50,6 @@ export const InspectorPanel: React.FC = () => {
     ? materials.find((m) => m.id === selectedMaterialId)
     : undefined;
 
-  const sceneRootSelected = useEditorStore((state) => state.sceneRootSelected);
   const sceneName = useProjectStore((state) => {
     const id = state.currentSceneId;
     return state.scenes.find((s) => s.id === id)?.name ?? '场景';
@@ -244,13 +236,23 @@ export const InspectorPanel: React.FC = () => {
             )}
           </>
         ) : (
-          <SceneEnvironmentProp
-            mode={environment?.mode}
-            activeEnvironmentName={activeEnvironmentAsset?.name}
-            environmentAssets={environmentAssets.map((asset) => ({ id: asset.id, name: asset.name }))}
-            onUseDefault={() => setDefaultEnvironment?.()}
-            onSelectAsset={(assetId) => setEnvironmentAsset?.(assetId)}
-          />
+          /* 无选中对象、无选中资产时显示场景属性 */
+          <>
+            <div className="p-4 border-b border-border-dark bg-header-dark/50">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-slate-800 rounded flex items-center justify-center border border-white/5">
+                  <span className="material-symbols-outlined text-primary">deployed_code</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-white font-medium truncate">{sceneName}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Scene</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <SceneProp />
+            </div>
+          </>
         )}
       </div>
     );

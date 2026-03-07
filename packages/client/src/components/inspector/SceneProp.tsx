@@ -18,9 +18,19 @@ export const SceneProp: React.FC = () => {
 
   const assets = useAssetStore((s) => s.assets);
   const environmentAssets = assets.filter(isRuntimeIBLAsset);
-  const activeEnvironmentAsset = environment?.assetId
-    ? assets.find((a) => a.id === environment.assetId)
-    : undefined;
+
+  const selectValue =
+    environment?.mode === 'asset' && environment.assetId != null
+      ? String(environment.assetId)
+      : '';
+
+  const handleEnvChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (e.target.value === '') {
+      setDefaultEnvironment();
+    } else {
+      setEnvironmentAsset(Number(e.target.value));
+    }
+  };
 
   return (
     <div className="p-4 space-y-5">
@@ -30,34 +40,26 @@ export const SceneProp: React.FC = () => {
           <span className="material-symbols-outlined text-xs text-primary">hdr_strong</span>
           <h3 className="text-[11px] font-bold text-slate-300">场景环境 (Environment)</h3>
         </div>
-        <div className="rounded border border-border-dark bg-header-dark/30 p-3 space-y-3 text-xs">
+        <div className="rounded border border-border-dark bg-header-dark/30 p-3 text-xs space-y-2">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-slate-500">当前模式</span>
-            <span className="text-slate-300">
-              {environment?.mode === 'asset' && activeEnvironmentAsset
-                ? `环境贴图 · ${activeEnvironmentAsset.name}`
-                : '默认环境'}
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={setDefaultEnvironment}
-              className="px-2.5 py-1 rounded border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 transition-colors"
+            <span className="text-slate-500 shrink-0">环境贴图</span>
+            <select
+              value={selectValue}
+              onChange={handleEnvChange}
+              className="flex-1 min-w-0 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-slate-300 text-[11px] focus:outline-none focus:border-blue-500"
             >
-              使用默认环境
-            </button>
-            {environmentAssets.map((asset) => (
-              <button
-                key={asset.id}
-                onClick={() => setEnvironmentAsset(asset.id)}
-                className="px-2.5 py-1 rounded border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 transition-colors"
-              >
-                {asset.name}
-              </button>
-            ))}
+              <option value="">默认环境</option>
+              {environmentAssets.map((asset) => (
+                <option key={asset.id} value={String(asset.id)}>
+                  {asset.name}
+                </option>
+              ))}
+            </select>
           </div>
           {environmentAssets.length === 0 && (
-            <p className="text-slate-500">暂无可用环境资产，请先在 ProjectPanel 中导入 HDR/EXR。</p>
+            <p className="text-slate-500 text-[10px]">
+              暂无可用环境资产，请先在 Project 面板中导入 HDR/EXR。
+            </p>
           )}
         </div>
       </div>

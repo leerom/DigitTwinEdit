@@ -1,4 +1,3 @@
-import { encodeToKTX2 } from 'ktx2-encoder';
 import { DataUtils } from 'three';
 import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
@@ -85,42 +84,6 @@ async function createPreviewBuffer(
   return { previewBuffer, previewWidth, previewHeight };
 }
 
-async function encodeRuntimeKTX2(
-  fileBuffer: ArrayBuffer,
-  format: 'hdr' | 'exr',
-  generateMipmaps: boolean,
-  compressionMode: 'ETC1S' | 'UASTC'
-): Promise<ArrayBuffer> {
-  if (compressionMode !== 'UASTC') {
-    throw new Error('当前 HDR/EXR 的 KTX2 编码仅支持 UASTC');
-  }
-
-  const encoderJsText = await fetch('/basis/basis_encoder.js').then((response) => response.text());
-  const jsUrl = URL.createObjectURL(new Blob([encoderJsText], { type: 'application/javascript' }));
-
-  try {
-    const runtimeData = await encodeToKTX2(new Uint8Array(fileBuffer), {
-      isHDR: true,
-      imageType: format,
-      isUASTC: true,
-      hdrQualityLevel: 2,
-      isKTX2File: true,
-      generateMipmap: generateMipmaps,
-      isPerceptual: false,
-      isSetKTX2SRGBTransferFunc: false,
-      jsUrl,
-      wasmUrl: '/basis/basis_encoder.wasm',
-    });
-
-    return runtimeData.buffer.slice(
-      runtimeData.byteOffset,
-      runtimeData.byteOffset + runtimeData.byteLength,
-    ) as ArrayBuffer;
-  } finally {
-    URL.revokeObjectURL(jsUrl);
-  }
-}
-
 self.onmessage = async (event: MessageEvent<IBLWorkerInput>) => {
   const { fileBuffer, fileName, settings } = event.data;
 
@@ -128,23 +91,23 @@ self.onmessage = async (event: MessageEvent<IBLWorkerInput>) => {
     const originalFormat = getOriginalFormat(fileName);
     postMsg({ type: 'progress', percent: 10 });
 
+    // 解码 HDR/EXR 以获取尺寸信息及生成预览图
     const decoded = decodeHDRTexture(fileBuffer, originalFormat);
-    postMsg({ type: 'progress', percent: 45 });
+    postMsg({ type: 'progress', percent: 50 });
 
     const { previewBuffer, previewWidth, previewHeight } = await createPreviewBuffer(
       decoded.data,
       decoded.width,
       decoded.height,
     );
-    postMsg({ type: 'progress', percent: 70 });
+    postMsg({ type: 'progress', percent: 90 });
 
-    const runtimeBuffer = await encodeRuntimeKTX2(
-      fileBuffer,
-      originalFormat,
-      settings.generateMipmaps,
-      settings.compressionMode,
-    );
-    postMsg({ type: 'progress', percent: 95 });
+    // 当前 basis_encoder.wasm 不支持 UASTC HDR 编码（无 setSliceSourceImageHDR）。
+    // 直接将原始文件字节作为运行时资产存储，由 SceneEnvironment 使用
+    // RGBELoader / EXRLoader 加载，保留完整 HDR 动态范围。
+    // maxWidth / compressionMode / generateMipmaps 设置暂不应用。
+    const runtimeBuffer = fileBuffer;
+    void settings; // 设置已存入 metadata，但编码阶段暂不使用
 
     postMsg(
       {

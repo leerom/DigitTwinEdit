@@ -74,13 +74,13 @@ export class IBLConverter {
     onProgress({ step: '上传预览图...', percent: 82 });
     const previewAsset = await assetsApi.uploadAsset(projectId, result.previewFile, 'texture');
 
-    onProgress({ step: '上传 KTX2 文件...', percent: 90 });
+    onProgress({ step: '上传环境文件...', percent: 90 });
     const runtimeAsset = await assetsApi.uploadAsset(projectId, result.runtimeFile, 'texture');
 
     await assetsApi.updateAsset(runtimeAsset.id, {
       metadata: {
         usage: 'ibl',
-        format: 'ktx2',
+        format: result.originalFormat,
         sourceEnvironmentAssetId: sourceAsset.id,
         previewAssetId: previewAsset.id,
         originalFormat: result.originalFormat,
@@ -146,7 +146,7 @@ export class IBLConverter {
     onProgress({ step: '上传预览图...', percent: 82 });
     await assetsApi.replaceAssetFile(previewAssetId, result.previewFile);
 
-    onProgress({ step: '上传 KTX2 文件...', percent: 92 });
+    onProgress({ step: '上传环境文件...', percent: 92 });
     await assetsApi.replaceAssetFile(runtimeAsset.id, result.runtimeFile);
 
     onProgress({ step: '保存配置...', percent: 96 });
@@ -154,7 +154,7 @@ export class IBLConverter {
       metadata: {
         ...(metadata ?? {}),
         usage: 'ibl',
-        format: 'ktx2',
+        format: result.originalFormat,
         sourceEnvironmentAssetId,
         previewAssetId,
         originalFormat: result.originalFormat,
@@ -203,7 +203,9 @@ export class IBLConverter {
             worker.terminate();
 
             const previewFile = new File([message.previewBuffer], `${baseName}.preview.png`, { type: 'image/png' });
-            const runtimeFile = new File([message.runtimeBuffer], `${baseName}.ktx2`, { type: 'image/ktx2' });
+            const runtimeExt = message.originalFormat;
+            const runtimeMime = runtimeExt === 'exr' ? 'image/x-exr' : 'image/vnd.radiance';
+            const runtimeFile = new File([message.runtimeBuffer], `${baseName}.${runtimeExt}`, { type: runtimeMime });
 
             resolve({
               previewFile,

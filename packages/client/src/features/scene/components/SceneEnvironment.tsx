@@ -8,6 +8,8 @@ import { useSceneStore } from '@/stores/sceneStore';
 import { assetsApi } from '@/api/assets';
 import type { SceneEnvironmentSettings } from '@/types';
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
+import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 
 const environmentCache = new Map<string, Promise<THREE.Texture>>();
 let ktx2Loader: KTX2Loader | null = null;
@@ -24,9 +26,11 @@ function getKTX2Loader(renderer: THREE.WebGLRenderer): KTX2Loader {
 }
 
 function isEnvironmentAsset(asset: Asset | undefined): asset is Asset {
+  const metadata = asset?.metadata as Record<string, unknown> | undefined;
   return asset?.type === 'texture'
-    && asset.mime_type === 'image/ktx2'
-    && asset.metadata?.usage === 'ibl';
+    && metadata?.usage === 'ibl'
+    && !metadata?.isSourceEnvironment
+    && !metadata?.isEnvironmentPreview;
 }
 
 function getEnvironmentCacheKey(asset: Asset): string {
@@ -38,18 +42,50 @@ function loadEnvironmentTexture(asset: Asset, renderer: THREE.WebGLRenderer): Pr
   const cached = environmentCache.get(cacheKey);
   if (cached) return cached;
 
-  const texturePromise = getKTX2Loader(renderer)
-    .loadAsync(`${assetsApi.getAssetDownloadUrl(asset.id)}?v=${encodeURIComponent(asset.updated_at)}`)
-    .then((texture) => {
-      texture.mapping = THREE.EquirectangularReflectionMapping;
-      texture.colorSpace = THREE.LinearSRGBColorSpace;
-      texture.needsUpdate = true;
-      return texture;
-    })
-    .catch((error) => {
-      environmentCache.delete(cacheKey);
-      throw error;
-    });
+  const url = `${assetsApi.getAssetDownloadUrl(asset.id)}?v=${encodeURIComponent(asset.updated_at)}`;
+  const metadata = asset.metadata as Record<string, unknown> | undefined;
+  const format = metadata?.format as string | undefined;
+
+  let texturePromise: Promise<THREE.Texture>;
+
+  if (asset.mime_type === 'image/ktx2') {
+    // 旧版 KTX2 格式（向后兼容）
+    texturePromise = getKTX2Loader(renderer)
+      .loadAsync(url)
+      .then((texture) => {
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        texture.colorSpace = THREE.LinearSRGBColorSpace;
+        texture.needsUpdate = true;
+        return texture;
+      });
+  } else if (asset.mime_type === 'image/x-exr' || format === 'exr') {
+    // OpenEXR 格式
+    texturePromise = new EXRLoader()
+      .setWithCredentials(true)
+      .loadAsync(url)
+      .then((texture) => {
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        texture.colorSpace = THREE.LinearSRGBColorSpace;
+        texture.needsUpdate = true;
+        return texture;
+      });
+  } else {
+    // Radiance HDR 格式（默认）
+    texturePromise = new RGBELoader()
+      .setWithCredentials(true)
+      .loadAsync(url)
+      .then((texture) => {
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        texture.colorSpace = THREE.LinearSRGBColorSpace;
+        texture.needsUpdate = true;
+        return texture;
+      });
+  }
+
+  texturePromise = texturePromise.catch((error) => {
+    environmentCache.delete(cacheKey);
+    throw error;
+  });
 
   environmentCache.set(cacheKey, texturePromise);
   return texturePromise;

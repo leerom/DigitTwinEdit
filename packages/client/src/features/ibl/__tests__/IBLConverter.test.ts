@@ -43,7 +43,7 @@ describe('IBLConverter', () => {
 
     vi.spyOn(converter as any, '_convertInWorker').mockResolvedValue({
       previewFile: new File(['png-data'], 'studio.preview.png', { type: 'image/png' }),
-      runtimeFile: new File(['ktx2-data'], 'studio.ktx2', { type: 'image/ktx2' }),
+      runtimeFile: new File(['hdr-data'], 'studio.hdr', { type: 'image/vnd.radiance' }),
       originalWidth: 2048,
       originalHeight: 1024,
       runtimeWidth: 1024,
@@ -63,7 +63,7 @@ describe('IBLConverter', () => {
     expect(mockUploadAsset.mock.calls.map((call) => call[1].name)).toEqual([
       'studio.hdr',
       'studio.preview.png',
-      'studio.ktx2',
+      'studio.hdr',
     ]);
 
     expect(mockUpdateAsset).toHaveBeenCalledWith(11, {
@@ -77,7 +77,7 @@ describe('IBLConverter', () => {
     expect(mockUpdateAsset).toHaveBeenCalledWith(13, {
       metadata: {
         usage: 'ibl',
-        format: 'ktx2',
+        format: 'hdr',
         sourceEnvironmentAssetId: 11,
         previewAssetId: 12,
         originalFormat: 'hdr',
@@ -145,7 +145,7 @@ describe('IBLConverter', () => {
 
     vi.spyOn(converter as any, '_convertInWorker').mockResolvedValue({
       previewFile: new File(['png-data'], 'studio.preview.png', { type: 'image/png' }),
-      runtimeFile: new File(['ktx2-data'], 'studio.ktx2', { type: 'image/ktx2' }),
+      runtimeFile: new File(['hdr-data'], 'studio.hdr', { type: 'image/vnd.radiance' }),
       originalWidth: 4096,
       originalHeight: 2048,
       runtimeWidth: 2048,
@@ -160,11 +160,11 @@ describe('IBLConverter', () => {
 
     expect(fetch).toHaveBeenCalledWith('/api/assets/11/download', { credentials: 'include' });
     expect(mockReplaceAssetFile.mock.calls.map((call) => call[0])).toEqual([12, 13]);
-    expect(mockReplaceAssetFile.mock.calls.map((call) => call[1].name)).toEqual(['studio.preview.png', 'studio.ktx2']);
+    expect(mockReplaceAssetFile.mock.calls.map((call) => call[1].name)).toEqual(['studio.preview.png', 'studio.hdr']);
     expect(mockUpdateAsset).toHaveBeenCalledWith(13, {
       metadata: {
         usage: 'ibl',
-        format: 'ktx2',
+        format: 'hdr',
         sourceEnvironmentAssetId: 11,
         previewAssetId: 12,
         originalFormat: 'hdr',

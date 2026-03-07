@@ -39,8 +39,19 @@ export const useAssetStore = create<AssetState>((set, get) => ({
   loadAssets: async (projectId: number, type?: string) => {
     set({ isLoading: true, error: null });
     try {
-      const assets = await assetsApi.getProjectAssets(projectId, type);
-      set({ assets, isLoading: false });
+      const fetched = await assetsApi.getProjectAssets(projectId, type);
+      if (type) {
+        // 按类型刷新时只替换该类型的资产，保留其他类型（避免环境资产等被清除）
+        set((state) => ({
+          assets: [
+            ...state.assets.filter((a) => a.type !== type),
+            ...fetched,
+          ],
+          isLoading: false,
+        }));
+      } else {
+        set({ assets: fetched, isLoading: false });
+      }
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Failed to load assets',
