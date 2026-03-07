@@ -30,7 +30,7 @@ export const MaterialFieldRenderer: React.FC<MaterialFieldRendererProps> = ({
         return (
           <NumberInput
             label={label}
-            value={typeof value === 'number' ? value : 0}
+            value={typeof value === 'number' ? value : (typeof field.defaultValue === 'number' ? field.defaultValue : 0)}
             onChange={(v) => onChange(key, v)}
             step={step !== undefined ? String(step) : '0.01'}
             min={min}
@@ -42,7 +42,7 @@ export const MaterialFieldRenderer: React.FC<MaterialFieldRendererProps> = ({
         return (
           <ColorInput
             label={label}
-            value={typeof value === 'string' ? value : '#ffffff'}
+            value={typeof value === 'string' ? value : (typeof field.defaultValue === 'string' ? field.defaultValue : '#ffffff')}
             onChange={(v) => onChange(key, v)}
           />
         );
@@ -51,15 +51,18 @@ export const MaterialFieldRenderer: React.FC<MaterialFieldRendererProps> = ({
         return (
           <Checkbox
             label={label}
-            checked={typeof value === 'boolean' ? value : false}
+            checked={typeof value === 'boolean' ? value : (typeof field.defaultValue === 'boolean' ? field.defaultValue : false)}
             onChange={(v) => onChange(key, v)}
           />
         );
 
       case 'vector2': {
+        const defaultV2 = Array.isArray(field.defaultValue) && field.defaultValue.length === 2
+          ? (field.defaultValue as [number, number])
+          : [0, 0] as [number, number];
         const v2 = Array.isArray(value) && value.length === 2
           ? (value as [number, number])
-          : [0, 0] as [number, number];
+          : defaultV2;
         return (
           <Vector2Field
             label={label}
