@@ -83,25 +83,28 @@ export function selectSceneEnvironmentSettings(state: {
 export function SceneEnvironment() {
   const { gl, scene: threeScene } = useThree();
   const sceneEnvironment = useSceneStore(selectSceneEnvironmentSettings);
-  const assets = useAssetStore((state) => state.assets);
+  // 只订阅当前需要的环境资产，避免加载无关资产（Models/Textures 等）时触发 effect 重置光照
+  const environmentAsset = useAssetStore((state) =>
+    state.assets.find((asset) => asset.id === sceneEnvironment.assetId)
+  );
   const appliedEnvironmentRef = useRef<THREE.Texture | null>(null);
   const pmremTextureRef = useRef<THREE.Texture | null>(null);
   const requestIdRef = useRef(0);
 
   useEffect(() => {
     if (sceneEnvironment.mode !== 'asset' || sceneEnvironment.assetId == null) {
+      // 只有在我们自己设置了 PMREM 环境时才清除，避免覆盖 drei <Environment> 设置的环境光照
       if (pmremTextureRef.current) {
         pmremTextureRef.current.dispose();
         pmremTextureRef.current = null;
+        threeScene.environment = null;
       }
-      threeScene.environment = null;
       appliedEnvironmentRef.current = null;
       requestIdRef.current += 1;
       return;
     }
 
-    const selectedAsset = assets.find((asset) => asset.id === sceneEnvironment.assetId);
-    if (!isEnvironmentAsset(selectedAsset)) {
+    if (!isEnvironmentAsset(environmentAsset)) {
       if (pmremTextureRef.current) {
         pmremTextureRef.current.dispose();
         pmremTextureRef.current = null;
@@ -116,7 +119,7 @@ export function SceneEnvironment() {
     const pmremGenerator = new THREE.PMREMGenerator(gl);
     pmremGenerator.compileEquirectangularShader();
 
-    loadEnvironmentTexture(selectedAsset, gl)
+    loadEnvironmentTexture(environmentAsset, gl)
       .then((texture) => {
         if (requestIdRef.current !== requestId) return;
 
@@ -146,7 +149,7 @@ export function SceneEnvironment() {
       requestIdRef.current += 1;
       pmremGenerator.dispose();
     };
-  }, [assets, gl, sceneEnvironment, threeScene]);
+  }, [environmentAsset, gl, sceneEnvironment, threeScene]);
 
   if (sceneEnvironment.mode === 'default') {
     return <Environment preset="city" background={false} />;
