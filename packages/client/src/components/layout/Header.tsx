@@ -2,11 +2,8 @@ import React, { useState, useRef } from 'react';
 import { DropdownMenu, DropdownMenuItem } from '../common/DropdownMenu';
 import { ConfirmDialog } from '../../features/scene/components/ConfirmDialog';
 import { OpenSceneDialog } from '../../features/scene/components/OpenSceneDialog';
-import { Dialog } from '../common/Dialog';
-import { InputDialog } from '../common/InputDialog';
 import { SceneLoader } from '../../features/scene/services/SceneLoader';
 import { SceneManager } from '../../features/scene/services/SceneManager';
-import { useNewSceneFlow } from '../../hooks/useNewSceneFlow';
 import { useSceneStore } from '../../stores/sceneStore';
 import { useEditorStore } from '../../stores/editorStore';
 import { useLayoutStore } from '../../stores/layoutStore';
@@ -28,17 +25,6 @@ export const Header: React.FC = () => {
   const sceneLoader = new SceneLoader();
 
   const { scene, addObject, markClean } = useSceneStore();
-
-  const {
-    showSaveConfirmDialog,
-    showNewSceneDialog,
-    handleNewSceneClick,
-    handleSaveAndProceed,
-    handleDiscardAndProceed,
-    handleCancelSave,
-    handleCreateScene,
-    handleCancelCreate,
-  } = useNewSceneFlow();
 
   const select = useEditorStore((state) => state.select);
   const setActiveTool = useEditorStore((state) => state.setActiveTool);
@@ -110,11 +96,6 @@ export const Header: React.FC = () => {
   };
 
   const sceneMenuItems: DropdownMenuItem[] = [
-    {
-      label: '新建场景',
-      onClick: handleNewSceneClick,
-      icon: <FilePlus className="w-3 h-3" />,
-    },
     {
       label: '打开场景',
       onClick: () => setShowOpenSceneDialog(true),
@@ -400,51 +381,6 @@ export const Header: React.FC = () => {
         isOpen={showOpenSceneDialog}
         onClose={() => setShowOpenSceneDialog(false)}
       />
-
-      {/* New Scene Input Dialog */}
-      <InputDialog
-        isOpen={showNewSceneDialog}
-        title="新建场景"
-        placeholder="请输入场景名称"
-        defaultValue="New Scene"
-        onConfirm={handleCreateScene}
-        onCancel={handleCancelCreate}
-        confirmText="创建"
-      />
-
-      {/* Save Confirm Dialog */}
-      <Dialog
-        isOpen={showSaveConfirmDialog}
-        onClose={handleCancelSave}
-        title="保存更改？"
-        className="max-w-[400px]"
-      >
-        <div className="flex flex-col gap-4">
-          <p className="text-sm text-text-primary">
-            当前场景有未保存的更改，是否在创建新场景前保存？
-          </p>
-          <div className="flex justify-end gap-2 mt-2">
-            <button
-              onClick={handleCancelSave}
-              className="px-3 py-1.5 text-xs text-text-secondary hover:text-white transition-colors"
-            >
-              取消
-            </button>
-            <button
-              onClick={handleDiscardAndProceed}
-              className="px-3 py-1.5 text-xs text-red-400 hover:text-red-300 border border-red-500/30 rounded hover:bg-red-500/10 transition-colors"
-            >
-              不保存
-            </button>
-            <button
-              onClick={handleSaveAndProceed}
-              className="px-3 py-1.5 text-xs bg-accent-blue hover:bg-accent-blue/90 text-white rounded transition-colors"
-            >
-              保存
-            </button>
-          </div>
-        </div>
-      </Dialog>
     </header>
   );
 };
