@@ -85,6 +85,14 @@ export const InspectorPanel: React.FC = () => {
       }
       return null;
     }
+    // 非 KTX2 但有 previewAssetId（IBL/HDR/EXR 资产的预览 PNG）
+    const nonKtxPreviewId = meta?.previewAssetId as number | undefined;
+    if (nonKtxPreviewId) {
+      const previewAsset = assets.find((a) => a.id === nonKtxPreviewId);
+      if (previewAsset) {
+        return `${assetsApi.getAssetDownloadUrl(nonKtxPreviewId)}?v=${new Date(previewAsset.updated_at).getTime()}`;
+      }
+    }
     return `${assetsApi.getAssetDownloadUrl(selectedAsset.id)}?v=${new Date(selectedAsset.updated_at).getTime()}`;
   }, [selectedAsset, assets]);
 
