@@ -144,11 +144,51 @@ export function normalizeSceneEnvironmentSettings(
   return { mode: 'default', assetId: null };
 }
 
+// ── 后处理效果类型 ──────────────────────────────────────────────
+export type PostProcessEffectType = 'UnrealBloom' | 'Film' | 'Bokeh' | 'SSAO';
+
+export interface UnrealBloomParams {
+  threshold: number;
+  strength: number;
+  radius: number;
+}
+
+export interface FilmParams {
+  intensity: number;
+  grayscale: boolean;
+}
+
+export interface BokehParams {
+  focus: number;
+  aperture: number;
+  maxblur: number;
+}
+
+export interface SSAOParams {
+  radius: number;
+  minDistance: number;
+  maxDistance: number;
+}
+
+export type PostProcessParams =
+  | UnrealBloomParams
+  | FilmParams
+  | BokehParams
+  | SSAOParams;
+
+export interface PostProcessEffect {
+  id: string;
+  type: PostProcessEffectType;
+  enabled: boolean;
+  params: PostProcessParams;
+}
+
 export interface SceneSettings {
   environment: SceneEnvironmentSettings;
   gridVisible: boolean;
   backgroundColor: string;
   shadowMapType?: 'PCFSoftShadowMap' | 'PCFShadowMap' | 'VSMShadowMap';
+  postProcessing?: PostProcessEffect[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
