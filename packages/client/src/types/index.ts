@@ -165,7 +165,7 @@ export interface BokehParams {
 }
 
 export interface SSAOParams {
-  radius: number;
+  kernelRadius: number;
   minDistance: number;
   maxDistance: number;
 }

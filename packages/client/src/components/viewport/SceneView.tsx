@@ -13,6 +13,7 @@ import { ViewportOverlay } from '@/components/viewport/ViewportOverlay';
 import { CameraSystem } from '@/features/editor/navigation/CameraSystem';
 import { KeyboardShortcutManager } from '@/features/editor/shortcuts/KeyboardShortcutManager';
 import { ActiveToolGizmo } from '@/features/editor/tools/ActiveToolGizmo'; // This will be created in next task, but good to add import if we stub it or wait
+import { PostProcessingSystem } from '@/features/postprocessing/PostProcessingSystem';
 import * as THREE from 'three';
 import { clsx } from 'clsx';
 import { threeContextRef, ThreeContextCapture } from '@/features/viewport/threeContext';
@@ -132,6 +133,7 @@ export const SceneView: React.FC = () => {
           <InstanceManager />
           <SceneContent />
           <ActiveToolGizmo />
+          <PostProcessingSystem />
         </Suspense>
       </Canvas>
 
