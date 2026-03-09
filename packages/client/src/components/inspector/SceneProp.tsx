@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSceneStore } from '@/stores/sceneStore';
 import { useAssetStore } from '@/stores/assetStore';
+import { PostProcessingProp } from '@/components/inspector/PostProcessingProp';
 
 function isRuntimeIBLAsset(asset: { type: string; metadata?: unknown } | undefined): boolean {
   if (!asset || (asset.type !== 'texture' && asset.type !== 'image')) return false;
@@ -119,6 +120,11 @@ export const SceneProp: React.FC = () => {
             </select>
           </div>
         </div>
+      </div>
+
+      {/* 后处理效果 */}
+      <div>
+        <PostProcessingProp />
       </div>
     </div>
   );
