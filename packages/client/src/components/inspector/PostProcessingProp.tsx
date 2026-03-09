@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -29,6 +29,45 @@ const EFFECT_LABELS: Record<PostProcessEffectType, string> = {
 };
 
 const ALL_EFFECT_TYPES: PostProcessEffectType[] = ['UnrealBloom', 'Film', 'Bokeh', 'SSAO'];
+
+// ── Focus 专用输入（本地 state 管理中间态，blur/Enter 时提交）────
+interface FocusInputProps {
+  value: number;
+  onChange: (v: number) => void;
+}
+
+const FocusInput: React.FC<FocusInputProps> = ({ value, onChange }) => {
+  const [text, setText] = useState(String(value));
+
+  // 当外部 value 变化（如撤销/重置）时同步本地 text
+  useEffect(() => {
+    setText(String(value));
+  }, [value]);
+
+  const commit = () => {
+    const v = parseFloat(text);
+    if (!isNaN(v) && v > 0) {
+      onChange(v);
+    } else {
+      // 输入无效，恢复为当前 store 值
+      setText(String(value));
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <span className="text-slate-500 text-[11px] shrink-0 w-20">Focus</span>
+      <input
+        type="text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => { if (e.key === 'Enter') { e.currentTarget.blur(); } }}
+        className="w-full bg-[#0c0e14] border border-border-dark text-white text-[11px] px-1.5 py-0.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/50 text-right font-mono"
+      />
+    </div>
+  );
+};
 
 // ── 通用参数行（label + slider + 数字输入）─────────────────────
 interface ParamRowProps {
@@ -106,8 +145,8 @@ const EffectParamsEditor: React.FC<EffectParamsEditorProps> = ({ effect, onChang
     case 'Bokeh':
       return (
         <div className="space-y-2 mt-2">
-          <ParamRow label="Focus"    value={p.focus}    min={0}   max={10}  step={0.1}   onChange={(v) => update('focus', v)} />
-          <ParamRow label="Aperture" value={p.aperture} min={0}   max={0.1} step={0.001} onChange={(v) => update('aperture', v)} />
+          <FocusInput value={p.focus} onChange={(v) => update('focus', v)} />
+          <ParamRow label="Aperture" value={p.aperture} min={0}   max={1}   step={0.001} onChange={(v) => update('aperture', v)} />
           <ParamRow label="Max Blur" value={p.maxblur}  min={0}   max={0.05} step={0.001} onChange={(v) => update('maxblur', v)} />
         </div>
       );
