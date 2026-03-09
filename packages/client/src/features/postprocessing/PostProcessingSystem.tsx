@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
@@ -17,32 +17,42 @@ import type {
   SSAOParams,
 } from '@/types';
 
+// 稳定的空数组引用，避免 ?? [] 每次产生新引用导致 useMemo 不必要地重建 composer
+const EMPTY_EFFECTS: PostProcessEffect[] = [];
+
 export const PostProcessingSystem: React.FC = () => {
   const { gl, scene, camera, size } = useThree();
-  const effects = useSceneStore((s) => s.scene.settings.postProcessing ?? []);
-  const composerRef = useRef<EffectComposer | null>(null);
+  const effects = useSceneStore((s) => s.scene.settings.postProcessing ?? EMPTY_EFFECTS);
 
-  useEffect(() => {
-    const composer = new EffectComposer(gl);
-    composer.addPass(new RenderPass(scene, camera));
+  // 使用 useMemo 同步创建 composer，确保首帧就可用（避免首帧黑屏）
+  // 在 R3F 中，useFrame(fn, priority!=0) 会禁用 R3F 的默认 gl.render()，
+  // 必须由 useFrame 回调负责渲染。如果用 useEffect 创建 composer，
+  // 则首帧 composer 还未创建，useFrame 执行 null?.render() 为 no-op，
+  // 导致整帧为黑屏。
+  const composer = useMemo(() => {
+    const c = new EffectComposer(gl);
+    c.addPass(new RenderPass(scene, camera));
 
     const enabledEffects = effects.filter((e) => e.enabled);
     for (const effect of enabledEffects) {
       const pass = buildPass(effect, scene, camera, size);
-      if (pass) composer.addPass(pass);
+      if (pass) c.addPass(pass);
     }
-    composer.addPass(new OutputPass());
-    composer.setSize(size.width, size.height);
+    c.addPass(new OutputPass());
+    c.setSize(size.width, size.height);
+    return c;
+  }, [effects, gl, scene, camera, size]);
 
-    composerRef.current = composer;
+  // 当 composer 被替换时，dispose 旧的（释放 GPU 资源）
+  useEffect(() => {
     return () => {
       composer.dispose();
     };
-  }, [effects, gl, scene, camera, size]);
+  }, [composer]);
 
-  // 负优先级确保在 R3F 默认渲染之后接管（priority 越小越晚执行，-Infinity 在最后）
-  useFrame(() => {
-    composerRef.current?.render();
+  // priority=1: R3F 将渲染控制权交给此回调（跳过默认 gl.render）
+  useFrame((_, delta) => {
+    composer.render(delta);
   }, 1);
 
   return null;

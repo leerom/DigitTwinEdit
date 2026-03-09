@@ -17,6 +17,9 @@ import { CSS } from '@dnd-kit/utilities';
 import { useSceneStore } from '@/stores/sceneStore';
 import type { PostProcessEffect, PostProcessEffectType, PostProcessParams } from '@/types';
 
+// 稳定的空数组引用，避免 ?? [] 每次返回新引用触发 Zustand useSyncExternalStore 无限循环
+const EMPTY_EFFECTS: PostProcessEffect[] = [];
+
 // ── 效果显示名映射 ─────────────────────────────────────────────
 const EFFECT_LABELS: Record<PostProcessEffectType, string> = {
   UnrealBloom: 'Unreal Bloom（辉光）',
@@ -200,7 +203,7 @@ const SortableEffectCard: React.FC<SortableEffectCardProps> = ({
 
 // ── 主组件 ─────────────────────────────────────────────────────
 export const PostProcessingProp: React.FC = () => {
-  const effects      = useSceneStore((s) => s.scene.settings.postProcessing ?? []);
+  const effects      = useSceneStore((s) => s.scene.settings.postProcessing ?? EMPTY_EFFECTS);
   const addEffect    = useSceneStore((s) => s.addPostProcessEffect);
   const removeEffect = useSceneStore((s) => s.removePostProcessEffect);
   const toggleEffect = useSceneStore((s) => s.togglePostProcessEffect);
