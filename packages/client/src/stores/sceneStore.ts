@@ -10,7 +10,11 @@ import {
   MeshComponent,
   Vector3,
   normalizeSceneSettings,
+  PostProcessEffectType,
+  PostProcessParams,
+  PostProcessEffect,
 } from '@/types';
+import { POST_PROCESS_DEFAULTS } from '@/features/postprocessing/defaultParams';
 import type { Scene as SharedScene } from '@digittwinedit/shared';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -50,6 +54,11 @@ interface SceneState {
   setEnvironmentAsset: (assetId: number) => void;
   clearEnvironment: () => void;
   updateSceneSettings: (patch: Partial<import('@/types').SceneSettings>) => void;
+  addPostProcessEffect: (type: PostProcessEffectType) => void;
+  removePostProcessEffect: (id: string) => void;
+  togglePostProcessEffect: (id: string) => void;
+  updatePostProcessEffect: (id: string, params: Partial<PostProcessParams>) => void;
+  reorderPostProcessEffects: (newOrder: PostProcessEffect[]) => void;
   addAssetToScene: (asset: import('@digittwinedit/shared').Asset, position?: Vector3) => void;
 
   // Dirty state actions
@@ -357,6 +366,56 @@ export const useSceneStore = create<SceneState>()(
       updateSceneSettings: (patch) =>
         set((state) => {
           Object.assign(state.scene.settings, patch);
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
+        }),
+
+      addPostProcessEffect: (type) =>
+        set((state) => {
+          const existing = state.scene.settings.postProcessing ?? [];
+          state.scene.settings.postProcessing = [
+            ...existing,
+            {
+              id: uuidv4(),
+              type,
+              enabled: true,
+              params: { ...POST_PROCESS_DEFAULTS[type] },
+            },
+          ];
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
+        }),
+
+      removePostProcessEffect: (id) =>
+        set((state) => {
+          state.scene.settings.postProcessing = (
+            state.scene.settings.postProcessing ?? []
+          ).filter((e) => e.id !== id);
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
+        }),
+
+      togglePostProcessEffect: (id) =>
+        set((state) => {
+          const effects = state.scene.settings.postProcessing ?? [];
+          const effect = effects.find((e) => e.id === id);
+          if (effect) effect.enabled = !effect.enabled;
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
+        }),
+
+      updatePostProcessEffect: (id, params) =>
+        set((state) => {
+          const effects = state.scene.settings.postProcessing ?? [];
+          const effect = effects.find((e) => e.id === id);
+          if (effect) Object.assign(effect.params, params);
+          state.scene.updatedAt = new Date().toISOString();
+          state.isDirty = true;
+        }),
+
+      reorderPostProcessEffects: (newOrder) =>
+        set((state) => {
+          state.scene.settings.postProcessing = newOrder;
           state.scene.updatedAt = new Date().toISOString();
           state.isDirty = true;
         }),
