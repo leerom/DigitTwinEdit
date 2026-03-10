@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import type { PreviewParams } from './hooks/usePreviewMaterial';
+import type { PreviewParams } from './compiler/buildPreviewParams';
 
 type PreviewShape = 'sphere' | 'box' | 'plane' | 'cylinder';
 
@@ -72,12 +72,16 @@ export const PreviewPanel: React.FC<Props> = ({ params, error }) => {
       </div>
 
       {/* Canvas 容器：相对定位包裹绝对定位的 Canvas，保证尺寸正确解析 */}
-      <div className="relative flex-1" style={{ minHeight: 0 }}>
+      <div className="relative flex-1 bg-[#0c0e14]" style={{ minHeight: 0 }}>
         <Canvas
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-          gl={{ antialias: true }}
+          gl={{ antialias: true, alpha: false }}
           camera={{ position: [0, 0, 2.5], fov: 45 }}
           dpr={[1, 2]}
+          frameloop="always"
+          onCreated={({ gl }) => {
+            gl.setClearColor(0x0c0e14, 1);
+          }}
         >
           <color attach="background" args={['#0c0e14']} />
           <ambientLight intensity={0.6} />

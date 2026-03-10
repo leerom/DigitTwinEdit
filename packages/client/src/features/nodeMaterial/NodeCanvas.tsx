@@ -37,6 +37,19 @@ const EDGE_STYLE: React.CSSProperties = {
   strokeWidth: 2,
 };
 
+/** 连线选中后高亮样式（注入到 ReactFlow 容器内，避免全局污染） */
+const SELECTED_EDGE_CSS = `
+  .react-flow__edge.selected .react-flow__edge-path {
+    stroke: #3b82f6 !important;
+    stroke-width: 3 !important;
+    filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.75));
+  }
+  .react-flow__edge:focus .react-flow__edge-path,
+  .react-flow__edge:focus-visible .react-flow__edge-path {
+    outline: none;
+  }
+`;
+
 const CONNECTION_LINE_STYLE: React.CSSProperties = {
   stroke: '#3b82f6',
   strokeWidth: 2,
@@ -92,10 +105,12 @@ const CanvasInner: React.FC<Props> = ({
 
   return (
     <div
-      className="flex-1 h-full bg-bg-dark"
+      className="flex-1 h-full bg-bg-dark overflow-hidden"
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
     >
+      {/* 选中连线高亮样式 */}
+      <style>{SELECTED_EDGE_CSS}</style>
       <ReactFlow
         nodes={nodes}
         edges={edges}

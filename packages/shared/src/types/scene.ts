@@ -19,7 +19,8 @@ export type MaterialType =
   | 'MeshBasicMaterial'
   | 'MeshLambertMaterial'
   | 'MeshPhongMaterial'
-  | 'MeshPhysicalMaterial';
+  | 'MeshPhysicalMaterial'
+  | 'NodeMaterial';
 
 export type MaterialSpec = {
   type: MaterialType;

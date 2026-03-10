@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
-import { MeshStandardNodeMaterial } from 'three/webgpu';
-import { compileNodeGraph } from '@/features/nodeMaterial/compiler/tslCompiler';
+import { buildPreviewParams } from '@/features/nodeMaterial/compiler/buildPreviewParams';
 import type { MaterialSpec, NodeGraphData } from '@/types';
 
 /** 模块级纹理缓存，避免相同 URL 重复加载 */
@@ -148,9 +147,17 @@ export function createThreeMaterial(spec: MaterialSpec, renderer?: THREE.WebGLRe
   let material: THREE.Material;
   switch (spec.type) {
     case 'NodeMaterial': {
+      // NodeMaterial（WebGPU TSL）无法在 WebGL Canvas 中直接渲染。
+      // 此处提取简单参数，用 MeshStandardMaterial 作为 WebGL 预览近似。
       const graphData = (spec.props as Record<string, unknown>)?.graph as NodeGraphData | undefined;
-      if (!graphData) return new MeshStandardNodeMaterial();
-      return compileNodeGraph(graphData);
+      if (!graphData) return new THREE.MeshStandardMaterial();
+      const p = buildPreviewParams(graphData);
+      return new THREE.MeshStandardMaterial({
+        color: p.color,
+        roughness: p.roughness,
+        metalness: p.metalness,
+        emissive: new THREE.Color(p.emissive),
+      });
     }
     case 'MeshPhysicalMaterial':
       material = new THREE.MeshPhysicalMaterial(scalarProps as any);

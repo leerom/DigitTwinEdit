@@ -258,6 +258,7 @@ export interface NodeTypeDef {
 
 /** 存储在 React Flow 节点 data 字段中的运行时数据 */
 export interface NodeRFData {
+  [key: string]: unknown;        // React Flow Node<T> 要求 T extends Record<string, unknown>
   typeKey: string;               // 对应 NodeTypeDef.key
   label?: string;                // 用户自定义标签（可选）
   params: Record<string, unknown>; // 当前参数值（可内联编辑）

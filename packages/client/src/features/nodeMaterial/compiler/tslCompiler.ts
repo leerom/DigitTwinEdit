@@ -166,51 +166,6 @@ function buildNodeOutput(
 }
 
 /**
- * 从节点图中提取简单参数值，用于 WebGL Canvas 预览。
- * 返回纯参数对象，供 R3F <meshStandardMaterial> JSX 直接使用，
- * 无需创建 Three.js 材质实例（MeshStandardNodeMaterial 是 WebGPU 专用）。
- */
-export function buildPreviewParams(graph: NodeGraphData): {
-  color: string;
-  roughness: number;
-  metalness: number;
-  emissive: string;
-} {
-  const defaults = { color: '#ffffff', roughness: 0.5, metalness: 0.0, emissive: '#000000' };
-
-  const outputNode = graph.nodes.find((n) => n.type === 'MaterialOutput');
-  if (!outputNode) return defaults;
-
-  const edgeMap = buildEdgeMap(graph);
-
-  /** 沿连线向上找到第一个叶节点，提取其原始参数值 */
-  function resolveSimple(targetId: string, targetHandle: string): unknown {
-    const entry = edgeMap.get(`${targetId}:${targetHandle}`);
-    if (!entry) return null;
-    const src = graph.nodes.find((n) => n.id === entry.sourceId);
-    if (!src) return null;
-    const p = src.data.params as Record<string, unknown>;
-    switch (src.type) {
-      case 'FloatInput': return typeof p.value === 'number' ? p.value : null;
-      case 'ColorInput': return typeof p.value === 'string' ? p.value : null;
-      default:           return null;
-    }
-  }
-
-  const colorVal     = resolveSimple(outputNode.id, 'color');
-  const roughnessVal = resolveSimple(outputNode.id, 'roughness');
-  const metalnessVal = resolveSimple(outputNode.id, 'metalness');
-  const emissiveVal  = resolveSimple(outputNode.id, 'emissive');
-
-  return {
-    color:     typeof colorVal     === 'string' ? colorVal     : defaults.color,
-    roughness: typeof roughnessVal === 'number' ? roughnessVal : defaults.roughness,
-    metalness: typeof metalnessVal === 'number' ? metalnessVal : defaults.metalness,
-    emissive:  typeof emissiveVal  === 'string' ? emissiveVal  : defaults.emissive,
-  };
-}
-
-/**
  * @param graph 序列化节点图
  * @param texMap assetId → THREE.Texture 映射（用于 TextureInput 节点）
  */

@@ -88,7 +88,7 @@ export const NodeLibraryPanel: React.FC<Props> = ({ onAddNode }) => {
                   <button
                     key={node.key}
                     data-testid={`node-item-${node.key}`}
-                    className="w-full text-left px-3 py-1.5 flex items-center gap-2 text-slate-400 hover:text-white hover:bg-white/5 transition-colors text-[11px] group"
+                    className="w-full text-left pl-6 pr-3 py-1.5 flex items-center gap-2 text-slate-400 hover:text-white hover:bg-white/5 transition-colors text-[11px] group"
                     onDoubleClick={() => onAddNode(node.key)}
                     draggable
                     onDragStart={(e) => e.dataTransfer.setData('nodeType', node.key)}

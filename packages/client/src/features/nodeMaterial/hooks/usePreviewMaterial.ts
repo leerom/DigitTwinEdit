@@ -2,24 +2,19 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Node, Edge } from '@xyflow/react';
 import type { NodeRFData, NodeGraphData } from '@/types';
+import { buildPreviewParams } from '../compiler/buildPreviewParams';
 
-export interface PreviewParams {
-  color: string;
-  roughness: number;
-  metalness: number;
-  emissive: string;
-}
+export type { PreviewParams } from '../compiler/buildPreviewParams';
 
 export function usePreviewMaterial(nodes: Node[], edges: Edge[]) {
-  const [params, setParams] = useState<PreviewParams | null>(null);
+  const [params, setParams] = useState<import('../compiler/buildPreviewParams').PreviewParams | null>(null);
   const [error, setError] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(async () => {
+    timerRef.current = setTimeout(() => {
       try {
-        const { buildPreviewParams } = await import('../compiler/tslCompiler');
         const graphData: NodeGraphData = {
           version: 1,
           nodes: nodes.map((n) => ({
