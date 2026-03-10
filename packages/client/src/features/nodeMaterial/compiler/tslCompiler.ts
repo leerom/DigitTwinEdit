@@ -166,20 +166,20 @@ function buildNodeOutput(
 }
 
 /**
- * 从节点图中提取简单参数值，生成标准 THREE.MeshStandardMaterial。
- * 用于 WebGL Canvas 实时预览（MeshStandardNodeMaterial 是 WebGPU 专用，WebGL 无法渲染 TSL 节点）。
+ * 从节点图中提取简单参数值，用于 WebGL Canvas 预览。
+ * 返回纯参数对象，供 R3F <meshStandardMaterial> JSX 直接使用，
+ * 无需创建 Three.js 材质实例（MeshStandardNodeMaterial 是 WebGPU 专用）。
  */
-export function buildPreviewMaterial(
-  graph: NodeGraphData,
-): THREE.MeshStandardMaterial {
-  const mat = new THREE.MeshStandardMaterial({
-    color: '#ffffff',
-    roughness: 0.5,
-    metalness: 0.0,
-  });
+export function buildPreviewParams(graph: NodeGraphData): {
+  color: string;
+  roughness: number;
+  metalness: number;
+  emissive: string;
+} {
+  const defaults = { color: '#ffffff', roughness: 0.5, metalness: 0.0, emissive: '#000000' };
 
   const outputNode = graph.nodes.find((n) => n.type === 'MaterialOutput');
-  if (!outputNode) return mat;
+  if (!outputNode) return defaults;
 
   const edgeMap = buildEdgeMap(graph);
 
@@ -202,13 +202,12 @@ export function buildPreviewMaterial(
   const metalnessVal = resolveSimple(outputNode.id, 'metalness');
   const emissiveVal  = resolveSimple(outputNode.id, 'emissive');
 
-  if (typeof colorVal === 'string')     mat.color.set(colorVal);
-  if (typeof roughnessVal === 'number') mat.roughness = roughnessVal;
-  if (typeof metalnessVal === 'number') mat.metalness = metalnessVal;
-  if (typeof emissiveVal === 'string')  mat.emissive.set(emissiveVal);
-
-  mat.needsUpdate = true;
-  return mat;
+  return {
+    color:     typeof colorVal     === 'string' ? colorVal     : defaults.color,
+    roughness: typeof roughnessVal === 'number' ? roughnessVal : defaults.roughness,
+    metalness: typeof metalnessVal === 'number' ? metalnessVal : defaults.metalness,
+    emissive:  typeof emissiveVal  === 'string' ? emissiveVal  : defaults.emissive,
+  };
 }
 
 /**

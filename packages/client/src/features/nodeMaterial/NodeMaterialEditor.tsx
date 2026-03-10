@@ -65,7 +65,7 @@ export const NodeMaterialEditor: React.FC = () => {
     toGraphData,
   } = useNodeEditor();
 
-  const { material, error: compileError } = usePreviewMaterial(nodes, edges);
+  const { params: previewParams, error: compileError } = usePreviewMaterial(nodes, edges);
 
   // 加载材质
   useEffect(() => {
@@ -243,7 +243,7 @@ export const NodeMaterialEditor: React.FC = () => {
               onExportJSON={handleExportJSON}
               onImportJSON={handleImportJSON}
             />
-            <PreviewPanel material={material} error={compileError} />
+            <PreviewPanel params={previewParams} error={compileError} />
           </div>
         </div>
 

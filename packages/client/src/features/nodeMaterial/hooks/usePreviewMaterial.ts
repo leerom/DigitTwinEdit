@@ -3,12 +3,15 @@ import { useEffect, useRef, useState } from 'react';
 import type { Node, Edge } from '@xyflow/react';
 import type { NodeRFData, NodeGraphData } from '@/types';
 
-// 使用 any 避免在模块顶层加载 Three.js（测试环境友好）
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyMaterial = any;
+export interface PreviewParams {
+  color: string;
+  roughness: number;
+  metalness: number;
+  emissive: string;
+}
 
 export function usePreviewMaterial(nodes: Node[], edges: Edge[]) {
-  const [material, setMaterial] = useState<AnyMaterial | null>(null);
+  const [params, setParams] = useState<PreviewParams | null>(null);
   const [error, setError] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -16,7 +19,7 @@ export function usePreviewMaterial(nodes: Node[], edges: Edge[]) {
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
       try {
-        const { buildPreviewMaterial } = await import('../compiler/tslCompiler');
+        const { buildPreviewParams } = await import('../compiler/tslCompiler');
         const graphData: NodeGraphData = {
           version: 1,
           nodes: nodes.map((n) => ({
@@ -33,8 +36,7 @@ export function usePreviewMaterial(nodes: Node[], edges: Edge[]) {
             targetHandle: e.targetHandle ?? '',
           })),
         };
-        const mat = buildPreviewMaterial(graphData);
-        setMaterial(mat);
+        setParams(buildPreviewParams(graphData));
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : '编译失败');
@@ -45,5 +47,5 @@ export function usePreviewMaterial(nodes: Node[], edges: Edge[]) {
     };
   }, [nodes, edges]);
 
-  return { material, error };
+  return { params, error };
 }
