@@ -16,7 +16,7 @@ export function usePreviewMaterial(nodes: Node[], edges: Edge[]) {
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
       try {
-        const { compileNodeGraph } = await import('../compiler/tslCompiler');
+        const { buildPreviewMaterial } = await import('../compiler/tslCompiler');
         const graphData: NodeGraphData = {
           version: 1,
           nodes: nodes.map((n) => ({
@@ -33,7 +33,7 @@ export function usePreviewMaterial(nodes: Node[], edges: Edge[]) {
             targetHandle: e.targetHandle ?? '',
           })),
         };
-        const mat = compileNodeGraph(graphData);
+        const mat = buildPreviewMaterial(graphData);
         setMaterial(mat);
         setError(null);
       } catch (err) {

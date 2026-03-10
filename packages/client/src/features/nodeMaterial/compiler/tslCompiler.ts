@@ -166,7 +166,52 @@ function buildNodeOutput(
 }
 
 /**
- * 将 NodeGraphData 编译为 MeshStandardNodeMaterial。
+ * 从节点图中提取简单参数值，生成标准 THREE.MeshStandardMaterial。
+ * 用于 WebGL Canvas 实时预览（MeshStandardNodeMaterial 是 WebGPU 专用，WebGL 无法渲染 TSL 节点）。
+ */
+export function buildPreviewMaterial(
+  graph: NodeGraphData,
+): THREE.MeshStandardMaterial {
+  const mat = new THREE.MeshStandardMaterial({
+    color: '#ffffff',
+    roughness: 0.5,
+    metalness: 0.0,
+  });
+
+  const outputNode = graph.nodes.find((n) => n.type === 'MaterialOutput');
+  if (!outputNode) return mat;
+
+  const edgeMap = buildEdgeMap(graph);
+
+  /** 沿连线向上找到第一个叶节点，提取其原始参数值 */
+  function resolveSimple(targetId: string, targetHandle: string): unknown {
+    const entry = edgeMap.get(`${targetId}:${targetHandle}`);
+    if (!entry) return null;
+    const src = graph.nodes.find((n) => n.id === entry.sourceId);
+    if (!src) return null;
+    const p = src.data.params as Record<string, unknown>;
+    switch (src.type) {
+      case 'FloatInput': return typeof p.value === 'number' ? p.value : null;
+      case 'ColorInput': return typeof p.value === 'string' ? p.value : null;
+      default:           return null;
+    }
+  }
+
+  const colorVal     = resolveSimple(outputNode.id, 'color');
+  const roughnessVal = resolveSimple(outputNode.id, 'roughness');
+  const metalnessVal = resolveSimple(outputNode.id, 'metalness');
+  const emissiveVal  = resolveSimple(outputNode.id, 'emissive');
+
+  if (typeof colorVal === 'string')     mat.color.set(colorVal);
+  if (typeof roughnessVal === 'number') mat.roughness = roughnessVal;
+  if (typeof metalnessVal === 'number') mat.metalness = metalnessVal;
+  if (typeof emissiveVal === 'string')  mat.emissive.set(emissiveVal);
+
+  mat.needsUpdate = true;
+  return mat;
+}
+
+/**
  * @param graph 序列化节点图
  * @param texMap assetId → THREE.Texture 映射（用于 TextureInput 节点）
  */

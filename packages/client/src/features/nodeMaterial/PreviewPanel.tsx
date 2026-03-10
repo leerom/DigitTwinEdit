@@ -7,10 +7,10 @@ import * as THREE from 'three';
 type PreviewShape = 'sphere' | 'box' | 'plane' | 'cylinder';
 
 const SHAPES: { key: PreviewShape; icon: string; label: string }[] = [
-  { key: 'sphere',   icon: 'circle',         label: '球体' },
-  { key: 'box',      icon: 'square',         label: '立方体' },
-  { key: 'plane',    icon: 'crop_square',    label: '平面' },
-  { key: 'cylinder', icon: 'cylinder',       label: '圆柱' },
+  { key: 'sphere',   icon: 'circle',       label: '球体' },
+  { key: 'box',      icon: 'square',       label: '立方体' },
+  { key: 'plane',    icon: 'crop_square',  label: '平面' },
+  { key: 'cylinder', icon: 'contrast',     label: '圆柱' },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
