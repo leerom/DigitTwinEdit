@@ -932,6 +932,7 @@ export const ProjectPanel: React.FC = () => {
               <option value="MeshPhongMaterial">MeshPhongMaterial</option>
               <option value="MeshLambertMaterial">MeshLambertMaterial</option>
               <option value="MeshBasicMaterial">MeshBasicMaterial</option>
+              <option value="NodeMaterial">NodeMaterial（节点材质）</option>
             </select>
           </div>
           {newMaterialError && (
