@@ -95,32 +95,52 @@ const ModelMesh: React.FC<{
 
     // ② 应用对象级 materialSpec（作用于全部子网格）
     if (materialSpec) {
-      const props = materialSpec.props as Record<string, unknown>;
-      const texProps: Record<string, unknown> = {};
-      const scalarProps: Record<string, unknown> = {};
-      for (const [k, v] of Object.entries(props)) {
-        if (isTextureRef(v)) texProps[k] = v;
-        else scalarProps[k] = v;
-      }
-
-      clone.traverse((child) => {
-        const mesh = child as THREE.Mesh;
-        if (!mesh.isMesh) return;
-        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-        mats.forEach((mat) => {
-          if (!mat) return;
-          const m = mat as any;
-          for (const [key, value] of Object.entries(scalarProps)) {
-            if (key === 'color' && typeof value === 'string' && m.color?.set) m.color.set(value);
-            else if (key === 'emissive' && typeof value === 'string' && m.emissive?.set) m.emissive.set(value);
-            else if (key === 'normalScale' && Array.isArray(value) && m.normalScale?.isVector2) m.normalScale.set(value[0], value[1]);
-            else if (key === 'clearcoatNormalScale' && Array.isArray(value) && m.clearcoatNormalScale?.isVector2) m.clearcoatNormalScale.set(value[0], value[1]);
-            else m[key] = value;
+      if (materialSpec.type === 'NodeMaterial') {
+        // NodeMaterial（WebGPU TSL）的 props 是 { graph: NodeGraphData }，
+        // 不能直接当作 Three.js 材质属性写入已有材质（写入无效果）。
+        // 必须通过 createThreeMaterial 将节点图编译为 MeshStandardMaterial 近似预览，
+        // 再替换所有子网格的材质实例。
+        const previewMat = createThreeMaterial(materialSpec, modelGlRef.current ?? undefined);
+        clone.traverse((child) => {
+          const mesh = child as THREE.Mesh;
+          if (!mesh.isMesh) return;
+          if (Array.isArray(mesh.material)) {
+            mesh.material.forEach((m: THREE.Material) => m.dispose());
+            mesh.material = mesh.material.map(() => previewMat.clone());
+          } else if (mesh.material) {
+            (mesh.material as THREE.Material).dispose();
+            mesh.material = previewMat.clone();
           }
-          if (Object.keys(texProps).length > 0) applyTextureProps(mat, texProps, modelGlRef.current ?? undefined);
-          m.needsUpdate = true;
         });
-      });
+        previewMat.dispose(); // 模板已克隆至各子网格，释放模板本身
+      } else {
+        const props = materialSpec.props as Record<string, unknown>;
+        const texProps: Record<string, unknown> = {};
+        const scalarProps: Record<string, unknown> = {};
+        for (const [k, v] of Object.entries(props)) {
+          if (isTextureRef(v)) texProps[k] = v;
+          else scalarProps[k] = v;
+        }
+
+        clone.traverse((child) => {
+          const mesh = child as THREE.Mesh;
+          if (!mesh.isMesh) return;
+          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          mats.forEach((mat) => {
+            if (!mat) return;
+            const m = mat as any;
+            for (const [key, value] of Object.entries(scalarProps)) {
+              if (key === 'color' && typeof value === 'string' && m.color?.set) m.color.set(value);
+              else if (key === 'emissive' && typeof value === 'string' && m.emissive?.set) m.emissive.set(value);
+              else if (key === 'normalScale' && Array.isArray(value) && m.normalScale?.isVector2) m.normalScale.set(value[0], value[1]);
+              else if (key === 'clearcoatNormalScale' && Array.isArray(value) && m.clearcoatNormalScale?.isVector2) m.clearcoatNormalScale.set(value[0], value[1]);
+              else m[key] = value;
+            }
+            if (Object.keys(texProps).length > 0) applyTextureProps(mat, texProps, modelGlRef.current ?? undefined);
+            m.needsUpdate = true;
+          });
+        });
+      }
     }
 
     // ③ 应用节点级 nodeOverrides 中的材质覆盖（变换覆盖由单独 useEffect 应用）
