@@ -12,7 +12,7 @@ vi.mock('@xyflow/react', () => ({
 describe('PropertyPanel', () => {
   it('无选中节点时显示占位符', () => {
     render(<PropertyPanel selectedNodes={[]} />);
-    expect(screen.getByText('未选中节点')).toBeInTheDocument();
+    expect(screen.getByText('点击节点查看属性')).toBeInTheDocument();
   });
 
   it('选中 FloatInput 节点时显示节点名称', () => {
