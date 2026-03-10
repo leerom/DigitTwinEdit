@@ -119,53 +119,74 @@ export const NodeMaterialEditor: React.FC = () => {
 
   const selectedNodes = nodes.filter((n) => (n as any).selected);
 
-  const statusText = compileError
-    ? `编译错误: ${compileError}`
-    : saveStatus === 'saving'
-      ? '保存中...'
-      : saveStatus === 'saved'
-        ? '✓ 已保存'
-        : saveStatus === 'error'
-          ? '保存失败'
-          : '就绪';
-
   return (
     <ReactFlowProvider>
-      <div className="fixed inset-0 z-50 flex flex-col bg-[#0c0e14] text-white">
+      <div className="fixed inset-0 z-50 flex flex-col bg-bg-dark text-white font-display">
         {/* 顶栏 */}
-        <div className="flex items-center gap-3 px-4 py-2 border-b border-[#2d333f] shrink-0">
+        <div className="flex items-center gap-2 px-3 h-10 border-b border-border-dark bg-header-dark shrink-0">
+          {/* 返回按钮 */}
           <button
             aria-label="返回"
             onClick={closeNodeEditor}
-            className="flex items-center gap-1 text-sm text-slate-400 hover:text-white transition-colors"
+            className="flex items-center gap-1 text-[12px] text-slate-400 hover:text-white hover:bg-white/5 px-2 py-1 rounded transition-colors"
           >
-            <span className="material-symbols-outlined text-base">arrow_back</span>
+            <span className="material-symbols-outlined text-[16px]">arrow_back</span>
             <span>返回</span>
           </button>
-          <span className="text-slate-500">|</span>
-          <span className="text-sm font-medium">{materialName || '节点材质编辑器'}</span>
-          <div className="ml-auto flex items-center gap-2">
+
+          {/* 分隔线 */}
+          <div className="w-px h-4 bg-border-dark mx-1" />
+
+          {/* 面包屑 */}
+          <span className="material-symbols-outlined text-[16px] text-slate-500">device_hub</span>
+          <span className="text-[11px] text-slate-500">节点材质</span>
+          <span className="text-[11px] text-slate-600">/</span>
+          <span className="text-[12px] text-slate-300 font-medium truncate max-w-[200px]">
+            {materialName || '加载中...'}
+          </span>
+
+          {/* 右侧工具 */}
+          <div className="ml-auto flex items-center gap-1">
             <button
               disabled={!canUndo}
               onClick={undo}
-              className="p-1 text-slate-400 hover:text-white disabled:opacity-30 transition-colors"
+              className="flex items-center justify-center w-7 h-7 rounded text-slate-400 hover:text-white hover:bg-white/5 disabled:opacity-30 transition-colors"
               title="撤销 (Ctrl+Z)"
             >
-              <span className="material-symbols-outlined text-base">undo</span>
+              <span className="material-symbols-outlined text-[16px]">undo</span>
             </button>
             <button
               disabled={!canRedo}
               onClick={redo}
-              className="p-1 text-slate-400 hover:text-white disabled:opacity-30 transition-colors"
+              className="flex items-center justify-center w-7 h-7 rounded text-slate-400 hover:text-white hover:bg-white/5 disabled:opacity-30 transition-colors"
               title="重做 (Ctrl+Y)"
             >
-              <span className="material-symbols-outlined text-base">redo</span>
+              <span className="material-symbols-outlined text-[16px]">redo</span>
             </button>
+
+            {/* 分隔线 */}
+            <div className="w-px h-4 bg-border-dark mx-1" />
+
+            {/* 保存按钮 */}
             <button
               onClick={handleSave}
-              className="px-3 py-1 bg-accent-blue hover:bg-accent-blue/90 text-white text-xs rounded transition-colors"
+              className={`flex items-center gap-1 px-3 py-1 text-[11px] font-medium text-white rounded transition-all ${
+                saveStatus === 'saving'
+                  ? 'bg-accent-blue/70 animate-pulse cursor-not-allowed'
+                  : saveStatus === 'saved'
+                    ? 'bg-green-600 hover:bg-green-500'
+                    : saveStatus === 'error'
+                      ? 'bg-red-600 hover:bg-red-500'
+                      : 'bg-accent-blue hover:bg-accent-blue/90'
+              }`}
             >
-              保存
+              {saveStatus === 'saved' ? (
+                <><span className="material-symbols-outlined text-[14px]">check</span><span>已保存</span></>
+              ) : saveStatus === 'error' ? (
+                <><span className="material-symbols-outlined text-[14px]">error</span><span>失败</span></>
+              ) : (
+                <><span className="material-symbols-outlined text-[14px]">save</span><span>保存</span></>
+              )}
             </button>
           </div>
         </div>
@@ -191,17 +212,40 @@ export const NodeMaterialEditor: React.FC = () => {
         </div>
 
         {/* 状态栏 */}
-        <div
-          className={`px-4 py-1 text-[11px] border-t border-[#2d333f] shrink-0 ${
-            compileError
-              ? 'text-red-400'
-              : saveStatus === 'saved'
-                ? 'text-green-400'
-                : 'text-slate-500'
-          }`}
-        >
-          {statusText}
-        </div>
+        <footer className="h-6 bg-header-dark border-t border-border-dark px-3 flex items-center justify-between text-[9px] text-slate-500 shrink-0 select-none">
+          <div className="flex items-center gap-1">
+            {compileError ? (
+              <>
+                <span className="material-symbols-outlined text-[11px] text-red-400">error</span>
+                <span className="text-red-400 truncate max-w-[300px]">{compileError}</span>
+              </>
+            ) : saveStatus === 'saving' ? (
+              <>
+                <span className="material-symbols-outlined text-[11px] text-accent-blue animate-spin">refresh</span>
+                <span>保存中...</span>
+              </>
+            ) : saveStatus === 'saved' ? (
+              <>
+                <span className="material-symbols-outlined text-[11px] text-green-400">check_circle</span>
+                <span className="text-green-400">已保存</span>
+              </>
+            ) : saveStatus === 'error' ? (
+              <>
+                <span className="material-symbols-outlined text-[11px] text-red-400">warning</span>
+                <span className="text-red-400">保存失败</span>
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-[11px]">device_hub</span>
+                <span>就绪</span>
+              </>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <span>{nodes.length} 节点</span>
+            <span>{edges.length} 连线</span>
+          </div>
+        </footer>
       </div>
     </ReactFlowProvider>
   );
