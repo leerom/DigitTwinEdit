@@ -39,6 +39,22 @@ function graphToFlow(graph: NodeGraphData): {
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
+const LEFT_MIN = 140;
+const LEFT_MAX = 400;
+const RIGHT_MIN = 160;
+const RIGHT_MAX = 480;
+
+/** 拖拽分隔线 */
+const ResizeHandle: React.FC<{ onMouseDown: (e: React.MouseEvent) => void }> = ({ onMouseDown }) => (
+  <div
+    className="relative w-1 shrink-0 bg-[#2d333f] hover:bg-accent-blue/50 active:bg-accent-blue/70 cursor-col-resize transition-colors z-10 select-none"
+    onMouseDown={onMouseDown}
+  >
+    {/* 扩大命中区域 */}
+    <div className="absolute inset-y-0 -left-1 -right-1" />
+  </div>
+);
+
 export const NodeMaterialEditor: React.FC = () => {
   const nodeEditorMaterialId = useMaterialStore((s) => s.nodeEditorMaterialId);
   const closeNodeEditor = useMaterialStore((s) => s.closeNodeEditor);
@@ -48,6 +64,48 @@ export const NodeMaterialEditor: React.FC = () => {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fitViewFnRef = useRef<(() => void) | null>(null);
+
+  // 面板宽度
+  const [leftWidth, setLeftWidth] = useState(208);
+  const [rightWidth, setRightWidth] = useState(224);
+
+  const startLeftResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = leftWidth;
+    const onMove = (ev: MouseEvent) => {
+      setLeftWidth(Math.max(LEFT_MIN, Math.min(LEFT_MAX, startW + ev.clientX - startX)));
+    };
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+
+  const startRightResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = rightWidth;
+    const onMove = (ev: MouseEvent) => {
+      setRightWidth(Math.max(RIGHT_MIN, Math.min(RIGHT_MAX, startW - (ev.clientX - startX))));
+    };
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
 
   const {
     nodes,
@@ -223,9 +281,13 @@ export const NodeMaterialEditor: React.FC = () => {
 
         {/* 主体 */}
         <div className="flex flex-1 min-h-0">
-          <NodeLibraryPanel
-            onAddNode={(typeKey) => addNode(typeKey, { x: 200, y: 200 })}
-          />
+          {/* 左侧节点库 */}
+          <div style={{ width: leftWidth }} className="shrink-0 flex flex-col min-h-0 border-r border-[#2d333f]">
+            <NodeLibraryPanel
+              onAddNode={(typeKey) => addNode(typeKey, { x: 200, y: 200 })}
+            />
+          </div>
+          <ResizeHandle onMouseDown={startLeftResize} />
           <NodeCanvas
             nodes={nodes}
             edges={edges}
@@ -235,8 +297,9 @@ export const NodeMaterialEditor: React.FC = () => {
             onAddNode={addNode}
             onRegisterFitView={(fn) => { fitViewFnRef.current = fn; }}
           />
+          <ResizeHandle onMouseDown={startRightResize} />
           {/* 右侧面板 */}
-          <div className="flex flex-col w-56 shrink-0 border-l border-[#2d333f]">
+          <div style={{ width: rightWidth }} className="flex flex-col shrink-0 border-l border-[#2d333f]">
             <PropertyPanel
               selectedNodes={selectedNodes}
               onReset={resetToDefault}

@@ -30,7 +30,7 @@ export const NodeLibraryPanel: React.FC<Props> = ({ onAddNode }) => {
   }, [filtered]);
 
   return (
-    <div className="flex flex-col h-full bg-panel-dark border-r border-border-dark text-xs w-52 shrink-0">
+    <div className="flex flex-col h-full bg-panel-dark text-xs w-full">
       {/* 面板标题 */}
       <div className="px-3 py-2 border-b border-border-dark shrink-0">
         <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 mb-2">
