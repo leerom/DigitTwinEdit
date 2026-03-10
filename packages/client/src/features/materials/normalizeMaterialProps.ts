@@ -32,6 +32,8 @@ const ALLOWED_KEYS_BY_TYPE: Record<MaterialType, readonly string[]> = {
     'map', 'alphaMap', 'aoMap', 'aoMapIntensity',
     'lightMap', 'lightMapIntensity', 'envMap', 'envMapIntensity',
   ],
+  // NodeMaterial 通过 TSL 节点图管理属性，不使用传统属性白名单
+  NodeMaterial: [],
 };
 
 const DEFAULTS_BY_TYPE: Record<MaterialType, Record<string, unknown>> = {
@@ -60,6 +62,8 @@ const DEFAULTS_BY_TYPE: Record<MaterialType, Record<string, unknown>> = {
   MeshPhongMaterial: { shininess: 30, specular: '#111111' },
   MeshLambertMaterial: {},
   MeshBasicMaterial: {},
+  // NodeMaterial 通过 TSL 节点图管理，不使用传统默认值
+  NodeMaterial: {},
 };
 
 export function normalizeMaterialProps(

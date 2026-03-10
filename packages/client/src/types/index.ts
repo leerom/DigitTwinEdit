@@ -18,7 +18,8 @@ export type MaterialType =
   | 'MeshBasicMaterial'
   | 'MeshLambertMaterial'
   | 'MeshPhongMaterial'
-  | 'MeshPhysicalMaterial';
+  | 'MeshPhysicalMaterial'
+  | 'NodeMaterial';
 
 export type MaterialSpec = {
   type: MaterialType;
@@ -218,4 +219,74 @@ export interface Scene {
   assets: Record<string, SharedAssetReference>;
   materials?: Record<string, SharedMaterialReference>;
   settings: SceneSettings;
+}
+
+// ── NodeMaterial 节点图类型 ─────────────────────────────────────
+
+/** 节点端口的数据类型 */
+export type NodePortType =
+  | 'float'
+  | 'int'
+  | 'bool'
+  | 'vec2'
+  | 'vec3'
+  | 'vec4'
+  | 'color'   // vec3 的颜色语义子类型
+  | 'texture' // sampler2D
+  | 'mat4'
+  | 'any';    // 接受任意类型
+
+/** 节点端口（输入或输出插槽）定义 */
+export interface NodePortDef {
+  id: string;
+  label: string;
+  type: NodePortType;
+  defaultValue?: unknown; // 未连接时的降级默认值
+}
+
+/** 单个节点元数据（注册表静态定义） */
+export interface NodeTypeDef {
+  key: string;                   // 节点类型唯一 key
+  label: string;                 // UI 显示名称
+  category: string;              // 所属分类 key
+  description?: string;          // 工具提示说明
+  inputs: NodePortDef[];
+  outputs: NodePortDef[];
+  defaultParams: Record<string, unknown>; // 节点内联参数初始值
+  undeletable?: boolean;         // fragmentOutput 等不可删除节点
+}
+
+/** 存储在 React Flow 节点 data 字段中的运行时数据 */
+export interface NodeRFData {
+  typeKey: string;               // 对应 NodeTypeDef.key
+  label?: string;                // 用户自定义标签（可选）
+  params: Record<string, unknown>; // 当前参数值（可内联编辑）
+}
+
+/** 存储在数据库 material.properties.graph 的序列化格式 */
+export interface NodeGraphNode {
+  id: string;
+  type: string;                  // NodeTypeDef.key
+  position: { x: number; y: number };
+  data: NodeRFData;
+}
+
+export interface NodeGraphEdge {
+  id: string;
+  source: string;
+  sourceHandle: string;
+  target: string;
+  targetHandle: string;
+}
+
+export interface NodeGraphData {
+  version: 1;
+  nodes: NodeGraphNode[];
+  edges: NodeGraphEdge[];
+}
+
+/** NodeMaterial 的 MaterialSpec.props 结构 */
+export interface NodeMaterialProps {
+  baseType: 'standard' | 'physical'; // 底层 PBR 模型
+  graph: NodeGraphData;
 }
