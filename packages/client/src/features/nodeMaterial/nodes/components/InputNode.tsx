@@ -23,7 +23,7 @@ export const InputNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const renderInline = () => {
     const p = d.params;
     const inputCls =
-      'bg-[#0c0e14] border border-[#2d333f] text-white text-[11px] px-1.5 py-0.5 rounded focus:outline-none nodrag';
+      'bg-bg-dark border border-border-dark text-white text-[11px] px-1.5 py-0.5 rounded focus:outline-none focus:ring-1 focus:ring-accent-blue/40 nodrag';
     switch (d.typeKey) {
       case 'FloatInput':
         return (
@@ -37,14 +37,20 @@ export const InputNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         );
       case 'ColorInput':
         return (
-          <div className="flex items-center gap-1 nodrag">
-            <input
-              type="color"
-              value={p.value as string ?? '#ffffff'}
-              onChange={(e) => setParam('value', e.target.value)}
-              className="w-6 h-5 cursor-pointer rounded border-0 bg-transparent p-0"
-            />
-            <span className="text-slate-400 text-[10px]">{p.value as string ?? '#ffffff'}</span>
+          <div className="flex items-center gap-1.5 nodrag">
+            <div
+              className="w-5 h-5 rounded border border-white/20 cursor-pointer shrink-0 overflow-hidden"
+            >
+              <input
+                type="color"
+                value={p.value as string ?? '#ffffff'}
+                onChange={(e) => setParam('value', e.target.value)}
+                className="w-8 h-8 -translate-x-1 -translate-y-1 cursor-pointer border-0 bg-transparent p-0"
+              />
+            </div>
+            <span className="text-slate-400 text-[10px] font-mono">
+              {(p.value as string ?? '#ffffff').toUpperCase()}
+            </span>
           </div>
         );
       case 'Vec2Input':
