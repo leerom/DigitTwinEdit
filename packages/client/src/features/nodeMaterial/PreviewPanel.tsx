@@ -13,7 +13,7 @@ const PreviewMesh: React.FC<{ material: any | null }> = ({ material }) => {
       {material ? (
         <primitive object={material} attach="material" />
       ) : (
-        <meshStandardMaterial color="#888888" roughness={0.5} metalness={0.1} />
+        <meshStandardMaterial color="#3a3f4b" roughness={0.5} metalness={0.2} />
       )}
     </mesh>
   );
@@ -23,17 +23,32 @@ const PreviewMesh: React.FC<{ material: any | null }> = ({ material }) => {
 interface Props { material: any | null; error: string | null }
 
 export const PreviewPanel: React.FC<Props> = ({ material, error }) => (
-  <div className="h-48 bg-black border-t border-[#2d333f] relative shrink-0">
-    <Canvas camera={{ position: [0, 0, 3] }}>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[2, 3, 2]} intensity={1} />
-      <PreviewMesh material={material} />
-      <OrbitControls enableZoom={false} />
-    </Canvas>
-    {error && (
-      <div className="absolute bottom-1 left-1 right-1 text-[10px] text-red-400 bg-red-900/30 px-2 py-0.5 rounded truncate">
-        {error}
-      </div>
-    )}
+  <div className="h-52 bg-black border-t border-border-dark relative shrink-0 flex flex-col">
+    {/* 标题行 */}
+    <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-border-dark bg-panel-dark shrink-0">
+      <span className="material-symbols-outlined text-[13px] text-slate-500">view_in_ar</span>
+      <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+        预览
+      </span>
+    </div>
+
+    {/* 3D Canvas */}
+    <div className="flex-1 relative overflow-hidden">
+      <Canvas camera={{ position: [0, 0, 3] }}>
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[2, 3, 2]} intensity={1.2} />
+        <directionalLight position={[-2, -1, -2]} intensity={0.3} />
+        <PreviewMesh material={material} />
+        <OrbitControls enableZoom={false} />
+      </Canvas>
+
+      {/* 编译错误浮层 */}
+      {error && (
+        <div className="absolute inset-x-2 bottom-2 flex items-start gap-1.5 text-[10px] text-red-400 bg-red-950/80 border border-red-800/50 px-2 py-1.5 rounded backdrop-blur-sm">
+          <span className="material-symbols-outlined text-[12px] shrink-0 mt-0.5">error</span>
+          <span className="line-clamp-2 leading-relaxed">{error}</span>
+        </div>
+      )}
+    </div>
   </div>
 );

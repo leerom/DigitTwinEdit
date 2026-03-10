@@ -35,8 +35,11 @@ vi.mock('@/api/assets', () => ({
 vi.mock('@xyflow/react', () => ({
   ReactFlow: ({ children }: any) => <div data-testid="reactflow">{children}</div>,
   Background: () => null,
+  BackgroundVariant: { Dots: 'dots' },
   Controls: () => null,
+  MiniMap: () => null,
   ReactFlowProvider: ({ children }: any) => <>{children}</>,
+  ConnectionLineType: { SmoothStep: 'smoothstep' },
   useReactFlow: () => ({
     screenToFlowPosition: vi.fn(() => ({ x: 0, y: 0 })),
     fitView: vi.fn(),
