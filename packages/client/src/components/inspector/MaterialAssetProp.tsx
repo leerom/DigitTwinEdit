@@ -35,6 +35,7 @@ export const MaterialAssetProp: React.FC<Props> = ({ assetId, projectId }) => {
   const clearSaveError = useMaterialStore((s) => s.clearSaveError);
   const updateMaterialSpec = useMaterialStore((s) => s.updateMaterialSpec);
   const setPreviewSpec = useMaterialStore((s) => s.setPreviewSpec);
+  const openNodeEditor = useMaterialStore((s) => s.openNodeEditor);
   const syncMaterialAsset = useSceneStore((s) => s.syncMaterialAsset);
 
   const [localSpec, setLocalSpec] = useState<MaterialSpec>({
@@ -99,6 +100,24 @@ export const MaterialAssetProp: React.FC<Props> = ({ assetId, projectId }) => {
 
   if (isLoadingSpec) {
     return <div className="text-xs text-slate-500 p-3">加载中...</div>;
+  }
+
+  // NodeMaterial：直接显示编辑器入口，不渲染传统材质字段
+  if (localSpec.type === 'NodeMaterial') {
+    return (
+      <div className="bg-[#0c0e14] border border-[#2d333f] p-3 rounded-sm space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-slate-400">NodeMaterial（节点材质）</span>
+          <button
+            onClick={() => openNodeEditor(assetId)}
+            className="flex items-center gap-1 px-2 py-1 text-xs bg-accent-blue hover:bg-accent-blue/90 text-white rounded transition-colors"
+          >
+            <span className="material-symbols-outlined text-sm">device_hub</span>
+            打开节点编辑器
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const showBasicColorOnly =
