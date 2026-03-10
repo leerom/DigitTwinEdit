@@ -10,6 +10,7 @@ interface MaterialState {
   saveError: string | null;
   selectedMaterialId: number | null;
   previewSpec: MaterialSpec | null;
+  nodeEditorMaterialId: number | null;
 
   loadMaterials: (projectId: number) => Promise<void>;
   createMaterial: (projectId: number, name: string, type: MaterialType) => Promise<Asset>;
@@ -20,6 +21,8 @@ interface MaterialState {
   selectMaterial: (id: number | null) => void;
   clearSaveError: () => void;
   setPreviewSpec: (spec: MaterialSpec | null) => void;
+  openNodeEditor: (id: number) => void;
+  closeNodeEditor: () => void;
 }
 
 export const useMaterialStore = create<MaterialState>((set, get) => ({
@@ -28,6 +31,7 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
   saveError: null,
   selectedMaterialId: null,
   previewSpec: null,
+  nodeEditorMaterialId: null,
 
   loadMaterials: async (projectId) => {
     set({ isLoading: true });
@@ -99,4 +103,7 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
   clearSaveError: () => set({ saveError: null }),
 
   setPreviewSpec: (spec) => set({ previewSpec: spec }),
+
+  openNodeEditor: (id) => set({ nodeEditorMaterialId: id }),
+  closeNodeEditor: () => set({ nodeEditorMaterialId: null }),
 }));
