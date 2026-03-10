@@ -1,5 +1,5 @@
 // packages/client/src/features/nodeMaterial/PropertyPanel.tsx
-import React from 'react';
+import React, { useRef } from 'react';
 import type { Node } from '@xyflow/react';
 import { useReactFlow } from '@xyflow/react';
 import { NODE_REGISTRY } from './nodes/nodeRegistry';
@@ -7,16 +7,88 @@ import type { NodeRFData } from '@/types';
 
 interface Props {
   selectedNodes: Node[];
+  onReset?: () => void;
+  onExportJSON?: () => void;
+  onImportJSON?: (json: string) => void;
 }
 
-export const PropertyPanel: React.FC<Props> = ({ selectedNodes }) => {
-  const { updateNodeData } = useReactFlow();
+export const PropertyPanel: React.FC<Props> = ({
+  selectedNodes,
+  onReset,
+  onExportJSON,
+  onImportJSON,
+}) => {
+  const { updateNodeData, fitView } = useReactFlow();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!selectedNodes.length) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center gap-2 bg-panel-dark text-slate-600 select-none">
-        <span className="material-symbols-outlined text-[32px]">touch_app</span>
-        <span className="text-[11px]">点击节点查看属性</span>
+      <div className="flex-1 flex flex-col overflow-y-auto bg-panel-dark custom-scrollbar">
+        {/* GENERAL */}
+        <div className="px-3 pt-3 pb-2 border-b border-border-dark">
+          <div className="text-[9px] font-semibold uppercase tracking-widest text-slate-600 mb-2">
+            General
+          </div>
+          <button
+            onClick={onReset}
+            className="w-full flex items-center gap-1.5 px-2 py-1.5 text-[11px] text-slate-300 hover:text-white hover:bg-white/5 rounded transition-colors"
+          >
+            <span className="material-symbols-outlined text-[14px] text-slate-500">restart_alt</span>
+            重置为默认
+          </button>
+        </div>
+
+        {/* UI */}
+        <div className="px-3 pt-2 pb-2 border-b border-border-dark">
+          <div className="text-[9px] font-semibold uppercase tracking-widest text-slate-600 mb-2">
+            视图
+          </div>
+          <button
+            onClick={() => fitView({ duration: 300, padding: 0.15 })}
+            className="w-full flex items-center gap-1.5 px-2 py-1.5 text-[11px] text-slate-300 hover:text-white hover:bg-white/5 rounded transition-colors"
+          >
+            <span className="material-symbols-outlined text-[14px] text-slate-500">fit_screen</span>
+            适应视图
+          </button>
+        </div>
+
+        {/* FILE */}
+        <div className="px-3 pt-2 pb-3">
+          <div className="text-[9px] font-semibold uppercase tracking-widest text-slate-600 mb-2">
+            文件
+          </div>
+          <button
+            onClick={onExportJSON}
+            className="w-full flex items-center gap-1.5 px-2 py-1.5 text-[11px] text-slate-300 hover:text-white hover:bg-white/5 rounded transition-colors"
+          >
+            <span className="material-symbols-outlined text-[14px] text-slate-500">download</span>
+            导出 JSON
+          </button>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full flex items-center gap-1.5 px-2 py-1.5 text-[11px] text-slate-300 hover:text-white hover:bg-white/5 rounded transition-colors"
+          >
+            <span className="material-symbols-outlined text-[14px] text-slate-500">upload</span>
+            导入 JSON
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = (ev) => {
+                const text = ev.target?.result as string;
+                if (text) onImportJSON?.(text);
+              };
+              reader.readAsText(file);
+              e.target.value = '';
+            }}
+          />
+        </div>
       </div>
     );
   }

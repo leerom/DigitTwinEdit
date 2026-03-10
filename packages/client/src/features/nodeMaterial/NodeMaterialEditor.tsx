@@ -47,6 +47,7 @@ export const NodeMaterialEditor: React.FC = () => {
   const [materialName, setMaterialName] = useState('');
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fitViewFnRef = useRef<(() => void) | null>(null);
 
   const {
     nodes,
@@ -58,6 +59,7 @@ export const NodeMaterialEditor: React.FC = () => {
     loadGraph,
     undo,
     redo,
+    resetToDefault,
     canUndo,
     canRedo,
     toGraphData,
@@ -103,6 +105,30 @@ export const NodeMaterialEditor: React.FC = () => {
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
   }, [nodes, edges]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // 导出 JSON
+  const handleExportJSON = useCallback(() => {
+    const graph = toGraphData();
+    const blob = new Blob([JSON.stringify(graph, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${materialName || 'node-material'}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [toGraphData, materialName]);
+
+  // 导入 JSON
+  const handleImportJSON = useCallback((jsonStr: string) => {
+    try {
+      const graph = JSON.parse(jsonStr);
+      if (!graph?.nodes || !graph?.edges) return;
+      const { nodes: rfNodes, edges: rfEdges } = graphToFlow(graph);
+      loadGraph(rfNodes, rfEdges);
+    } catch {
+      // ignore parse errors
+    }
+  }, [loadGraph]);
+
   // 全局键盘快捷键
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -112,6 +138,10 @@ export const NodeMaterialEditor: React.FC = () => {
         e.preventDefault(); redo();
       }
       if (ctrl && e.key === 's') { e.preventDefault(); handleSave(); }
+      // F: 适应视图
+      if (!ctrl && (e.key === 'f' || e.key === 'F')) {
+        fitViewFnRef.current?.();
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -203,10 +233,16 @@ export const NodeMaterialEditor: React.FC = () => {
             onEdgesChange={onEdgesChange}
             onConnect={handleConnect}
             onAddNode={addNode}
+            onRegisterFitView={(fn) => { fitViewFnRef.current = fn; }}
           />
           {/* 右侧面板 */}
           <div className="flex flex-col w-56 shrink-0 border-l border-[#2d333f]">
-            <PropertyPanel selectedNodes={selectedNodes} />
+            <PropertyPanel
+              selectedNodes={selectedNodes}
+              onReset={resetToDefault}
+              onExportJSON={handleExportJSON}
+              onImportJSON={handleImportJSON}
+            />
             <PreviewPanel material={material} error={compileError} />
           </div>
         </div>

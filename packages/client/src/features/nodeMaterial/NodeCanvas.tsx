@@ -1,5 +1,5 @@
 // packages/client/src/features/nodeMaterial/NodeCanvas.tsx
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   ReactFlow,
   Background,
@@ -49,6 +49,7 @@ interface Props {
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
   onAddNode: (typeKey: string, position: { x: number; y: number }) => void;
+  onRegisterFitView?: (fn: () => void) => void;
 }
 
 // MiniMap 节点颜色：按 category 品类色
@@ -65,9 +66,14 @@ function miniMapNodeColor(node: Node): string {
 }
 
 const CanvasInner: React.FC<Props> = ({
-  nodes, edges, onNodesChange, onEdgesChange, onConnect, onAddNode,
+  nodes, edges, onNodesChange, onEdgesChange, onConnect, onAddNode, onRegisterFitView,
 }) => {
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, fitView } = useReactFlow();
+
+  // 注册 fitView 函数供父组件调用
+  useEffect(() => {
+    onRegisterFitView?.(fitView);
+  }, [fitView, onRegisterFitView]);
 
   const handleDrop = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {

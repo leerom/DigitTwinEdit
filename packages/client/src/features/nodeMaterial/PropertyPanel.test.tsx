@@ -6,13 +6,16 @@ import type { Node } from '@xyflow/react';
 import type { NodeRFData } from '@/types';
 
 vi.mock('@xyflow/react', () => ({
-  useReactFlow: () => ({ updateNodeData: vi.fn() }),
+  useReactFlow: () => ({ updateNodeData: vi.fn(), fitView: vi.fn() }),
 }));
 
 describe('PropertyPanel', () => {
-  it('无选中节点时显示占位符', () => {
+  it('无选中节点时显示全局操作面板', () => {
     render(<PropertyPanel selectedNodes={[]} />);
-    expect(screen.getByText('点击节点查看属性')).toBeInTheDocument();
+    expect(screen.getByText('重置为默认')).toBeInTheDocument();
+    expect(screen.getByText('适应视图')).toBeInTheDocument();
+    expect(screen.getByText('导出 JSON')).toBeInTheDocument();
+    expect(screen.getByText('导入 JSON')).toBeInTheDocument();
   });
 
   it('选中 FloatInput 节点时显示节点名称', () => {

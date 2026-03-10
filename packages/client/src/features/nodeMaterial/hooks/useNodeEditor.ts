@@ -23,6 +23,7 @@ type Action =
   | { type: 'CONNECT'; connection: Connection }
   | { type: 'ADD_NODE'; typeKey: string; position: { x: number; y: number } }
   | { type: 'LOAD_GRAPH'; nodes: RFNode[]; edges: Edge[] }
+  | { type: 'RESET_DEFAULT' }
   | { type: 'UNDO' }
   | { type: 'REDO' };
 
@@ -62,6 +63,13 @@ function reducer(state: EditorState, action: Action): EditorState {
     }
     case 'LOAD_GRAPH':
       return { nodes: action.nodes, edges: action.edges, history: [], future: [] };
+    case 'RESET_DEFAULT':
+      return {
+        nodes: DEFAULT_NODES,
+        edges: [],
+        history: [...state.history.slice(-49), { nodes: state.nodes, edges: state.edges }],
+        future: [],
+      };
     case 'UNDO': {
       if (!state.history.length) return state;
       const prev = state.history[state.history.length - 1];
@@ -127,6 +135,7 @@ export function useNodeEditor() {
   );
   const undo = useCallback(() => dispatch({ type: 'UNDO' }), []);
   const redo = useCallback(() => dispatch({ type: 'REDO' }), []);
+  const resetToDefault = useCallback(() => dispatch({ type: 'RESET_DEFAULT' }), []);
 
   const toGraphData = useCallback(
     (): NodeGraphData => ({
@@ -158,6 +167,7 @@ export function useNodeEditor() {
     loadGraph,
     undo,
     redo,
+    resetToDefault,
     canUndo: state.history.length > 0,
     canRedo: state.future.length > 0,
     toGraphData,
