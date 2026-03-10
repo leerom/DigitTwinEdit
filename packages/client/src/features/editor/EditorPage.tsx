@@ -12,6 +12,7 @@ import { InspectorPanel } from '../../components/panels/InspectorPanel';
 import { ProjectPanel } from '../../components/panels/ProjectPanel';
 import { ProgressDialog } from '../scene/components/ProgressDialog';
 import { useAutoSave } from '../scene/hooks/useAutoSave';
+import { NodeMaterialEditor } from '../nodeMaterial/NodeMaterialEditor';
 
 export function EditorPage() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -19,6 +20,7 @@ export function EditorPage() {
   const { importProgress } = useSceneStore();
   const { loadAssets } = useAssetStore();
   const { loadMaterials } = useMaterialStore();
+  const nodeEditorMaterialId = useMaterialStore((s) => s.nodeEditorMaterialId);
 
   // 加载项目、场景和资产列表
   useEffect(() => {
@@ -71,6 +73,9 @@ export function EditorPage() {
         percentage={importProgress.percentage}
         currentTask={importProgress.currentTask}
       />
+
+      {/* NodeMaterial 节点编辑器 Overlay */}
+      {nodeEditorMaterialId !== null && <NodeMaterialEditor />}
     </>
   );
 }
