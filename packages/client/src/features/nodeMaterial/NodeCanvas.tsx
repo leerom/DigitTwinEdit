@@ -3,8 +3,11 @@ import React, { useCallback } from 'react';
 import {
   ReactFlow,
   Background,
+  BackgroundVariant,
   Controls,
+  MiniMap,
   useReactFlow,
+  ConnectionLineType,
   type OnNodesChange,
   type OnEdgesChange,
   type OnConnect,
@@ -13,6 +16,31 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { NODE_TYPES } from './nodes/nodeTypes';
+import type { NodeRFData } from '@/types';
+
+// ReactFlow Controls 深色样式注入（Controls 不支持 className 深度覆盖，需要 CSS）
+const CONTROLS_STYLE: React.CSSProperties = {
+  background: '#161922',
+  border: '1px solid #2d333f',
+  borderRadius: '6px',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+};
+
+const MINIMAP_STYLE: React.CSSProperties = {
+  background: '#1e222d',
+  border: '1px solid #2d333f',
+  borderRadius: '6px',
+};
+
+const EDGE_STYLE: React.CSSProperties = {
+  stroke: '#4d5566',
+  strokeWidth: 2,
+};
+
+const CONNECTION_LINE_STYLE: React.CSSProperties = {
+  stroke: '#3b82f6',
+  strokeWidth: 2,
+};
 
 interface Props {
   nodes: Node[];
@@ -23,14 +51,21 @@ interface Props {
   onAddNode: (typeKey: string, position: { x: number; y: number }) => void;
 }
 
-// 内部组件（在 ReactFlow 上下文内，可使用 useReactFlow）
+// MiniMap 节点颜色：按 category 品类色
+function miniMapNodeColor(node: Node): string {
+  const d = node.data as unknown as NodeRFData;
+  if (!d?.typeKey) return '#2d333f';
+  const key = d.typeKey;
+  if (key === 'MaterialOutput') return '#ef4444';
+  if (key.includes('Input') || key === 'TimeNode' || key === 'UVNode') return '#2563eb';
+  if (['AddNode','SubNode','MulNode','DivNode','MixNode','DotNode','CrossNode',
+       'NormalizeNode','AbsNode','SinNode','PowNode','ClampNode'].includes(key)) return '#7c3aed';
+  if (key === 'PositionNode' || key === 'NormalNode' || key === 'NormalMapNode') return '#0891b2';
+  return '#374151';
+}
+
 const CanvasInner: React.FC<Props> = ({
-  nodes,
-  edges,
-  onNodesChange,
-  onEdgesChange,
-  onConnect,
-  onAddNode,
+  nodes, edges, onNodesChange, onEdgesChange, onConnect, onAddNode,
 }) => {
   const { screenToFlowPosition } = useReactFlow();
 
@@ -51,7 +86,7 @@ const CanvasInner: React.FC<Props> = ({
 
   return (
     <div
-      className="flex-1 h-full"
+      className="flex-1 h-full bg-bg-dark"
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
     >
@@ -63,11 +98,24 @@ const CanvasInner: React.FC<Props> = ({
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         deleteKeyCode={['Delete', 'Backspace']}
+        connectionLineStyle={CONNECTION_LINE_STYLE}
+        defaultEdgeOptions={{ style: EDGE_STYLE, type: 'smoothstep' }}
+        connectionLineType={ConnectionLineType.SmoothStep}
         fitView
         proOptions={{ hideAttribution: true }}
       >
-        <Background color="#2d333f" gap={20} />
-        <Controls />
+        <Background
+          variant={BackgroundVariant.Dots}
+          color="#2d333f"
+          gap={24}
+          size={1.5}
+        />
+        <Controls style={CONTROLS_STYLE} showInteractive={false} />
+        <MiniMap
+          style={MINIMAP_STYLE}
+          nodeColor={miniMapNodeColor}
+          maskColor="rgba(12,14,20,0.7)"
+        />
       </ReactFlow>
     </div>
   );
