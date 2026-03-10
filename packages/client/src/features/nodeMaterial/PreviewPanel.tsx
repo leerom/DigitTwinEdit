@@ -13,7 +13,7 @@ const PreviewMesh: React.FC<{ material: any | null }> = ({ material }) => {
       {material ? (
         <primitive object={material} attach="material" />
       ) : (
-        <meshStandardMaterial color="#3a3f4b" roughness={0.5} metalness={0.2} />
+        <meshStandardMaterial color="#6b7280" roughness={0.4} metalness={0.1} />
       )}
     </mesh>
   );
@@ -33,8 +33,8 @@ export const PreviewPanel: React.FC<Props> = ({ material, error }) => (
     </div>
 
     {/* 3D Canvas */}
-    <div className="flex-1 relative overflow-hidden">
-      <Canvas camera={{ position: [0, 0, 3] }}>
+    <div className="flex-1 relative overflow-hidden" style={{ minHeight: 0 }}>
+      <Canvas style={{ width: '100%', height: '100%' }} camera={{ position: [0, 0, 2.5] }}>
         <ambientLight intensity={0.6} />
         <directionalLight position={[2, 3, 2]} intensity={1.2} />
         <directionalLight position={[-2, -1, -2]} intensity={0.3} />

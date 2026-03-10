@@ -67,7 +67,28 @@
   pointer-events: auto;
 }
 
-/* Custom scrollbar styling - thin style matching code.html */
+/* ReactFlow Controls 深色主题覆盖 */
+.react-flow__controls {
+  background: #161922 !important;
+  border: 1px solid #2d333f !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.react-flow__controls-button {
+  background: #161922 !important;
+  border-bottom: 1px solid #2d333f !important;
+  fill: #94a3b8 !important;
+}
+
+.react-flow__controls-button:hover {
+  background: #1e222d !important;
+  fill: #e2e8f0 !important;
+}
+
+.react-flow__controls-button svg {
+  fill: inherit !important;
+}
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
   height: 4px;
